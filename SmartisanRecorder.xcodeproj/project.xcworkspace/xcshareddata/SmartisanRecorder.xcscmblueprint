@@ -1,0 +1,37 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "2AA281A0F4ABD70EC2064CF79EB6D304269BFF55+++C8B5300",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "2AA281A0F4ABD70EC2064CF79EB6D304269BFF55+++C8B5300" : 9223372036854775807,
+    "2AA281A0F4ABD70EC2064CF79EB6D304269BFF55+++7BDD92C" : 9223372036854775807,
+    "2AA281A0F4ABD70EC2064CF79EB6D304269BFF55+++B2EFF85" : 9223372036854775807
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "378921C6-6A50-4E3B-BFB4-EBE72FBA2619",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "2AA281A0F4ABD70EC2064CF79EB6D304269BFF55+++C8B5300" : "SmartisanRecorder\/",
+    "2AA281A0F4ABD70EC2064CF79EB6D304269BFF55+++7BDD92C" : "",
+    "2AA281A0F4ABD70EC2064CF79EB6D304269BFF55+++B2EFF85" : ""
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "SmartisanRecorder",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "SmartisanRecorder.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/sunShuShu\/SmartisanRecorder.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "2AA281A0F4ABD70EC2064CF79EB6D304269BFF55+++7BDD92C"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/sunShuShu\/SmartisanRecorder.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "2AA281A0F4ABD70EC2064CF79EB6D304269BFF55+++B2EFF85"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/sunShuShu\/SmartisanRecorder.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "2AA281A0F4ABD70EC2064CF79EB6D304269BFF55+++C8B5300"
+    }
+  ]
+}
