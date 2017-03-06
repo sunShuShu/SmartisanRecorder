@@ -7,17 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		25CCF6C01E6440EF00C8424A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25CCF6BF1E6440EF00C8424A /* AppDelegate.swift */; };
-		25CCF6C21E6440EF00C8424A /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25CCF6C11E6440EF00C8424A /* ViewController.swift */; };
+		253BCED61E6D5C0E00C6F6BE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253BCED41E6D5C0E00C6F6BE /* AppDelegate.swift */; };
+		253BCED71E6D5C0E00C6F6BE /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253BCED51E6D5C0E00C6F6BE /* ViewController.swift */; };
+		253BCED91E6D5CA400C6F6BE /* Recorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253BCED81E6D5CA400C6F6BE /* Recorder.swift */; };
 		25CCF6C51E6440EF00C8424A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 25CCF6C31E6440EF00C8424A /* Main.storyboard */; };
 		25CCF6C71E6440EF00C8424A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 25CCF6C61E6440EF00C8424A /* Assets.xcassets */; };
 		25CCF6CA1E6440EF00C8424A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 25CCF6C81E6440EF00C8424A /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		253BCED41E6D5C0E00C6F6BE /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		253BCED51E6D5C0E00C6F6BE /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		253BCED81E6D5CA400C6F6BE /* Recorder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Recorder.swift; sourceTree = "<group>"; };
+		254602DE1E6D9A9500D83A97 /* SmartisanRecorder.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SmartisanRecorder.entitlements; sourceTree = "<group>"; };
 		25CCF6BC1E6440EF00C8424A /* SmartisanRecorder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SmartisanRecorder.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		25CCF6BF1E6440EF00C8424A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		25CCF6C11E6440EF00C8424A /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		25CCF6C41E6440EF00C8424A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		25CCF6C61E6440EF00C8424A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		25CCF6C91E6440EF00C8424A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -35,11 +38,57 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		253BCECF1E6D5B4500C6F6BE /* AudioTools */ = {
+			isa = PBXGroup;
+			children = (
+				253BCED81E6D5CA400C6F6BE /* Recorder.swift */,
+			);
+			path = AudioTools;
+			sourceTree = "<group>";
+		};
+		253BCED01E6D5B4500C6F6BE /* Model */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		253BCED11E6D5B4500C6F6BE /* Others */ = {
+			isa = PBXGroup;
+			children = (
+				253BCED41E6D5C0E00C6F6BE /* AppDelegate.swift */,
+				253BCED51E6D5C0E00C6F6BE /* ViewController.swift */,
+			);
+			path = Others;
+			sourceTree = "<group>";
+		};
+		253BCED21E6D5B4500C6F6BE /* View */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		253BCED31E6D5B4500C6F6BE /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = ViewController;
+			sourceTree = "<group>";
+		};
+		254602DB1E6D9A9500D83A97 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		25CCF6B31E6440EF00C8424A = {
 			isa = PBXGroup;
 			children = (
 				25CCF6BE1E6440EF00C8424A /* SmartisanRecorder */,
 				25CCF6BD1E6440EF00C8424A /* Products */,
+				254602DB1E6D9A9500D83A97 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -54,8 +103,12 @@
 		25CCF6BE1E6440EF00C8424A /* SmartisanRecorder */ = {
 			isa = PBXGroup;
 			children = (
-				25CCF6BF1E6440EF00C8424A /* AppDelegate.swift */,
-				25CCF6C11E6440EF00C8424A /* ViewController.swift */,
+				254602DE1E6D9A9500D83A97 /* SmartisanRecorder.entitlements */,
+				253BCECF1E6D5B4500C6F6BE /* AudioTools */,
+				253BCED01E6D5B4500C6F6BE /* Model */,
+				253BCED21E6D5B4500C6F6BE /* View */,
+				253BCED31E6D5B4500C6F6BE /* ViewController */,
+				253BCED11E6D5B4500C6F6BE /* Others */,
 				25CCF6C31E6440EF00C8424A /* Main.storyboard */,
 				25CCF6C61E6440EF00C8424A /* Assets.xcassets */,
 				25CCF6C81E6440EF00C8424A /* LaunchScreen.storyboard */,
@@ -96,7 +149,16 @@
 				TargetAttributes = {
 					25CCF6BB1E6440EF00C8424A = {
 						CreatedOnToolsVersion = 8.2.1;
+						LastSwiftMigration = 0820;
 						ProvisioningStyle = Manual;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 0;
+							};
+							com.apple.InterAppAudio = {
+								enabled = 0;
+							};
+						};
 					};
 				};
 			};
@@ -136,8 +198,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				25CCF6C21E6440EF00C8424A /* ViewController.swift in Sources */,
-				25CCF6C01E6440EF00C8424A /* AppDelegate.swift in Sources */,
+				253BCED71E6D5C0E00C6F6BE /* ViewController.swift in Sources */,
+				253BCED61E6D5C0E00C6F6BE /* AppDelegate.swift in Sources */,
+				253BCED91E6D5CA400C6F6BE /* Recorder.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -260,13 +323,18 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: 琦 宋 (TRWTBPAGG3)";
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = SmartisanRecorder/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.sunshushu.SmartisanRecorder;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "共享及行业专用描述文件";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -274,6 +342,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = SmartisanRecorder/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -281,6 +350,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.sunshushu.SmartisanRecorder;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
