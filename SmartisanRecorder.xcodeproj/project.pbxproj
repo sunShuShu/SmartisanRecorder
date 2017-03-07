@@ -12,12 +12,23 @@
 		253648241E6EACC400476E12 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 253648261E6EACC400476E12 /* Localizable.strings */; };
 		2536482E1E6EAFD200476E12 /* SMRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2536482D1E6EAFD200476E12 /* SMRecorder.swift */; };
 		253648331E6EBDCA00476E12 /* SMAudioTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253648321E6EBDCA00476E12 /* SMAudioTools.swift */; };
+		2536483B1E6ECF6D00476E12 /* SmartisanRecorderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2536483A1E6ECF6D00476E12 /* SmartisanRecorderTests.swift */; };
 		253EB9431E6E841D00E9849E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 253EB93F1E6E841D00E9849E /* Assets.xcassets */; };
 		253EB9451E6E841D00E9849E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 253EB9411E6E841D00E9849E /* LaunchScreen.storyboard */; };
 		253EB9461E6E841D00E9849E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 253EB9421E6E841D00E9849E /* Main.storyboard */; };
 		253EB9501E6E857A00E9849E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253EB94E1E6E857A00E9849E /* AppDelegate.swift */; };
 		25C4E45F1E6E935D00A2DFD0 /* SMExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C4E45E1E6E935D00A2DFD0 /* SMExtension.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2536483D1E6ECF6D00476E12 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 25CCF6B41E6440EF00C8424A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 25CCF6BB1E6440EF00C8424A;
+			remoteInfo = SmartisanRecorder;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		252AE9171E6E88AC005FED98 /* SMLocalize.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMLocalize.swift; sourceTree = "<group>"; };
@@ -26,6 +37,9 @@
 		2536482B1E6EADB500476E12 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		2536482D1E6EAFD200476E12 /* SMRecorder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMRecorder.swift; sourceTree = "<group>"; };
 		253648321E6EBDCA00476E12 /* SMAudioTools.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMAudioTools.swift; sourceTree = "<group>"; };
+		253648381E6ECF6D00476E12 /* SmartisanRecorderTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SmartisanRecorderTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2536483A1E6ECF6D00476E12 /* SmartisanRecorderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartisanRecorderTests.swift; sourceTree = "<group>"; };
+		2536483C1E6ECF6D00476E12 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		253EB93F1E6E841D00E9849E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		253EB9411E6E841D00E9849E /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		253EB9421E6E841D00E9849E /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
@@ -36,6 +50,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		253648351E6ECF6D00476E12 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		25CCF6B91E6440EF00C8424A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -52,6 +73,15 @@
 				2536482D1E6EAFD200476E12 /* SMRecorder.swift */,
 			);
 			path = Handler;
+			sourceTree = "<group>";
+		};
+		253648391E6ECF6D00476E12 /* SmartisanRecorderTests */ = {
+			isa = PBXGroup;
+			children = (
+				2536483A1E6ECF6D00476E12 /* SmartisanRecorderTests.swift */,
+				2536483C1E6ECF6D00476E12 /* Info.plist */,
+			);
+			path = SmartisanRecorderTests;
 			sourceTree = "<group>";
 		};
 		253BCED01E6D5B4500C6F6BE /* Model */ = {
@@ -108,6 +138,7 @@
 			isa = PBXGroup;
 			children = (
 				25CCF6BE1E6440EF00C8424A /* SmartisanRecorder */,
+				253648391E6ECF6D00476E12 /* SmartisanRecorderTests */,
 				25CCF6BD1E6440EF00C8424A /* Products */,
 				254602DB1E6D9A9500D83A97 /* Frameworks */,
 			);
@@ -117,6 +148,7 @@
 			isa = PBXGroup;
 			children = (
 				25CCF6BC1E6440EF00C8424A /* SmartisanRecorder.app */,
+				253648381E6ECF6D00476E12 /* SmartisanRecorderTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -139,6 +171,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		253648371E6ECF6D00476E12 /* SmartisanRecorderTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2536483F1E6ECF6D00476E12 /* Build configuration list for PBXNativeTarget "SmartisanRecorderTests" */;
+			buildPhases = (
+				253648341E6ECF6D00476E12 /* Sources */,
+				253648351E6ECF6D00476E12 /* Frameworks */,
+				253648361E6ECF6D00476E12 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2536483E1E6ECF6D00476E12 /* PBXTargetDependency */,
+			);
+			name = SmartisanRecorderTests;
+			productName = SmartisanRecorderTests;
+			productReference = 253648381E6ECF6D00476E12 /* SmartisanRecorderTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		25CCF6BB1E6440EF00C8424A /* SmartisanRecorder */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 25CCF6CE1E6440EF00C8424A /* Build configuration list for PBXNativeTarget "SmartisanRecorder" */;
@@ -166,6 +216,11 @@
 				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = sunShuShu;
 				TargetAttributes = {
+					253648371E6ECF6D00476E12 = {
+						CreatedOnToolsVersion = 8.2.1;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 25CCF6BB1E6440EF00C8424A;
+					};
 					25CCF6BB1E6440EF00C8424A = {
 						CreatedOnToolsVersion = 8.2.1;
 						DevelopmentTeam = M754JW8837;
@@ -197,11 +252,19 @@
 			projectRoot = "";
 			targets = (
 				25CCF6BB1E6440EF00C8424A /* SmartisanRecorder */,
+				253648371E6ECF6D00476E12 /* SmartisanRecorderTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		253648361E6ECF6D00476E12 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		25CCF6BA1E6440EF00C8424A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -216,6 +279,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		253648341E6ECF6D00476E12 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2536483B1E6ECF6D00476E12 /* SmartisanRecorderTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		25CCF6B81E6440EF00C8424A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -231,6 +302,14 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		2536483E1E6ECF6D00476E12 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 25CCF6BB1E6440EF00C8424A /* SmartisanRecorder */;
+			targetProxy = 2536483D1E6ECF6D00476E12 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin PBXVariantGroup section */
 		253648261E6EACC400476E12 /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
@@ -244,6 +323,32 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		253648401E6ECF6D00476E12 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = SmartisanRecorderTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.sunshushu.SmartisanRecorderTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SmartisanRecorder.app/SmartisanRecorder";
+			};
+			name = Debug;
+		};
+		253648411E6ECF6D00476E12 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = SmartisanRecorderTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.sunshushu.SmartisanRecorderTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SmartisanRecorder.app/SmartisanRecorder";
+			};
+			name = Release;
+		};
 		25CCF6CC1E6440EF00C8424A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -382,6 +487,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		2536483F1E6ECF6D00476E12 /* Build configuration list for PBXNativeTarget "SmartisanRecorderTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				253648401E6ECF6D00476E12 /* Debug */,
+				253648411E6ECF6D00476E12 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		25CCF6B71E6440EF00C8424A /* Build configuration list for PBXProject "SmartisanRecorder" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
