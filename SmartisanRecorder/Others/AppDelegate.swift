@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AVFoundation
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -16,7 +17,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        //TODO:Config audio session category
+        //Config audio session category
+        let session = AVAudioSession.sharedInstance()
+        var options = AVAudioSessionCategoryOptions.allowBluetooth
+        if #available(iOS 10.0, *) {
+            options.insert(.allowBluetoothA2DP)
+            options.insert(.allowAirPlay)
+        }
+        do {
+            try session.setCategory(AVAudioSessionCategoryPlayAndRecord, with: options)
+            try session.setActive(true)
+        } catch {
+            print(error)
+        }
+        
         return true
     }
 
