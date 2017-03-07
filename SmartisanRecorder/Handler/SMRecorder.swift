@@ -16,6 +16,7 @@ class SMRecorder: NSObject, AVAudioRecorderDelegate {
     static let qualityLowSampleRate = 8_000
     static let qualityDefault = QualitySettings.medium
     private static let fileNameDefaultPrefix = "Rec_"
+    private static let fileNameDefaultFormat = "%@%03d" //like Rec_012
     private static let kQuality = "kSoundQuality"
     private static let docDirectory = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/"
     
@@ -40,7 +41,7 @@ class SMRecorder: NSObject, AVAudioRecorderDelegate {
         }
     }
     
-    //MARK:- Settings
+    //MARK:- Settings and status
     enum QualitySettings: Int {
         case high, medium, low
         var sampleRate: Int {
@@ -73,18 +74,33 @@ class SMRecorder: NSObject, AVAudioRecorderDelegate {
         }
     }
     
-    var defaultFileName: String = {
+    let defaultFileName: String = {
         var finalFileName: String?
         let filePathWithoutNumber = SMRecorder.docDirectory + SMRecorder.fileNameDefaultPrefix
         var fileNameNumber = 0
         repeat {
             fileNameNumber += 1
-            finalFileName = String(format: "%@%03d", filePathWithoutNumber, fileNameNumber)
+            finalFileName = String(format: SMRecorder.fileNameDefaultFormat, filePathWithoutNumber, fileNameNumber)
         } while (FileManager.default.fileExists(atPath: finalFileName!))
-        return String(format: "%@%03d", SMRecorder.fileNameDefaultPrefix, fileNameNumber)
+        return String(format: SMRecorder.fileNameDefaultFormat, SMRecorder.fileNameDefaultPrefix, fileNameNumber)
     }()
     
-    //MARK:- Control
+    var currentTime: TimeInterval {
+        guard audioRecorder != nil else {
+            return 0
+        }
+        return audioRecorder!.currentTime
+    }
+    
+    var powerLevel: Double {
+        guard audioRecorder != nil else {
+            return 0
+        }
+        audioRecorder!.updateMeters()
+        return Double(audioRecorder!.averagePower(forChannel: 0))
+    }
+    
+    //MARK:- Record control
     func start() {
         guard AVAudioSession().recordPermission() == .granted else {
             return
@@ -96,12 +112,6 @@ class SMRecorder: NSObject, AVAudioRecorderDelegate {
         audioRecorder?.pause()
     }
 
-    /// Stop and save record
-    ///
-    /// - Parameters:
-    ///   - name: file name (can't be empty)
-    ///   - block: call when save completed
-    /// - Returns: return false if the file name is duplicated or empty
     func save(with name:String, complete block: @escaping (Bool)->()) -> Bool {
         guard name.isEmpty == false && FileManager.default.fileExists(atPath: SMRecorder.docDirectory + name) == false else {
             return false
