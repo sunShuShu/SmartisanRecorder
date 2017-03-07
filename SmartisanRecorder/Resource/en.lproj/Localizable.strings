@@ -1,0 +1,13 @@
+/* 
+  Localizable.strings
+  SmartisanRecorder
+
+  Created by sunda on 07/03/2017.
+  Copyright © 2017 sunShuShu. All rights reserved.
+*/
+
+"kPromptTitle" = "提示";
+"kMicPermission" = "如需录音，请在设置中开启麦克风访问权限";
+"kGoToSetPermission" = "前往设置";
+"kCancel" = "取消";
+"kOK" = "好";
