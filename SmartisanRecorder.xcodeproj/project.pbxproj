@@ -18,6 +18,7 @@
 		253EB9461E6E841D00E9849E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 253EB9421E6E841D00E9849E /* Main.storyboard */; };
 		253EB9501E6E857A00E9849E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253EB94E1E6E857A00E9849E /* AppDelegate.swift */; };
 		25C4E45F1E6E935D00A2DFD0 /* SMExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C4E45E1E6E935D00A2DFD0 /* SMExtension.swift */; };
+		25E28DDF1E6F9E8A0008E066 /* SMWaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25E28DDE1E6F9E8A0008E066 /* SMWaveformView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +48,7 @@
 		253EB94F1E6E857A00E9849E /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		25C4E45E1E6E935D00A2DFD0 /* SMExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMExtension.swift; sourceTree = "<group>"; };
 		25CCF6BC1E6440EF00C8424A /* SmartisanRecorder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SmartisanRecorder.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		25E28DDE1E6F9E8A0008E066 /* SMWaveformView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMWaveformView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +96,7 @@
 		253BCED21E6D5B4500C6F6BE /* View */ = {
 			isa = PBXGroup;
 			children = (
+				25E28DDE1E6F9E8A0008E066 /* SMWaveformView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -297,6 +300,7 @@
 				252AE9181E6E88AC005FED98 /* SMLocalize.swift in Sources */,
 				2536482E1E6EAFD200476E12 /* SMRecorder.swift in Sources */,
 				25C4E45F1E6E935D00A2DFD0 /* SMExtension.swift in Sources */,
+				25E28DDF1E6F9E8A0008E066 /* SMWaveformView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -494,6 +498,7 @@
 				253648411E6ECF6D00476E12 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		25CCF6B71E6440EF00C8424A /* Build configuration list for PBXProject "SmartisanRecorder" */ = {
 			isa = XCConfigurationList;

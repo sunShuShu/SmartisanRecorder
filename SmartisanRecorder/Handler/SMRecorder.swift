@@ -145,5 +145,4 @@ class SMRecorder: NSObject, AVAudioRecorderDelegate {
             saveCompleteBlock?(false)
         }
     }
-
 }

@@ -12,9 +12,22 @@ import AVFoundation
 
 class SMMainPageViewController: UIViewController {
     
+    @IBOutlet weak var scrollView: UIScrollView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let waveformView = SMWaveformView()
+        var simulatData = [CGFloat]()
+        for _ in 0..<100 * 50 {
+             simulatData.append(CGFloat(arc4random() % 200))
+        }
+        waveformView.powerLevel = simulatData
+        
+        waveformView.backgroundColor = UIColor.white
+        waveformView.frame = CGRect(x: 0, y: 0, width: waveformView.powerLevel.count, height: 300)
+        scrollView.addSubview(waveformView)
+        scrollView.contentSize = waveformView.bounds.size
     }
     
     private func checkPermission() {
