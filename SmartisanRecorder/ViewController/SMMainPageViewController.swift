@@ -14,20 +14,31 @@ class SMMainPageViewController: UIViewController {
     
     @IBOutlet weak var scrollView: UIScrollView!
     
+    private var recoder = SMRecorder()
+    let waveformView = SMWaveformView()
+    let audioMeter = SMAudioMeter(resultRange: 200)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let waveformView = SMWaveformView()
-        var simulatData = [CGFloat]()
-        for _ in 0..<100 * 50 {
-             simulatData.append(CGFloat(arc4random() % 200))
-        }
-        waveformView.powerLevel = simulatData
-        
+        recoder.record()
+        Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(timerFire), userInfo: nil, repeats: true)
         waveformView.backgroundColor = UIColor.white
-        waveformView.frame = CGRect(x: 0, y: 0, width: waveformView.powerLevel.count, height: 300)
+        waveformView.frame = CGRect(x: 0, y: 0, width: 1000, height: 300)
         scrollView.addSubview(waveformView)
         scrollView.contentSize = waveformView.bounds.size
+        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + 10) {
+            self.recoder.save(with: "Rec_006", complete: { (result) in
+                print(result)
+            })
+        }
+    }
+    
+    @objc private func timerFire() {
+        let db = recoder.powerLevel
+        let amp = audioMeter.linearLevel(with: db)
+        waveformView.powerLevel.append(CGFloat(amp))
+        waveformView.powerLevel = waveformView.powerLevel
     }
     
     private func checkPermission() {

@@ -14,7 +14,13 @@ struct SMAudioMeter {
     
     private let scaleFactor: Float
     private var meterTable = [Float]()
-    init() {
+    private let resultRange: Float
+    
+    /// init
+    ///
+    /// - Parameter resultRange: range of linearLevel()'s return value is 0 ~ resultRange
+    init(resultRange: Float) {
+        self.resultRange = resultRange
         let tableSize: Int = Int(SMAudioMeter.minDB / SMAudioMeter.dbResulution + 1)
         scaleFactor = 1.0 / SMAudioMeter.dbResulution
         
@@ -26,7 +32,8 @@ struct SMAudioMeter {
             let decibels = Float(index) * SMAudioMeter.dbResulution
             let amp = dbToAmp(db: decibels)
             let adjAmp = (amp - minAmp) * invAmpRange
-            meterTable[index] = adjAmp
+            let zoomedAmp = adjAmp * resultRange
+            meterTable.append(zoomedAmp)
         }
     }
     
@@ -34,7 +41,8 @@ struct SMAudioMeter {
         if power < SMAudioMeter.minDB {
             return 0
         } else if power > 0 {
-            return 1
+            return resultRange
+            
         } else {
             let index = Int(power * scaleFactor)
             let level = meterTable[index]

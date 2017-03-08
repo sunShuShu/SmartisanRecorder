@@ -11,19 +11,20 @@ import AVFoundation
 
 class SMRecorder: NSObject, AVAudioRecorderDelegate {
     
-    static let qualityHighSampleRate = 48_000 //Hz
-    static let qualityMediumSampleRate = 24_000
-    static let qualityLowSampleRate = 8_000
-    static let qualityDefault = QualitySettings.medium
-    private static let fileNameDefaultPrefix = "Rec_"
-    private static let fileNameDefaultFormat = "%@%03d" //like Rec_012
+    private static let qualityHighSampleRate = 48_000 //Hz
+    private static let qualityMediumSampleRate = 24_000
+    private static let qualityLowSampleRate = 8_000
+    private static let qualityDefault = QualitySettings.medium
+    private static let fileSuffix = ".wav"
+    private static let fileNameDefaultFormat = "Rec_%03d" + SMRecorder.fileSuffix //like Rec_012.wav
+    
     private static let kQuality = "kSoundQuality"
     private static let docDirectory = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/"
     
     private var audioRecorder: AVAudioRecorder?
     override init() {
         super.init()
-        let urlPath = NSTemporaryDirectory() + defaultFileName
+        let urlPath = SMRecorder.docDirectory + defaultFileName
         let settings: [String : Any] = [AVFormatIDKey : kAudioFormatLinearPCM,
                                         AVSampleRateKey : SMRecorder.soundQuality.sampleRate,
                                         AVNumberOfChannelsKey : 1,
@@ -32,13 +33,11 @@ class SMRecorder: NSObject, AVAudioRecorderDelegate {
             try audioRecorder = AVAudioRecorder(url: URL(fileURLWithPath: urlPath), settings:settings)
         } catch {
             print(error) //TODO:Delete catch before release,It will never execute if URL and settings are rigth
+            assert(false)
         }
-        if audioRecorder != nil {
-            audioRecorder?.delegate = self
-            audioRecorder?.prepareToRecord()
-        } else {
-            audioRecorder = nil
-        }
+        audioRecorder?.delegate = self
+        audioRecorder?.isMeteringEnabled = true
+        audioRecorder?.prepareToRecord()
     }
     
     //MARK:- Settings and status
@@ -75,14 +74,13 @@ class SMRecorder: NSObject, AVAudioRecorderDelegate {
     }
     
     let defaultFileName: String = {
-        var finalFileName: String?
-        let filePathWithoutNumber = SMRecorder.docDirectory + SMRecorder.fileNameDefaultPrefix
         var fileNameNumber = 0
+        var tempPath: String?
         repeat {
             fileNameNumber += 1
-            finalFileName = String(format: SMRecorder.fileNameDefaultFormat, filePathWithoutNumber, fileNameNumber)
-        } while (FileManager.default.fileExists(atPath: finalFileName!))
-        return String(format: SMRecorder.fileNameDefaultFormat, SMRecorder.fileNameDefaultPrefix, fileNameNumber)
+            tempPath = SMRecorder.docDirectory + String(format: SMRecorder.fileNameDefaultFormat, fileNameNumber)
+        } while (FileManager.default.fileExists(atPath: tempPath!))
+        return String(format: SMRecorder.fileNameDefaultFormat, fileNameNumber)
     }()
     
     var currentTime: TimeInterval {
@@ -92,20 +90,25 @@ class SMRecorder: NSObject, AVAudioRecorderDelegate {
         return audioRecorder!.currentTime
     }
     
-    var powerLevel: Double {
+    var powerLevel: Float {
         guard audioRecorder != nil else {
-            return 0
+            return -160 //Device returning value of -160 dB indicates minimum power
         }
         audioRecorder!.updateMeters()
-        return Double(audioRecorder!.averagePower(forChannel: 0))
+        return audioRecorder!.averagePower(forChannel: 0)
     }
     
     //MARK:- Record control
-    func start() {
+    
+    /// Start record
+    ///
+    /// - Returns: return true if permission granted
+    func record() -> Bool {
         guard AVAudioSession().recordPermission() == .granted else {
-            return
+            return false
         }
         audioRecorder?.record()
+        return true
     }
     
     func pause() {
@@ -113,35 +116,46 @@ class SMRecorder: NSObject, AVAudioRecorderDelegate {
     }
 
     func save(with name:String, complete block: @escaping (Bool)->()) -> Bool {
-        guard name.isEmpty == false && FileManager.default.fileExists(atPath: SMRecorder.docDirectory + name) == false else {
+        
+        pause()
+        
+        guard name.isEmpty == false else {
             return false
         }
-        audioRecorder?.stop()
-        finalFileName = name
+        let fileNameWithSuffix = name + SMRecorder.fileSuffix
+        let fileExist = fileNameWithSuffix != defaultFileName && FileManager.default.fileExists(atPath: SMRecorder.docDirectory + fileNameWithSuffix)
+        guard fileExist == false else {
+            return false
+        }
+        
+        finalFileName = fileNameWithSuffix
         saveCompleteBlock = block
+        audioRecorder?.stop()
         return true
     }
     
-    private var finalFileName: String?
+    private var finalFileName = ""
     private var saveCompleteBlock: ((Bool)->())?
     
     //MARK:- Delegate
     func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
-        guard finalFileName != nil else {
-            return
-        }
         if flag == true {
-            let fromPath = SMRecorder.docDirectory + defaultFileName
-            let toPath = NSTemporaryDirectory() + finalFileName!
-            do {
-                try FileManager.default.copyItem(atPath: fromPath, toPath: toPath)
-            } catch {
-                print(error)
-                saveCompleteBlock?(false)
+            let defaultFilePath = SMRecorder.docDirectory + defaultFileName
+            let finalFilePath = SMRecorder.docDirectory + finalFileName
+            if defaultFilePath == finalFilePath {
+                saveCompleteBlock?(true)
+            } else {
+                do {
+                    try FileManager.default.moveItem(atPath: defaultFilePath, toPath: finalFilePath)
+                } catch {
+                    print(error)
+                    assert(false)
+                    saveCompleteBlock?(false)
+                }
+                saveCompleteBlock?(true)
             }
-            saveCompleteBlock?(true)
         } else {
-            print("Record save faile!")
+            assert(false)
             saveCompleteBlock?(false)
         }
     }

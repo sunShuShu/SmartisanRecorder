@@ -37,11 +37,63 @@ class SMRecorderTest: XCTestCase {
         XCTAssertFalse(FileManager.default.fileExists(atPath: testPath), "Default record file name is duplicated")
     }
     
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    func testSave() {
+        let recorder1 = SMRecorder()
+        XCTAssertTrue(recorder1.record())
+        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + 0.5) {
+            let result = recorder1.save(with: recorder1.defaultFileName, complete: { (result) in
+                XCTAssertTrue(result)
+            })
+            XCTAssertTrue(result)
+        }
+        
+        let recorder2 = SMRecorder()
+        XCTAssertTrue(recorder2.record())
+        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + 0.5) {
+            let result = recorder2.save(with: "Rec_001", complete: { (result) in
+                XCTAssertTrue(true)
+            })
+            XCTAssertFalse(result)
+        }
+        
+        let recorder3 = SMRecorder()
+        XCTAssertTrue(recorder3.record())
+        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + 0.5) {
+            let result = recorder3.save(with: "\(arc4random() % 1000000)", complete: { (result) in
+                XCTAssertTrue(result)
+            })
+            XCTAssertTrue(result)
+        }
+        
+        let recorder4 = SMRecorder()
+        XCTAssertTrue(recorder4.record())
+        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + 0.5) {
+            let result = recorder4.save(with: "", complete: { (result) in
+                XCTAssertTrue(true)
+            })
+            XCTAssertFalse(result)
         }
     }
     
+//    func testPerformanceExample() {
+//        // This is an example of a performance test case.
+//        self.measure {
+//            // Put the code you want to measure the time of here.
+//        }
+//    }
+    
+}
+
+class SMAudioToolsTest: XCTestCase {
+    func testLinearLevel() {
+        for _ in 0..<10 {
+            let resultRange =  Float(arc4random() % 640)
+            let audioMeter = SMAudioMeter(resultRange: resultRange)
+            for _ in 0..<100 {
+                let linearLevel = audioMeter.linearLevel(with: -Float(arc4random() % 160))
+                XCTAssertLessThanOrEqual(linearLevel, resultRange)
+                XCTAssertGreaterThanOrEqual(linearLevel, 0)
+            }
+        }
+    }
 }
