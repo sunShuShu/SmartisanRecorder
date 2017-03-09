@@ -37,44 +37,6 @@ class SMRecorderTest: XCTestCase {
         XCTAssertFalse(FileManager.default.fileExists(atPath: testPath), "Default record file name is duplicated")
     }
     
-    func testSave() {
-        let recorder1 = SMRecorder()
-        XCTAssertTrue(recorder1.record())
-        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + 0.5) {
-            let result = recorder1.save(with: recorder1.defaultFileName, complete: { (result) in
-                XCTAssertTrue(result)
-            })
-            XCTAssertTrue(result)
-        }
-        
-        let recorder2 = SMRecorder()
-        XCTAssertTrue(recorder2.record())
-        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + 0.5) {
-            let result = recorder2.save(with: "Rec_001", complete: { (result) in
-                XCTAssertTrue(true)
-            })
-            XCTAssertFalse(result)
-        }
-        
-        let recorder3 = SMRecorder()
-        XCTAssertTrue(recorder3.record())
-        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + 0.5) {
-            let result = recorder3.save(with: "\(arc4random() % 1000000)", complete: { (result) in
-                XCTAssertTrue(result)
-            })
-            XCTAssertTrue(result)
-        }
-        
-        let recorder4 = SMRecorder()
-        XCTAssertTrue(recorder4.record())
-        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + 0.5) {
-            let result = recorder4.save(with: "", complete: { (result) in
-                XCTAssertTrue(true)
-            })
-            XCTAssertFalse(result)
-        }
-    }
-    
 //    func testPerformanceExample() {
 //        // This is an example of a performance test case.
 //        self.measure {
@@ -94,6 +56,22 @@ class SMAudioToolsTest: XCTestCase {
                 XCTAssertLessThanOrEqual(linearLevel, resultRange)
                 XCTAssertGreaterThanOrEqual(linearLevel, 0)
             }
+        }
+    }
+}
+
+class SMAudioFileSamplerTest: XCTestCase {
+    func testSimple() {
+        self.measure {
+            let exp = self.expectation(description: "Audio file sample")
+            let path = Bundle(for: type(of: self)).path(forResource: "guitar", ofType: "wav")
+            SMAudioFileSampler.sample(url: URL(fileURLWithPath: path!), countPerSecond: 50, completion: { (sampleData) in
+                XCTAssertNotNil(sampleData)
+                exp.fulfill()
+            })
+        }
+        waitForExpectations(timeout: 60) { (error) in
+            XCTAssertTrue(true)
         }
     }
 }

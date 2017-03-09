@@ -33,15 +33,15 @@ class SMWaveformView: UIView {
         let path = CGMutablePath()
         for (index, powerLevel) in powerLevel.enumerated() {
             let x = CGFloat(index) * lineWidth
-            let startY = (bounds.size.height - powerLevel) / 2
+            let startY = center.y - powerLevel / 2
             let endY = startY + powerLevel
             path.move(to: CGPoint(x: x, y: startY))
             path.addLine(to: CGPoint(x: x, y: endY))
         }
         
-        contex?.addPath(path)
-        contex?.setStrokeColor(color)
-        contex?.setLineWidth(lineWidth)
-        contex?.drawPath(using: .stroke)
+        contex!.addPath(path)
+        contex!.setStrokeColor(color)
+        contex!.setLineWidth(lineWidth)
+        contex!.drawPath(using: .stroke)
     }
 }

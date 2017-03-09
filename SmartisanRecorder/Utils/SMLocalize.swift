@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct SMLocalize {
+class SMLocalize {
     enum LocalizedStringKey: String {
         case promptTitle = "kPromptTitle"
         case micPermission = "kMicPermission"

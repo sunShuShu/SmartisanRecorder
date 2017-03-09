@@ -17,6 +17,9 @@
 		253EB9451E6E841D00E9849E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 253EB9411E6E841D00E9849E /* LaunchScreen.storyboard */; };
 		253EB9461E6E841D00E9849E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 253EB9421E6E841D00E9849E /* Main.storyboard */; };
 		253EB9501E6E857A00E9849E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253EB94E1E6E857A00E9849E /* AppDelegate.swift */; };
+		255FF2571E70FB1600D4ECBD /* SMAudioFileSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 255FF2561E70FB1600D4ECBD /* SMAudioFileSampler.swift */; };
+		255FF25E1E714CFC00D4ECBD /* drums.wav in Resources */ = {isa = PBXBuildFile; fileRef = 255FF25C1E714CFC00D4ECBD /* drums.wav */; };
+		255FF25F1E714CFC00D4ECBD /* guitar.wav in Resources */ = {isa = PBXBuildFile; fileRef = 255FF25D1E714CFC00D4ECBD /* guitar.wav */; };
 		25C4E45F1E6E935D00A2DFD0 /* SMExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C4E45E1E6E935D00A2DFD0 /* SMExtension.swift */; };
 		25E28DDF1E6F9E8A0008E066 /* SMWaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25E28DDE1E6F9E8A0008E066 /* SMWaveformView.swift */; };
 /* End PBXBuildFile section */
@@ -46,6 +49,9 @@
 		253EB9421E6E841D00E9849E /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		253EB94E1E6E857A00E9849E /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		253EB94F1E6E857A00E9849E /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		255FF2561E70FB1600D4ECBD /* SMAudioFileSampler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMAudioFileSampler.swift; sourceTree = "<group>"; };
+		255FF25C1E714CFC00D4ECBD /* drums.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = drums.wav; sourceTree = "<group>"; };
+		255FF25D1E714CFC00D4ECBD /* guitar.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = guitar.wav; sourceTree = "<group>"; };
 		25C4E45E1E6E935D00A2DFD0 /* SMExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMExtension.swift; sourceTree = "<group>"; };
 		25CCF6BC1E6440EF00C8424A /* SmartisanRecorder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SmartisanRecorder.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		25E28DDE1E6F9E8A0008E066 /* SMWaveformView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMWaveformView.swift; sourceTree = "<group>"; };
@@ -80,6 +86,8 @@
 		253648391E6ECF6D00476E12 /* SmartisanRecorderTests */ = {
 			isa = PBXGroup;
 			children = (
+				255FF25C1E714CFC00D4ECBD /* drums.wav */,
+				255FF25D1E714CFC00D4ECBD /* guitar.wav */,
 				2536483A1E6ECF6D00476E12 /* SmartisanRecorderTests.swift */,
 				2536483C1E6ECF6D00476E12 /* Info.plist */,
 			);
@@ -115,6 +123,7 @@
 				252AE9171E6E88AC005FED98 /* SMLocalize.swift */,
 				25C4E45E1E6E935D00A2DFD0 /* SMExtension.swift */,
 				253648321E6EBDCA00476E12 /* SMAudioTools.swift */,
+				255FF2561E70FB1600D4ECBD /* SMAudioFileSampler.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -265,6 +274,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				255FF25F1E714CFC00D4ECBD /* guitar.wav in Resources */,
+				255FF25E1E714CFC00D4ECBD /* drums.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -300,6 +311,7 @@
 				252AE9181E6E88AC005FED98 /* SMLocalize.swift in Sources */,
 				2536482E1E6EAFD200476E12 /* SMRecorder.swift in Sources */,
 				25C4E45F1E6E935D00A2DFD0 /* SMExtension.swift in Sources */,
+				255FF2571E70FB1600D4ECBD /* SMAudioFileSampler.swift in Sources */,
 				25E28DDF1E6F9E8A0008E066 /* SMWaveformView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

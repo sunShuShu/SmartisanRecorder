@@ -115,7 +115,7 @@ class SMRecorder: NSObject, AVAudioRecorderDelegate {
         audioRecorder?.pause()
     }
 
-    func save(with name:String, complete block: @escaping (Bool)->()) -> Bool {
+    func save(with name:String, completion block: @escaping (Bool)->()) -> Bool {
         
         pause()
         
@@ -129,13 +129,13 @@ class SMRecorder: NSObject, AVAudioRecorderDelegate {
         }
         
         finalFileName = fileNameWithSuffix
-        saveCompleteBlock = block
+        saveCompletionBlock = block
         audioRecorder?.stop()
         return true
     }
     
     private var finalFileName = ""
-    private var saveCompleteBlock: ((Bool)->())?
+    private var saveCompletionBlock: ((Bool)->())?
     
     //MARK:- Delegate
     func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
@@ -143,20 +143,20 @@ class SMRecorder: NSObject, AVAudioRecorderDelegate {
             let defaultFilePath = SMRecorder.docDirectory + defaultFileName
             let finalFilePath = SMRecorder.docDirectory + finalFileName
             if defaultFilePath == finalFilePath {
-                saveCompleteBlock?(true)
+                saveCompletionBlock?(true)
             } else {
                 do {
                     try FileManager.default.moveItem(atPath: defaultFilePath, toPath: finalFilePath)
                 } catch {
                     print(error)
                     assert(false)
-                    saveCompleteBlock?(false)
+                    saveCompletionBlock?(false)
                 }
-                saveCompleteBlock?(true)
+                saveCompletionBlock?(true)
             }
         } else {
             assert(false)
-            saveCompleteBlock?(false)
+            saveCompletionBlock?(false)
         }
     }
 }

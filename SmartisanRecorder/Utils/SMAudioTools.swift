@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct SMAudioMeter {
+class SMAudioMeter {
     static let minDB: Float = -60.0
     static let dbResulution: Float = -0.2
     
