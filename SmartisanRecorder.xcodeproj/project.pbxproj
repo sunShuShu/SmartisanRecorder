@@ -22,6 +22,7 @@
 		255FF25F1E714CFC00D4ECBD /* guitar.wav in Resources */ = {isa = PBXBuildFile; fileRef = 255FF25D1E714CFC00D4ECBD /* guitar.wav */; };
 		25C4E45F1E6E935D00A2DFD0 /* SMExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C4E45E1E6E935D00A2DFD0 /* SMExtension.swift */; };
 		25E28DDF1E6F9E8A0008E066 /* SMWaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25E28DDE1E6F9E8A0008E066 /* SMWaveformView.swift */; };
+		299BF95C1E71B5B50054F95D /* Calling_007_10086.wav in Resources */ = {isa = PBXBuildFile; fileRef = 299BF95B1E71B5B50054F95D /* Calling_007_10086.wav */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,6 +56,7 @@
 		25C4E45E1E6E935D00A2DFD0 /* SMExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMExtension.swift; sourceTree = "<group>"; };
 		25CCF6BC1E6440EF00C8424A /* SmartisanRecorder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SmartisanRecorder.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		25E28DDE1E6F9E8A0008E066 /* SMWaveformView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMWaveformView.swift; sourceTree = "<group>"; };
+		299BF95B1E71B5B50054F95D /* Calling_007_10086.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Calling_007_10086.wav; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -131,6 +133,7 @@
 		253EB93E1E6E841D00E9849E /* Resource */ = {
 			isa = PBXGroup;
 			children = (
+				299BF95B1E71B5B50054F95D /* Calling_007_10086.wav */,
 				253EB93F1E6E841D00E9849E /* Assets.xcassets */,
 				253EB9411E6E841D00E9849E /* LaunchScreen.storyboard */,
 				253EB9421E6E841D00E9849E /* Main.storyboard */,
@@ -283,6 +286,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				299BF95C1E71B5B50054F95D /* Calling_007_10086.wav in Resources */,
 				253EB9451E6E841D00E9849E /* LaunchScreen.storyboard in Resources */,
 				253648241E6EACC400476E12 /* Localizable.strings in Resources */,
 				253EB9431E6E841D00E9849E /* Assets.xcassets in Resources */,

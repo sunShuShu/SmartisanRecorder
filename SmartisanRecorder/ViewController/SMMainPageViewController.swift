@@ -21,29 +21,41 @@ class SMMainPageViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        waveformView.backgroundColor = UIColor.gray
+        waveformView.frame = CGRect(x: 0, y: 0, width: 1000, height: 300)
+        scrollView.addSubview(waveformView)
+        scrollView.contentSize = waveformView.bounds.size
+        
 //        recoder.record()
 //        Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(timerFire), userInfo: nil, repeats: true)
-//        waveformView.backgroundColor = UIColor.gray
-//        waveformView.frame = CGRect(x: 0, y: 0, width: 1000, height: 300)
-//        scrollView.addSubview(waveformView)
-//        scrollView.contentSize = waveformView.bounds.size
 //        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + 10) {
 //            self.recoder.save(with: "Rec_006", completion: { (result) in
 //                print(result)
 //            })
 //        }
+        
+        let path = Bundle(for: type(of: self)).path(forResource: "Calling_007_10086", ofType: "wav")
+        SMAudioFileSampler.sample(url: URL(fileURLWithPath: path!), countPerSecond: 50, completion: { (sampleData) in
+            DispatchQueue.main.async(execute: {
+                var tempData = [CGFloat]()
+                for data in sampleData! {
+                    tempData.append(CGFloat(data))
+                }
+                self.waveformView.powerLevel = tempData
+            })
+        })
 
     }
     
-    @objc private func timerFire() {
+//    @objc private func timerFire() {
 //        let db = recoder.powerLevel
 //        let amp = audioMeter.linearLevel(with: db)
 //        waveformView.powerLevel.append(CGFloat(amp))
 //        waveformView.powerLevel = waveformView.powerLevel
-        
-        waveformView.powerLevel.append(CGFloat(arc4random() % 200))
-        waveformView.powerLevel = waveformView.powerLevel
-    }
+//        
+//        waveformView.powerLevel.append(CGFloat(arc4random() % 200))
+//        waveformView.powerLevel = waveformView.powerLevel
+//    }
     
     private func checkPermission() {
         AVAudioSession.sharedInstance().requestRecordPermission { (hasPermission) in

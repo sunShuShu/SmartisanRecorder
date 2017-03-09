@@ -51,7 +51,7 @@ class SMAudioFileSampler {
             assetReader?.startReading()
             
             //read track data
-            var sampleData = [Int8]()
+            let sampleData = NSMutableData()
             while assetReader?.status == .reading {
                 if let sampleBuffer = output.copyNextSampleBuffer() {
                     if let blockBufferRef = CMSampleBufferGetDataBuffer(sampleBuffer) {
@@ -61,19 +61,18 @@ class SMAudioFileSampler {
                                                    0,
                                                    dataLength,
                                                    sampleBytes)
-//                        UnsafeBufferPointer<Int8>()
-                        //TODO: sampleData is wrong!!!
-                        sampleData.append(sampleBytes.pointee)
+                        sampleData.append(sampleBytes, length: dataLength) //TODO: optimize memory,reading data while filtering
                         CMSampleBufferInvalidate(sampleBuffer)
                     }
-                    //TODO: optimize memory,reading data while filtering
                 }
             }
+            var sampleArray = [Int8](repeating:0 ,count:(sampleData as Data).count)
+            sampleData.getBytes(&sampleArray, length: (sampleData as Data).count)
             
             //filter data
             if assetReader?.status == .completed {
-                sampleData = filter(sampleData, countPerSecond: countPerSecond)
-                completion(sampleData)
+                sampleArray = filter(sampleArray, countPerSecond: countPerSecond)
+                completion(sampleArray)
             } else {
                 print("asset reader status error")
                 completion(nil)
@@ -87,12 +86,13 @@ class SMAudioFileSampler {
         var byteIndex:Int = 0
         for _ in 0..<sampleData.count / sampleBinSize {
             var maxInBin:Int8 = 0
-            for byte in byteIndex..<(byteIndex + sampleBinSize) {
-                let sample = sampleData[byte]
-                maxInBin = max((sample < 0 ? -sample : sample), maxInBin)
+            for i in byteIndex..<(byteIndex + sampleBinSize) {
+                var sample = sampleData[i]
+                sample = sample == -128 ? -127 : sample
+                maxInBin = max(abs(sample), maxInBin)
             }
+            byteIndex += sampleBinSize
             filteredData.append(maxInBin)
-            byteIndex += 1
         }
         return filteredData
     }
