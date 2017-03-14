@@ -80,6 +80,7 @@ class SMAudioFileSampler {
         }
     }
     
+    //TODO: optimize filter with RMS
     static func filter(_ sampleData: [Int8], countPerSecond:Int) -> [Int8] {
         var filteredData = [Int8]()
         let sampleBinSize = minSampleRate / countPerSecond

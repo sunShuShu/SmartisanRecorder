@@ -75,3 +75,20 @@ class SMAudioFileSamplerTest: XCTestCase {
         }
     }
 }
+
+class SMAudioFileEditorTest: XCTestCase {
+    func testMerge() {
+        self.measure {
+            let exp = self.expectation(description: "Audio file editor")
+            let path = Bundle(for: type(of: self)).path(forResource: "1 Merge_高_中", ofType: "wav")
+            let outPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/merge\(arc4random() % 9999).wav"
+            let resutlt = SMAudioFileEditor.mergeWAVE(inputURLs: [URL(fileURLWithPath: path!),
+                                                        URL(fileURLWithPath: path!)], outputURL: URL(fileURLWithPath: outPath))
+            XCTAssertTrue(resutlt)
+            exp.fulfill()
+        }
+        waitForExpectations(timeout: 9999) { (error) in
+            XCTAssertTrue(true)
+        }
+    }
+}
