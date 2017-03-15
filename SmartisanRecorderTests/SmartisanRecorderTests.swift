@@ -77,14 +77,33 @@ class SMAudioFileSamplerTest: XCTestCase {
 }
 
 class SMAudioFileEditorTest: XCTestCase {
-    func testMerge() {
-        self.measure {
-            let exp = self.expectation(description: "Audio file editor")
-            let path = Bundle(for: type(of: self)).path(forResource: "1 Merge_高_中", ofType: "wav")
-            let outPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/merge\(arc4random() % 9999).wav"
-            let resutlt = SMAudioFileEditor.mergeWAVE(inputURLs: [URL(fileURLWithPath: path!),
-                                                        URL(fileURLWithPath: path!)], outputURL: URL(fileURLWithPath: outPath))
-            XCTAssertTrue(resutlt)
+//    func testMerge() {
+//        let exp = self.expectation(description: "Audio file editor")
+//        self.measure {
+//            let path1 = Bundle(for: type(of: self)).path(forResource: "drums", ofType: "wav")
+//            let path2 = Bundle(for: type(of: self)).path(forResource: "guitar", ofType: "wav")
+//            let outPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/merge\(arc4random() % 9999).wav"
+//            let resutlt = SMAudioFileEditor.mergeWAVE(inputURLs: [URL(fileURLWithPath: path1!),
+//                                                        URL(fileURLWithPath: path2!)], outputURL: URL(fileURLWithPath: outPath))
+//            XCTAssertTrue(resutlt)
+//            exp.fulfill()
+//        }
+//        waitForExpectations(timeout: 9999) { (error) in
+//            XCTAssertTrue(true)
+//        }
+//    }
+    
+    func testPCMMerge() {
+        let exp = self.expectation(description: "Audio file editor")
+        
+        let outPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/merge\(arc4random() % 9999).wav"
+        
+        let path1 = Bundle(for: type(of: self)).path(forResource: "1 Merge_高_中", ofType: "wav")
+        let path2 = Bundle(for: type(of: self)).path(forResource: "1 Merge_高_中", ofType: "wav")
+        let editor = SMAudioFileEditor(inputURLs: [URL(fileURLWithPath: path1!), URL(fileURLWithPath: path2!)], outputURL:  URL(fileURLWithPath: outPath))
+        editor.merge()
+        
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.distantFuture) { 
             exp.fulfill()
         }
         waitForExpectations(timeout: 9999) { (error) in
