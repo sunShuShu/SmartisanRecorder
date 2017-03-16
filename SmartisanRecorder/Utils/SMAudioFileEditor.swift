@@ -89,121 +89,230 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
 //        }
 //    }
     
-    private static let readLength = 1024
-    private static let supportedBitWidth: Int16 = 16
-    private var inputURLs: [URL]
-    private let outputURL: URL
+//    private static let readLength = 1024
+//    private static let supportedBitWidth: Int16 = 16
     private let queue = DispatchQueue(label: "com.sunshushu.wave-merge")
-    private var inputStream : InputStream?
-    private var outputStream : OutputStream?
-    private var tempData = Data()
-    private var tempDataSampleRate: Int64?
+    private var inputURLs: [URL]
+//    private let outputURL: URL
+//    private var inputStream : InputStream?
+//    private var outputStream : OutputStream?
+    private let outputFile: OutputFile
+//    private var tempData = Data()
+//    private var tempDataSampleRate: Int64?
+    private var inputFile: InputFile?
+    private let completion: CompletionBlock
     
-    init(inputURLs: [URL], outputURL: URL) {
-        self.inputURLs = inputURLs
-        self.outputURL = outputURL
+    typealias CompletionBlock = (Bool, EditError?) -> ()
+    
+    enum EditError: Error {
+        case storageFull, fileDamaged
     }
     
-    private func setupStream(with url:URL) {
-        queue.async {
-            //TODO: Cheak memory leaks
-            self.inputStream = InputStream(url: url)
-            self.inputStream?.delegate = self
-            self.inputStream?.schedule(in: RunLoop.current, forMode: .defaultRunLoopMode)
-            self.inputStream?.open()
-            RunLoop.current.run()
+    private struct InputFile {
+        static let fragmentLength = 1024 * 1024
+        static let supportedBitWidth: Int16 = 16
+        let url: URL
+        var sampleRate: Int?
+        var fragmentData = Data()
+        let stream : InputStream
+        init?(url: URL) {
+            self.url = url
+            if let iStream = InputStream(url: url) {
+                self.stream = iStream
+            } else {
+                return nil
+            }
         }
+    }
+    
+    private struct OutputFile {
+        let url: URL
+        let stream: OutputStream
+        let bitWidth = InputFile.supportedBitWidth
+        let sampleRate: Int? = nil
+        init?(url: URL) {
+            self.url = url
+            if let oStream = OutputStream(url: url, append: false) {
+                self.stream = oStream
+            } else {
+                return nil
+            }
+        }
+    }
+    
+    init?(inputURLs: [URL], outputURL: URL, completion: @escaping CompletionBlock) {
+        guard inputURLs.isEmpty == false else {
+            return nil
+        }
+        guard let oFile = OutputFile(url: outputURL) else {
+            return nil
+        }
+        self.outputFile = oFile
+        self.inputURLs = inputURLs
+        self.completion = completion
+        super.init()
     }
     
     func merge() {
-        setupStream(with: inputURLs.first!)
+        //TODO: check storage
+        queue.async {
+            //TODO: Cheak memory leaks
+            self.setupStream(self.outputFile.stream)
+            self.setupNextStream()
+        }
     }
     
-    func mergeNext() {
-        guard inputURLs.isEmpty == false else {
-            print("Complete!")
-            return
+    private func setupNextStream() {
+        //close the last input stream
+        if inputFile != nil {
+            closeStream(inputFile!.stream)
+            inputFile = nil
         }
-        setupStream(with: inputURLs.first!)
+        //cheak if edit completed
+        if inputURLs.isEmpty {
+            closeStream(outputFile.stream)
+            completion(true, nil)
+        }
+        //process next input
+        if let iFile = InputFile(url: inputURLs.first!) {
+            self.inputFile = iFile
+            setupStream(iFile.stream)
+            readLoop: while true {
+                if inputFile!.fragmentData.isEmpty && inputFile!.stream.hasBytesAvailable == true {
+                    let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: InputFile.fragmentLength)
+                    let readLength = inputFile!.stream.read(buffer, maxLength: InputFile.fragmentLength)
+                    if readLength == 0 {
+                        break readLoop
+                    }
+                    inputFile!.fragmentData.append(buffer, count: readLength)
+                    if inputFile!.sampleRate == nil {
+                        if checkWAVEFile() == false {
+                            completion(false, .fileDamaged)
+                        }
+                    }
+                }
+                writeLoop: while true {
+                    var oData = inputFile!.fragmentData
+                    if oData.isEmpty == false && outputFile.stream.hasSpaceAvailable == true {
+                        let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: oData.count)
+                        oData.copyBytes(to: buffer, count: oData.count)
+                        outputFile.stream.write(buffer, maxLength: oData.count)
+                        inputFile!.fragmentData.removeAll()
+                        break writeLoop
+                    }
+                }
+            }
+        } else {
+            completion(false, EditError.fileDamaged)
+        }
         inputURLs.removeFirst()
     }
     
-    func stream(_ aStream: Stream, handle eventCode: Stream.Event) {
-        print("#######################################")
-        switch eventCode {
-            
-        case Stream.Event.hasBytesAvailable:
-            read()
-            
-        case Stream.Event.hasSpaceAvailable:
-            write()
-            
-        case Stream.Event.endEncountered:
-            aStream.close()
-            aStream.remove(from: RunLoop.current, forMode: .defaultRunLoopMode)
-            
-        case Stream.Event.errorOccurred:
-            print(inputStream!.streamError!)
-            
-        default: break
-        }
+    private func closeStream(_ stream: Stream) {
+        stream.close()
+//        stream.remove(from: RunLoop.main, forMode: .defaultRunLoopMode)
     }
     
+    private func setupStream(_ stream: Stream) {
+        stream.delegate = self
+//        stream.schedule(in: RunLoop.main, forMode: .defaultRunLoopMode)
+        stream.open()
+    }
+    
+//    func stream(_ aStream: Stream, handle eventCode: Stream.Event) {
+//        queue.async {
+//            switch eventCode {
+//            case Stream.Event.hasBytesAvailable:
+//                self.read()
+//                
+////            case Stream.Event.hasSpaceAvailable:
+////                self.write()
+//                
+//            case Stream.Event.endEncountered:
+//                self.setupNextStream()
+//                
+//            case Stream.Event.errorOccurred:
+//                print(aStream.streamError!)
+//                
+//            default: break
+//            }
+//        }
+//    }
+    
     private func read() {
-        if tempData.isEmpty && inputStream?.hasBytesAvailable == true {
-            let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: SMAudioFileEditor.readLength)
-            let readLength = inputStream?.read(buffer, maxLength: SMAudioFileEditor.readLength)
-            tempData.append(buffer, count: readLength!)
-            if tempDataSampleRate == nil {
-                checkWAVEFile()
+        if inputFile!.fragmentData.isEmpty && inputFile!.stream.hasBytesAvailable == true {
+            let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: InputFile.fragmentLength)
+            let readLength = inputFile!.stream.read(buffer, maxLength: InputFile.fragmentLength)
+            inputFile!.fragmentData.append(buffer, count: readLength)
+            if inputFile!.sampleRate == nil {
+                if checkWAVEFile() == false {
+                    completion(false, .fileDamaged)
+                }
             }
-            tempData = SMAudioFileEditor.interpolate(input: tempData, times: 1) //TODO: times!
-            if outputStream?.hasSpaceAvailable == true {
-                write()
+            //TODO: times!
+            if 2 > 1 {
+//                inputFile!.fragmentData = SMAudioFileEditor.interpolate(input: inputFile!.fragmentData, times: 2)
             }
+//            self.write()
+//            if outputFile.stream.hasSpaceAvailable == true {
+//                queue.async {
+//                    self.write()
+//                }
+//            }
         }
     }
     
     private func write() {
-        if tempData.isEmpty == false && outputStream?.hasSpaceAvailable == true {
-            let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: tempData.count)
-            tempData.copyBytes(to: buffer, count: tempData.count)
-            outputStream?.write(buffer, maxLength: tempData.count)
-            tempData.removeAll()
-            if inputStream?.hasBytesAvailable == true {
-                read()
-            }
+        var oData = inputFile!.fragmentData
+        if oData.isEmpty == false && outputFile.stream.hasSpaceAvailable == true {
+            let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: oData.count)
+            oData.copyBytes(to: buffer, count: oData.count)
+            outputFile.stream.write(buffer, maxLength: oData.count)
+            inputFile!.fragmentData.removeAll()
+//            if inputFile!.stream.hasBytesAvailable == true {
+//                queue.async {
+//                    self.read()
+//
+//                }
+//            }
         }
     }
     
     private func checkWAVEFile() -> Bool {
-        let riffData = tempData.subData(0x00, 4)
+        let iData = inputFile!.fragmentData
+        let riffData = iData.subData(0x00, 4)
         guard riffData.toString() == "RIFF" else {
             return false
         }
-        let fileAndFormat = tempData.subData(0x08, 8)
+        let fileAndFormat = iData.subData(0x08, 8)
         guard fileAndFormat.toString() == "WAVEfmt " else {
             return false
         }
-        let compression = tempData.subData(0x14, 2)
+        let compression = iData.subData(0x14, 2)
         guard compression.toInt16(isBigEndian: false) == 1 else { //1 for PCM, WAVE data is little end
             return false
         }
-        let channel = tempData.subData(0x16, 2)
+        let channel = iData.subData(0x16, 2)
         guard channel.toInt16(isBigEndian: false) == 1 else { //only supports mono
             return false
         }
-        let bitWidth = tempData.subData(0x22, 2)
-        guard bitWidth.toInt16(isBigEndian: false) == SMAudioFileEditor.supportedBitWidth else {
+        let bitWidth = iData.subData(0x22, 2)
+        guard bitWidth.toInt16(isBigEndian: false) == InputFile.supportedBitWidth else {
             return false
         }
-        let dataFlag = tempData.subData(0x24, 4)
+        let dataFlag = iData.subData(0x24, 4)
         guard dataFlag.toString() == "data" else {
             return false
         }
+        let sampleRate = Int(iData.subData(0x18, 4).toInt64(isBigEndian: false))
+        guard SMRecorder.QualitySettings.low.sampleRate <= sampleRate
+            && sampleRate <= SMRecorder.QualitySettings.high.sampleRate
+            && sampleRate % SMRecorder.QualitySettings.low.sampleRate == 0 else {
+            return false
+        }
         
-        self.tempDataSampleRate = tempData.subData(0x18, 4).toInt64(isBigEndian: false)
-        print("\(self.tempDataSampleRate)")
+        inputFile!.sampleRate = sampleRate
+
         return true
     }
     
@@ -213,10 +322,6 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
     
     //Currently only 16-bit PCM data is supported
     private static func interpolate(input:Data, times:Int) -> Data {
-        guard times <= 0 else {
-            return input
-        }
-        
         var output = Data()
         for index in 0..<input.count / 2 {
             let indexFor16 = index * 2

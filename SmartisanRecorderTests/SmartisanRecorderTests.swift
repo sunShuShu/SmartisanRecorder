@@ -37,13 +37,6 @@ class SMRecorderTest: XCTestCase {
         XCTAssertFalse(FileManager.default.fileExists(atPath: testPath), "Default record file name is duplicated")
     }
     
-//    func testPerformanceExample() {
-//        // This is an example of a performance test case.
-//        self.measure {
-//            // Put the code you want to measure the time of here.
-//        }
-//    }
-    
 }
 
 class SMAudioToolsTest: XCTestCase {
@@ -69,9 +62,9 @@ class SMAudioFileSamplerTest: XCTestCase {
                 XCTAssertNotNil(sampleData)
                 exp.fulfill()
             })
-        }
-        waitForExpectations(timeout: 60) { (error) in
-            XCTAssertTrue(true)
+            self.waitForExpectations(timeout: 60) { (error) in
+                XCTAssertTrue(true)
+            }
         }
     }
 }
@@ -94,20 +87,23 @@ class SMAudioFileEditorTest: XCTestCase {
 //    }
     
     func testPCMMerge() {
-        let exp = self.expectation(description: "Audio file editor")
-        
-        let outPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/merge\(arc4random() % 9999).wav"
-        
-        let path1 = Bundle(for: type(of: self)).path(forResource: "1 Merge_高_中", ofType: "wav")
-        let path2 = Bundle(for: type(of: self)).path(forResource: "1 Merge_高_中", ofType: "wav")
-        let editor = SMAudioFileEditor(inputURLs: [URL(fileURLWithPath: path1!), URL(fileURLWithPath: path2!)], outputURL:  URL(fileURLWithPath: outPath))
-        editor.merge()
-        
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.distantFuture) { 
-            exp.fulfill()
-        }
-        waitForExpectations(timeout: 9999) { (error) in
-            XCTAssertTrue(true)
+        self.measure {
+            let exp = self.expectation(description: "Audio file editor")
+            let outRUL = URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/merge\(arc4random() % 9999).wav")
+            
+            let url1 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "1 Merge_高_中", ofType: "wav")!)
+            let url2 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "1 Merge_高_中", ofType: "wav")!)
+            let editor = SMAudioFileEditor(inputURLs: [url1, url2], outputURL: outRUL) { (result, error) in
+                XCTAssertTrue(result)
+                print(error ?? "Merge success")
+                exp.fulfill()
+            }
+            XCTAssertNotNil(editor)
+            editor!.merge()
+            
+            self.waitForExpectations(timeout: 60) { (error) in
+                XCTAssertTrue(true)
+            }
         }
     }
 }

@@ -25,9 +25,9 @@ extension Data {
         let range:Range<Data.Index> = self.startIndex..<self.endIndex.advanced(by: -1)
         self.copyBytes(to: bytes, from: range)
         if isBigEndian {
-            return Int16(bytes.advanced(by: 1).pointee) + Int16(bytes.pointee) * 0x100
+            return Int16(bytes.advanced(by: 1).pointee) + Int16(bytes.pointee) * 0x1_00
         } else {
-            return Int16(bytes.pointee) + Int16(bytes.advanced(by: 1).pointee) * 0x100
+            return Int16(bytes.pointee) + Int16(bytes.advanced(by: 1).pointee) * 0x1_00
         }
     }
     
