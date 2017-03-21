@@ -71,21 +71,6 @@ class SMAudioFileSamplerTest: XCTestCase {
 }
 
 class SMAudioFileEditorTest: XCTestCase {
-//    func testMerge() {
-//        let exp = self.expectation(description: "Audio file editor")
-//        self.measure {
-//            let path1 = Bundle(for: type(of: self)).path(forResource: "drums", ofType: "wav")
-//            let path2 = Bundle(for: type(of: self)).path(forResource: "guitar", ofType: "wav")
-//            let outPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/merge\(arc4random() % 9999).wav"
-//            let resutlt = SMAudioFileEditor.mergeWAVE(inputURLs: [URL(fileURLWithPath: path1!),
-//                                                        URL(fileURLWithPath: path2!)], outputURL: URL(fileURLWithPath: outPath))
-//            XCTAssertTrue(resutlt)
-//            exp.fulfill()
-//        }
-//        waitForExpectations(timeout: 9999) { (error) in
-//            XCTAssertTrue(true)
-//        }
-//    }
     
     func testPCMMerge() {
         self.measure {
@@ -93,7 +78,7 @@ class SMAudioFileEditorTest: XCTestCase {
             let outURL = URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/merge\(arc4random() % 9999).wav")
             
             let url1 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "1 Merge_高_中", ofType: "wav")!)
-            let url2 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "1 Merge_高_中", ofType: "wav")!)
+            let url2 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "低", ofType: "wav")!)
             let editor = SMAudioFileEditor(inputURLs: [url1, url2], outputURL: outURL) { (result, error) in
                 XCTAssertTrue(result)
                 print(error ?? "Merge success")

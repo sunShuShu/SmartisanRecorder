@@ -21,20 +21,29 @@ extension Data {
         return result
     }
     
-    func toInt(_ bytesCount:Int, isLittleEndian: Bool) -> Int {
-        let bytes = UnsafeMutablePointer<UInt8>.allocate(capacity: bytesCount)
+    func toInt32(isLittleEndian: Bool) -> Int32 {
+        let size = MemoryLayout<Int32>.size
+        let bytes = UnsafeMutablePointer<UInt8>.allocate(capacity: size)
         let range:Range<Data.Index> = self.startIndex..<self.endIndex.advanced(by: -1)
         self.copyBytes(to: bytes, from: range)
-        var result = 0
-        for var index in 0..<bytesCount {
+        var result: Int32 = 0
+        for var index in 0..<size {
             if isLittleEndian {
-                index = bytesCount - 1 - index
+                index = size - 1 - index
             }
             result *= 0x100
-            let num = Int(bytes.advanced(by: index).pointee)
+            let num = Int32(bytes.advanced(by: index).pointee)
             result += num
         }
         return result
     }
+}
 
+extension UInt32 {
+    func toData() -> Data {
+        let bytes = UnsafeMutablePointer<UInt32>.allocate(capacity: 1)
+        bytes.pointee = self
+        let result = Data(bytes: bytes, count: MemoryLayout<UInt32>.size)
+        return result
+    }
 }

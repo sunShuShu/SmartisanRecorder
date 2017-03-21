@@ -22,6 +22,7 @@
 		255FF25E1E714CFC00D4ECBD /* drums.wav in Resources */ = {isa = PBXBuildFile; fileRef = 255FF25C1E714CFC00D4ECBD /* drums.wav */; };
 		255FF25F1E714CFC00D4ECBD /* guitar.wav in Resources */ = {isa = PBXBuildFile; fileRef = 255FF25D1E714CFC00D4ECBD /* guitar.wav */; };
 		259955A21E76B3E400955FB3 /* SMAudioFileEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 259955A11E76B3E400955FB3 /* SMAudioFileEditor.swift */; };
+		25BD78721E8138F400871BBE /* 低.wav in Resources */ = {isa = PBXBuildFile; fileRef = 25BD78711E8138F400871BBE /* 低.wav */; };
 		25C4E45F1E6E935D00A2DFD0 /* SMExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C4E45E1E6E935D00A2DFD0 /* SMExtension.swift */; };
 		25E28DDF1E6F9E8A0008E066 /* SMWaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25E28DDE1E6F9E8A0008E066 /* SMWaveformView.swift */; };
 		299BF95C1E71B5B50054F95D /* Calling_007_10086.wav in Resources */ = {isa = PBXBuildFile; fileRef = 299BF95B1E71B5B50054F95D /* Calling_007_10086.wav */; };
@@ -57,6 +58,7 @@
 		255FF25C1E714CFC00D4ECBD /* drums.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = drums.wav; sourceTree = "<group>"; };
 		255FF25D1E714CFC00D4ECBD /* guitar.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = guitar.wav; sourceTree = "<group>"; };
 		259955A11E76B3E400955FB3 /* SMAudioFileEditor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMAudioFileEditor.swift; sourceTree = "<group>"; };
+		25BD78711E8138F400871BBE /* 低.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "低.wav"; sourceTree = "<group>"; };
 		25C4E45E1E6E935D00A2DFD0 /* SMExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMExtension.swift; sourceTree = "<group>"; };
 		25CCF6BC1E6440EF00C8424A /* SmartisanRecorder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SmartisanRecorder.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		25E28DDE1E6F9E8A0008E066 /* SMWaveformView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMWaveformView.swift; sourceTree = "<group>"; };
@@ -92,6 +94,7 @@
 		253648391E6ECF6D00476E12 /* SmartisanRecorderTests */ = {
 			isa = PBXGroup;
 			children = (
+				25BD78711E8138F400871BBE /* 低.wav */,
 				250CD4981E78091300C2E327 /* 1 Merge_高_中.wav */,
 				255FF25C1E714CFC00D4ECBD /* drums.wav */,
 				255FF25D1E714CFC00D4ECBD /* guitar.wav */,
@@ -286,6 +289,7 @@
 				250CD4991E78091300C2E327 /* 1 Merge_高_中.wav in Resources */,
 				255FF25F1E714CFC00D4ECBD /* guitar.wav in Resources */,
 				255FF25E1E714CFC00D4ECBD /* drums.wav in Resources */,
+				25BD78721E8138F400871BBE /* 低.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
