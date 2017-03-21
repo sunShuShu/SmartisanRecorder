@@ -19,7 +19,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
     
     private struct InputFile {
         static let fragmentLength = 1024
-        static let supportedBitWidth: Int16 = 16
+        static let supportedBitWidth = 16
         static var maxSampleRate: Int?
         let url: URL
         var sampleRate: Int?
@@ -44,6 +44,24 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
     }
     
     //MARK:- Property
+    private static let waveHeader = Data(bytes: [0x52,0x49,0x46,0x46, //RIFF
+                                                 0x00,0x00,0x00,0x00, //size(placeholder)
+                                                 0x57,0x41,0x56,0x45, //WAVE
+                                                 0x66,0x6D,0x74,0x20, //fmt
+                                                 0x10,0x00,0x00,0x00, //
+                                                 0x01,0x00,           //1(pcm)
+                                                 0x01,0x00,           //1(mono)
+                                                 0x00,0x00,0x00,0x00, //sample rate(placeholder)
+                                                 0x00,0x00,0x00,0x00, //bytes per second(placeholder)
+                                                 0x02,0x00,           //2(block align)
+                                                 0x10,0x00,           //16(bits per sample)
+                                                 0x64,0x61,0x74,0x61, //data
+                                                 0x00,0x00,0x00,0x00  //size(placeholder)
+                                                 ])
+    private static let waveSize1Range = 0x04...0x07
+    private static let waveSampleRateRange = 0x18...0x1B
+    private static let waveBPSRange = 0x1C...0x1F
+    private static let waveSize2Range = 0x28...0x2B
     private let queue = DispatchQueue(label: "com.sunshushu.wave-merge")
     private var inputFiles: [InputFile]
     private let outputFile: OutputFile
@@ -137,35 +155,12 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
             } catch  {
                 return
             }
-            let iData = handle!.readData(ofLength: 0x28)
-            guard iData.count == 0x28 else {
+            let iData = handle!.readData(ofLength: SMAudioFileEditor.waveHeader.count)
+            guard iData.count == SMAudioFileEditor.waveHeader.count else {
                 return
             }
-            let riffData = iData.subData(0x00, 4)
-            guard riffData.toString() == "RIFF" else {
-                return
-            }
-            let fileAndFormat = iData.subData(0x08, 8)
-            guard fileAndFormat.toString() == "WAVEfmt " else {
-                return
-            }
-            let compression = iData.subData(0x14, 2)
-            guard compression.toInt16(isBigEndian: false) == 1 else { //1 for PCM, WAVE data is little end
-                return
-            }
-            let channel = iData.subData(0x16, 2)
-            guard channel.toInt16(isBigEndian: false) == 1 else { //only supports mono
-                return
-            }
-            let bitWidth = iData.subData(0x22, 2)
-            guard bitWidth.toInt16(isBigEndian: false) == InputFile.supportedBitWidth else {
-                return
-            }
-            let dataFlag = iData.subData(0x24, 4)
-            guard dataFlag.toString() == "data" else {
-                return
-            }
-            let sampleRate = Int(iData.subData(0x18, 4).toInt64(isBigEndian: false))
+            let range = SMAudioFileEditor.waveSampleRateRange
+            let sampleRate = iData.subData(range.first!, range.count).toInt(range.count, isLittleEndian: true)
             guard SMRecorder.QualitySettings.low.sampleRate <= sampleRate
                 && sampleRate <= SMRecorder.QualitySettings.high.sampleRate
                 && sampleRate % SMRecorder.QualitySettings.low.sampleRate == 0 else {
@@ -173,6 +168,46 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
             }
             iFile.sampleRate = sampleRate
             InputFile.maxSampleRate = max(InputFile.maxSampleRate ?? 0, sampleRate)
+            
+            var headerData = iData.subData(0, SMAudioFileEditor.waveHeader.count)
+            headerData.replaceSubrange(SMAudioFileEditor.waveSize1Range,
+                                       with: Data(repeatElement(0, count: SMAudioFileEditor.waveSize1Range.count)))
+            headerData.replaceSubrange(SMAudioFileEditor.waveSampleRateRange,
+                                       with: Data(repeatElement(0, count: SMAudioFileEditor.waveSampleRateRange.count)))
+            headerData.replaceSubrange(SMAudioFileEditor.waveBPSRange,
+                                       with: Data(repeatElement(0, count: SMAudioFileEditor.waveBPSRange.count)))
+            headerData.replaceSubrange(SMAudioFileEditor.waveSize2Range,
+                                       with: Data(repeatElement(0, count: SMAudioFileEditor.waveSize2Range.count)))
+            guard headerData == SMAudioFileEditor.waveHeader else {
+                return
+            }
+
+            
+//            let riffData = iData.subData(0x00, 4)
+//            guard riffData.toString() == "RIFF" else {
+//                return
+//            }
+//            let fileAndFormat = iData.subData(0x08, 8)
+//            guard fileAndFormat.toString() == "WAVEfmt " else {
+//                return
+//            }
+//            let compression = iData.subData(0x14, 2)
+//            guard compression.toInt(16, isLittleEndian: true) == 1 else { //1 for PCM, WAVE data is little end
+//                return
+//            }
+//            let channel = iData.subData(0x16, 2)
+//            guard channel.toInt(16, isLittleEndian: true) == 1 else { //only supports mono
+//                return
+//            }
+//            let bitWidth = iData.subData(0x22, 2)
+//            guard bitWidth.toInt(16, isLittleEndian: true) == InputFile.supportedBitWidth else {
+//                return
+//            }
+//            let dataFlag = iData.subData(0x24, 4)
+//            guard dataFlag.toString() == "data" else {
+//                return
+//            }
+
         }
     }
     
