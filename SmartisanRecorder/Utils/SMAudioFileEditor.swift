@@ -111,7 +111,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
                 self.processingStream = InputStream(url: iFile.url)
                 if self.processingStream != nil {
                     self.processingStream!.open()
-                    self.dumpInput()
+                    self.dumpInput(interpolate: SMAudioFileEditor.InputFile.maxSampleRate! / iFile.sampleRate!)
                 } else {
                     self.completion(false, .fileDamaged)
                 }
@@ -130,7 +130,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
         }
     }
     
-    private func dumpInput() {
+    private func dumpInput(interpolate times: Int) {
         var fragmentData = Data()
         var needRemoveWAVEHeader = true
         readLoop: while true {
@@ -147,7 +147,9 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
                     fragmentData.removeSubrange(0..<SMAudioFileEditor.waveHeader.count)
                     needRemoveWAVEHeader = false
                 }
-                interpolate()
+                if times > 1 {
+                    fragmentData = interpolate(times, into: fragmentData)
+                }
                 
                 writeLoop: while true {
                     if outputFile.stream.hasSpaceAvailable == true {
@@ -167,10 +169,10 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
     }
     
     private func checkAllFiles() {
-        for var iFile in inputFiles {
+        for index in 0..<inputFiles.count {
             var handle: FileHandle?
             do {
-                try handle = FileHandle(forReadingFrom: iFile.url)
+                try handle = FileHandle(forReadingFrom: inputFiles[index].url)
             } catch  {
                 return
             }
@@ -185,7 +187,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
                 && sampleRate % SMRecorder.QualitySettings.low.sampleRate == 0 else {
                     return
             }
-            iFile.sampleRate = sampleRate
+            inputFiles[index].sampleRate = sampleRate
             InputFile.maxSampleRate = max(InputFile.maxSampleRate ?? 0, sampleRate)
             
             var headerData = iData.subData(0, SMAudioFileEditor.waveHeader.count)
@@ -232,24 +234,17 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
     }
     
     //Currently only 16-bit PCM data is supported
-    private func interpolate() {
-//        if inputFile!.sampleRate == nil {
-//            if checkWAVEFile() == false {
-//                completion(false, .fileDamaged)
-//            }
-//        }
-//        
-//        var output = Data()
-//        for index in 0..<input.count / 2 {
-//            let indexFor16 = index * 2
-//            let lowByte = input[indexFor16]
-//            let hightByte = input[indexFor16 + 1]
-//            for _ in 0...times {
-//                output.append(lowByte)
-//                output.append(hightByte)
-//            }
-//        }
-//        return output
+    private func interpolate(_ times: Int, into fragmentData: Data) -> Data {
+        var output = Data()
+        fragmentData.withUnsafeBytes { (pointer: UnsafePointer<UInt8>) in
+            for i in stride(from: fragmentData.startIndex, to: fragmentData.endIndex - 1, by: 2) {
+                for _ in 0..<times {
+                    output.append(pointer.advanced(by: i), count: 1)
+                    output.append(pointer.advanced(by: i+1), count: 1)
+                }
+            }
+        }
+        return output
     }
     
 }
