@@ -18,19 +18,13 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
     }
     
     private struct InputFile {
-        static let fragmentLength = 1024 * 1024
+        static let fragmentLength = 1024
         static let supportedBitWidth: Int16 = 16
+        static var maxSampleRate: Int?
         let url: URL
         var sampleRate: Int?
-        var fragmentData = Data()
-        let stream : InputStream
-        init?(url: URL) {
+        init(url: URL) {
             self.url = url
-            if let iStream = InputStream(url: url) {
-                self.stream = iStream
-            } else {
-                return nil
-            }
         }
     }
     
@@ -51,9 +45,9 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
     
     //MARK:- Property
     private let queue = DispatchQueue(label: "com.sunshushu.wave-merge")
-    private var inputURLs: [URL]
+    private var inputFiles: [InputFile]
     private let outputFile: OutputFile
-    private var inputFile: InputFile?
+    private var processingStream: InputStream?
     private let completion: CompletionBlock
     
     //MARK:- Mothod
@@ -65,7 +59,10 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
             return nil
         }
         self.outputFile = oFile
-        self.inputURLs = inputURLs
+        self.inputFiles = [InputFile]()
+        for url in inputURLs {
+            self.inputFiles.append(InputFile(url: url))
+        }
         self.completion = completion
         super.init()
     }
@@ -73,22 +70,26 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
     func merge() {
         //TODO: check storage
         queue.async {
+            
+            self.checkAllFiles()
+            
             //TODO: Cheak memory leaks
             self.outputFile.stream.open()
-            for iURL in self.inputURLs {
-                //close the last input stream
-                if self.inputFile != nil {
-                    self.inputFile!.stream.close()
-                    self.inputFile = nil
-                }
+            for iFile in self.inputFiles {
                 
                 //process next input
-                if let iFile = InputFile(url: iURL) {
-                    self.inputFile = iFile
-                    iFile.stream.open()
+                self.processingStream = InputStream(url: iFile.url)
+                if self.processingStream != nil {
+                    self.processingStream!.open()
                     self.dumpInput()
                 } else {
                     self.completion(false, .fileDamaged)
+                }
+                
+                //close the last input stream
+                if self.processingStream != nil {
+                    self.processingStream!.close()
+                    self.processingStream = nil
                 }
             }
             
@@ -99,25 +100,25 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
     }
     
     private func dumpInput() {
+        var fragmentData = Data()
         readLoop: while true {
-            if inputFile!.fragmentData.isEmpty && inputFile!.stream.hasBytesAvailable == true {
+            if fragmentData.isEmpty && processingStream!.hasBytesAvailable == true {
                 let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: InputFile.fragmentLength)
-                let readLength = inputFile!.stream.read(buffer, maxLength: InputFile.fragmentLength)
+                let readLength = processingStream!.read(buffer, maxLength: InputFile.fragmentLength)
                 if readLength == 0 {
                     break readLoop
                 } else if readLength == -1 {
                     completion(false, .fileDamaged)
                 }
-                inputFile!.fragmentData.append(buffer, count: readLength)
+                fragmentData.append(buffer, count: readLength)
                 interpolate()
                 
                 writeLoop: while true {
                     if outputFile.stream.hasSpaceAvailable == true {
-                        var oData = inputFile!.fragmentData
-                        let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: oData.count)
-                        oData.copyBytes(to: buffer, count: oData.count)
-                        let writeLength = outputFile.stream.write(buffer, maxLength: oData.count)
-                        inputFile!.fragmentData.removeAll()
+                        let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: fragmentData.count)
+                        fragmentData.copyBytes(to: buffer, count: fragmentData.count)
+                        let writeLength = outputFile.stream.write(buffer, maxLength: fragmentData.count)
+                        fragmentData.removeAll()
                         if writeLength < 0 {
                             completion(false, .fileDamaged)
                         }
@@ -128,42 +129,51 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
         }
     }
     
-    private func checkWAVEFile() -> Bool {
-        let iData = inputFile!.fragmentData
-        let riffData = iData.subData(0x00, 4)
-        guard riffData.toString() == "RIFF" else {
-            return false
+    private func checkAllFiles() {
+        for var iFile in inputFiles {
+            var handle: FileHandle?
+            do {
+                try handle = FileHandle(forReadingFrom: iFile.url)
+            } catch  {
+                return
+            }
+            let iData = handle!.readData(ofLength: 0x28)
+            guard iData.count == 0x28 else {
+                return
+            }
+            let riffData = iData.subData(0x00, 4)
+            guard riffData.toString() == "RIFF" else {
+                return
+            }
+            let fileAndFormat = iData.subData(0x08, 8)
+            guard fileAndFormat.toString() == "WAVEfmt " else {
+                return
+            }
+            let compression = iData.subData(0x14, 2)
+            guard compression.toInt16(isBigEndian: false) == 1 else { //1 for PCM, WAVE data is little end
+                return
+            }
+            let channel = iData.subData(0x16, 2)
+            guard channel.toInt16(isBigEndian: false) == 1 else { //only supports mono
+                return
+            }
+            let bitWidth = iData.subData(0x22, 2)
+            guard bitWidth.toInt16(isBigEndian: false) == InputFile.supportedBitWidth else {
+                return
+            }
+            let dataFlag = iData.subData(0x24, 4)
+            guard dataFlag.toString() == "data" else {
+                return
+            }
+            let sampleRate = Int(iData.subData(0x18, 4).toInt64(isBigEndian: false))
+            guard SMRecorder.QualitySettings.low.sampleRate <= sampleRate
+                && sampleRate <= SMRecorder.QualitySettings.high.sampleRate
+                && sampleRate % SMRecorder.QualitySettings.low.sampleRate == 0 else {
+                    return
+            }
+            iFile.sampleRate = sampleRate
+            InputFile.maxSampleRate = max(InputFile.maxSampleRate ?? 0, sampleRate)
         }
-        let fileAndFormat = iData.subData(0x08, 8)
-        guard fileAndFormat.toString() == "WAVEfmt " else {
-            return false
-        }
-        let compression = iData.subData(0x14, 2)
-        guard compression.toInt16(isBigEndian: false) == 1 else { //1 for PCM, WAVE data is little end
-            return false
-        }
-        let channel = iData.subData(0x16, 2)
-        guard channel.toInt16(isBigEndian: false) == 1 else { //only supports mono
-            return false
-        }
-        let bitWidth = iData.subData(0x22, 2)
-        guard bitWidth.toInt16(isBigEndian: false) == InputFile.supportedBitWidth else {
-            return false
-        }
-        let dataFlag = iData.subData(0x24, 4)
-        guard dataFlag.toString() == "data" else {
-            return false
-        }
-        let sampleRate = Int(iData.subData(0x18, 4).toInt64(isBigEndian: false))
-        guard SMRecorder.QualitySettings.low.sampleRate <= sampleRate
-            && sampleRate <= SMRecorder.QualitySettings.high.sampleRate
-            && sampleRate % SMRecorder.QualitySettings.low.sampleRate == 0 else {
-            return false
-        }
-        
-        inputFile!.sampleRate = sampleRate
-
-        return true
     }
     
     private func setWAVEFileHeader() {
