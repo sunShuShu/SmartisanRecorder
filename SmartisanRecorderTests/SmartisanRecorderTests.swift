@@ -73,12 +73,13 @@ class SMAudioFileSamplerTest: XCTestCase {
 class SMAudioFileEditorTest: XCTestCase {
     
     func testPCMMerge() {
+        objc_sync_enter(self)
         self.measure {
             let exp = self.expectation(description: "Audio file editor")
             let outURL = URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/merge\(arc4random() % 9999).wav")
             
-            let url1 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "1 Merge_高_中", ofType: "wav")!)
-            let url2 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "低", ofType: "wav")!)
+            let url1 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "Trim_48", ofType: "wav")!)
+            let url2 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "Trim_48", ofType: "wav")!)
             let editor = SMAudioFileEditor(inputURLs: [url1, url2], outputURL: outURL) { (result, error) in
                 XCTAssertTrue(result)
                 print(error ?? "Merge success")
@@ -140,5 +141,7 @@ class SMAudioFileEditorTest: XCTestCase {
                 XCTAssertTrue(true)
             }
         }
+        objc_sync_enter(self)
+
     }
 }
