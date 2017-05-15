@@ -14,7 +14,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
     typealias CompletionBlock = (Bool, EditError?) -> ()
     
     enum EditError: Error {
-        case storageFull, fileDamaged
+        case storageFull, fileDamaged, fileSizeExceedLimit
     }
     
     private struct InputFile {
@@ -62,10 +62,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
     private static let waveSampleRateRange = 0x18...0x1B
     private static let waveBPSRange = 0x1C...0x1F
     private static let waveSize2Range = 0x28...0x2B
-    
-//    private let queue = DispatchQueue(label: "com.sunshushu.wave-merge",
-//                                      qos: .userInitiated,
-//                                      attributes: DispatchQueue.Attributes.concurrent)
+
     private let readQueue  = DispatchQueue(label: "com.sunshushu.merge-read")
     private let writeQueue = DispatchQueue(label: "com.sunshushu.merge-write")
     private let readSemaphore = DispatchSemaphore(value: 1)
@@ -73,9 +70,6 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
     
     private let maxBufferSize = 10
     private let minBufferSize = 5
-    //private var reading = false
-    //private var writing = false
-    //private var buffer = [Data]()
     private var fragmentData = Data()
     private var inputFiles: [InputFile]
     private let outputFile: OutputFile
@@ -103,6 +97,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
         //TODO: check storage
         //TODO: Cheak memory leaks
         self.checkAllFiles()
+        //TODO: check totle size of files
         
         //setup output
         writeQueue.async {
@@ -112,12 +107,12 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
             SMAudioFileEditor.waveHeader.copyBytes(to: buffer, count: headerLength)
             while self.outputFile.stream.hasSpaceAvailable == false {
                 if self.outputFile.stream.streamStatus == .error {
-                    self.releaseResurce()
+                    self.encounterError(.fileDamaged)
                 }
             }
             let writeLength = self.outputFile.stream.write(buffer, maxLength: headerLength)
             if writeLength != headerLength {
-                self.releaseResurce()
+                self.encounterError(.fileDamaged)
             }
             self.outputFile.stream.delegate = self
             self.outputFile.stream.schedule(in: RunLoop.current, forMode: .defaultRunLoopMode)
@@ -127,44 +122,6 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
         readQueue.async {
             self.readNextInput()
         }
-
-//        queue.async {
-//            
-//            self.checkAllFiles()
-//            
-//            //setup output
-//            self.outputFile.stream.open()
-//            let headerLength = SMAudioFileEditor.waveHeader.count
-//            let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: headerLength)
-//            SMAudioFileEditor.waveHeader.copyBytes(to: buffer, count: headerLength)
-//            let writeLength = self.outputFile.stream.write(buffer, maxLength: headerLength)
-//            if writeLength != headerLength {
-//                self.completion(false, nil)
-//            }
-//            
-//            for iFile in self.inputFiles {
-//                
-//                //process next input
-//                self.processingStream = InputStream(url: iFile.url)
-//                if self.processingStream != nil {
-//                    self.processingStream!.open()
-//                    self.dumpInput(interpolate: SMAudioFileEditor.InputFile.maxSampleRate! / iFile.sampleRate!)
-//                } else {
-//                    self.completion(false, .fileDamaged)
-//                }
-//                
-//                //close the last input stream
-//                if self.processingStream != nil {
-//                    self.processingStream!.close()
-//                    self.processingStream = nil
-//                }
-//            }
-//        
-//            //edit completed
-//            self.outputFile.stream.close()
-//            self.setWAVEFileHeader()
-//            self.completion(true, nil)
-//        }
     }
     
     private func readNextInput() {
@@ -184,13 +141,11 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
                 processingStream!.schedule(in: RunLoop.current, forMode: .defaultRunLoopMode)
                 processingStream!.open()
                 RunLoop.current.run()
-//                self.dumpInput(interpolate: SMAudioFileEditor.InputFile.maxSampleRate! / iFile.sampleRate!)
             } else {
-                self.releaseResurce()
-                self.completion(false, .fileDamaged)
+                self.encounterError(.fileDamaged)
             }
         } else {
-            self.releaseResurce()
+            //TODO: Delete old files if merge files
             completion(true, nil)
         }
     }
@@ -202,7 +157,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
         case Stream.Event.hasSpaceAvailable:
             write()
         case Stream.Event.errorOccurred:
-            releaseResurce()
+            self.encounterError(.fileDamaged)
         case Stream.Event.endEncountered:
             readNextInput()
         default: break
@@ -218,16 +173,6 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
             readSemaphore.wait()
             fragmentData.append(tempBuffer, count: readLength)
             writeSemaphore.signal()
-            
-            //            if needRemoveWAVEHeader {
-            //                fragmentData.removeSubrange(0..<SMAudioFileEditor.waveHeader.count)
-            //                needRemoveWAVEHeader = false
-            //            }
-            //            if times > 1 {
-            //                fragmentData = interpolate(times, into: fragmentData)
-            //            }
-            
-
         }
     }
     
@@ -246,53 +191,18 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
         
     }
     
-    private func dumpInput(interpolate times: Int) {
-        var fragmentData = Data()
-        var needRemoveWAVEHeader = true
-        readLoop: while true {
-            if fragmentData.isEmpty && processingStream!.hasBytesAvailable == true {
-                let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: InputFile.fragmentLength)
-                let readLength = processingStream!.read(buffer, maxLength: InputFile.fragmentLength)
-                if readLength <= 0 {
-                    break readLoop
-                } else if readLength == -1 {
-                    completion(false, .fileDamaged)
-                }
-                fragmentData.append(buffer, count: readLength)
-                if needRemoveWAVEHeader {
-                    fragmentData.removeSubrange(0..<SMAudioFileEditor.waveHeader.count)
-                    needRemoveWAVEHeader = false
-                }
-                if times > 1 {
-                    fragmentData = interpolate(times, into: fragmentData)
-                }
-                
-                writeLoop: while true {
-                    if outputFile.stream.hasSpaceAvailable == true {
-                        let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: fragmentData.count)
-                        fragmentData.copyBytes(to: buffer, count: fragmentData.count)
-                        let writeLength = outputFile.stream.write(buffer, maxLength: fragmentData.count)
-                        fragmentData.removeAll()
-                        if writeLength < 0 {
-                            completion(false, .fileDamaged)
-                        }
-                        break writeLoop
-                    }
-                }
-            }
-        }
-    }
-    
     private func checkAllFiles() {
         for index in 0..<inputFiles.count {
             var handle: FileHandle?
             do {
                 try handle = FileHandle(forReadingFrom: inputFiles[index].url)
             } catch  {
+                self.encounterError(.fileDamaged)
                 return
             }
             let iData = handle!.readData(ofLength: SMAudioFileEditor.waveHeader.count)
             guard iData.count == SMAudioFileEditor.waveHeader.count else {
+                self.encounterError(.fileDamaged)
                 return
             }
             let range = SMAudioFileEditor.waveSampleRateRange
@@ -300,6 +210,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
             guard SMRecorder.QualitySettings.low.sampleRate <= sampleRate
                 && sampleRate <= SMRecorder.QualitySettings.high.sampleRate
                 && sampleRate % SMRecorder.QualitySettings.low.sampleRate == 0 else {
+                    self.encounterError(.fileDamaged)
                     return
             }
             inputFiles[index].sampleRate = sampleRate
@@ -315,6 +226,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
             headerData.replaceSubrange(SMAudioFileEditor.waveSize2Range,
                                        with: Data(repeatElement(0, count: SMAudioFileEditor.waveSize2Range.count)))
             if headerData != SMAudioFileEditor.waveHeader {
+                self.encounterError(.fileDamaged)
                 return
             }
         }
@@ -344,8 +256,10 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
         handle?.write(UInt32(size2).toData())
     }
     
-    private func releaseResurce() {
+    private func encounterError(_ error: EditError) {
+        //TODO: Delete temp output file on disk
         
+        completion(false, error)
     }
     
     //Currently only 16-bit PCM data is supported
