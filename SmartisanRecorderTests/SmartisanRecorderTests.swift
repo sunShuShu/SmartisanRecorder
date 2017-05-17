@@ -73,13 +73,12 @@ class SMAudioFileSamplerTest: XCTestCase {
 class SMAudioFileEditorTest: XCTestCase {
     
     func testPCMMerge() {
-        objc_sync_enter(self)
         self.measure {
             let exp = self.expectation(description: "Audio file editor")
             let outURL = URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/merge\(arc4random() % 9999).wav")
             
-            let url1 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "Trim_48", ofType: "wav")!)
-            let url2 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "Trim_48", ofType: "wav")!)
+            let url1 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "1 Merge_高_中", ofType: "wav")!)
+            let url2 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "低", ofType: "wav")!)
             let editor = SMAudioFileEditor(inputURLs: [url1, url2], outputURL: outURL) { (result, error) in
                 XCTAssertTrue(result)
                 print(error ?? "Merge success")
@@ -89,59 +88,9 @@ class SMAudioFileEditorTest: XCTestCase {
             XCTAssertNotNil(editor)
             editor!.merge()
             
-//            let asset = AVAsset(url: url1)
-//            let track = asset.tracks(withMediaType: AVMediaTypeAudio).first!
-//            var reader: AVAssetReader?
-//            do {
-//                reader = try AVAssetReader(asset: asset)
-//            } catch {
-//            }
-//            let output = AVAssetReaderTrackOutput(track: track, outputSettings: [AVFormatIDKey:kAudioFormatLinearPCM])
-//            reader?.add(output)
-//            reader?.startReading()
-//            var writer: AVAssetWriter?
-//            do {
-//               writer = try AVAssetWriter(outputURL: outURL, fileType: AVFileTypeWAVE)
-//            } catch {
-//            }
-//            let input = AVAssetWriterInput(mediaType: AVMediaTypeAudio, outputSettings: [AVLinearPCMBitDepthKey:16,
-//                                                                                         AVLinearPCMIsBigEndianKey:false,
-//                                                                                         AVLinearPCMIsNonInterleaved:false,
-//                                                                                         AVLinearPCMIsFloatKey:false,
-//                                                                                         AVSampleRateKey:48000,
-//                                                                                         AVNumberOfChannelsKey:1,
-//                                                                                         AVFormatIDKey:kAudioFormatLinearPCM])
-//            writer?.add(input)
-//   
-//            writer?.startWriting()
-//            
-//            writer?.startSession(atSourceTime: kCMTimeZero)
-//            input.requestMediaDataWhenReady(on: DispatchQueue.global(), using: {
-//                var complete = false
-//                while input.isReadyForMoreMediaData && complete == false {
-//                    if let sampleBuffer = output.copyNextSampleBuffer() {
-//                        input.append(sampleBuffer)
-//                        complete = false
-//                    } else {
-//                        input.markAsFinished()
-//                        complete = true
-//                    }
-//                }
-//                if (complete) {
-//                    writer?.finishWriting {
-//                        if writer?.status != .completed {
-//                            print(writer?.error!)
-//                        }
-//                        exp.fulfill()
-//                    }
-//                }
-//            })
-            
-            self.waitForExpectations(timeout: 60) { (error) in
+            self.waitForExpectations(timeout: 600) { (error) in
                 XCTAssertTrue(true)
             }
         }
-        objc_sync_enter(self)
-
     }
 }
