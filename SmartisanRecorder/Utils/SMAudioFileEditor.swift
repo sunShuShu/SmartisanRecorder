@@ -174,7 +174,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
             
             let times = inputFiles.first!.sampleRateTimes
             if times > 1 {
-                tempBuffer = self.interpolate(times, buffer: tempBuffer, length: tempBufferLength)
+                tempBuffer = SMResample.interpolate(times, buffer: tempBuffer, length: tempBufferLength)
                 readLength *= times
             }
             
@@ -196,20 +196,6 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
         readSemaphore.signal()
         
         self.outputFile.stream.write(tempBuffer!, maxLength: size)
-    }
-    
-    //Currently only 16-bit PCM data is supported
-    private func interpolate(_ times: Int, buffer: UnsafeMutablePointer<UInt8>, length: Int) -> UnsafeMutablePointer<UInt8> {
-        let output = UnsafeMutablePointer<UInt8>.allocate(capacity: length * times)
-        for i in stride(from: 0, to: length - 1, by: 2) {
-            let high8Bits = buffer.advanced(by: i).pointee
-            let low8Bits = buffer.advanced(by: i+1).pointee
-            for j in stride(from: i*times, to: (i+2)*times-1, by: 2) {
-                output.advanced(by: j).pointee = high8Bits
-                output.advanced(by: j + 1).pointee = low8Bits
-            }
-        }
-        return output 
     }
     
     private func encounterError(_ error: EditError) {
