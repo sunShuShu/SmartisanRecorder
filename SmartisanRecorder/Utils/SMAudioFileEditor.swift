@@ -81,7 +81,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
                 inputFiles[index].sampleRate = result.sampleRate
                 InputFile.maxSampleRate = max(InputFile.maxSampleRate, result.sampleRate)
             } else {
-                encounterError(.fileDamaged)
+                encounterError()
                 break
             }
         }
@@ -102,12 +102,14 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
             SMWaveHeaderTool.waveHeader.copyBytes(to: buffer, count: headerLength)
             while self.outputFile.stream.hasSpaceAvailable == false {
                 if self.outputFile.stream.streamStatus == .error {
-                    self.encounterError(.fileDamaged)
+                    self.encounterError()
+                    return
                 }
             }
             let writeLength = self.outputFile.stream.write(buffer, maxLength: headerLength)
             if writeLength != headerLength {
-                self.encounterError(.fileDamaged)
+                self.encounterError()
+                return
             }
             
             //setup output
@@ -140,12 +142,21 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
                 processingStream!.delegate = self
                 processingStream!.schedule(in: RunLoop.current, forMode: .defaultRunLoopMode)
                 processingStream!.open()
+                //skip wave header
+                let headerLength = SMWaveHeaderTool.waveHeader.count
+                let tempBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: headerLength)
+                let readLength = processingStream!.read(tempBuffer, maxLength: headerLength)
+                if readLength != headerLength {
+                    self.encounterError()
+                    return
+                }
             } else {
-                self.encounterError(.fileDamaged)
+                self.encounterError()
+                return
             }
         } else {
-            //TODO: release resource
-            completion(true, nil)
+            //All input files is done, write a empty data to end output stream.
+            writeSemaphore.signal()
         }
     }
     
@@ -156,9 +167,19 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
         case Stream.Event.hasSpaceAvailable:
             write()
         case Stream.Event.errorOccurred:
-            self.encounterError(.fileDamaged)
+            self.encounterError()
         case Stream.Event.endEncountered:
-            readNextInput()
+            if aStream is OutputStream {
+                let result = SMWaveHeaderTool.setHeaderInfo(file: outputFile.url, sampleRate: InputFile.maxSampleRate)
+                if result {
+                    //TODO: release resource
+                    completion(true, nil)
+                } else {
+                    encounterError()
+                }
+            } else {
+                readNextInput()
+            }
         default: break
         }
     }
@@ -198,7 +219,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
         self.outputFile.stream.write(tempBuffer!, maxLength: size)
     }
     
-    private func encounterError(_ error: EditError) {
+    private func encounterError(_ error: EditError = .fileDamaged) {
         //TODO: Delete temp output file on disk. read/write thread etc.
         
         completion(false, error)

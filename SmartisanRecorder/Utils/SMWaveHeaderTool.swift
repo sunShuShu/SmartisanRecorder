@@ -45,6 +45,7 @@ class SMWaveHeaderTool {
         
         let headerLength = SMWaveHeaderTool.waveHeader.count;
         let iData = handle!.readData(ofLength: headerLength)
+        handle!.closeFile()
         guard iData.count == headerLength else {
             return (false, 0)
         }
@@ -100,6 +101,7 @@ class SMWaveHeaderTool {
         handle?.write(UInt32(bps).toData())
         handle?.seek(toFileOffset: UInt64(SMWaveHeaderTool.waveSize2Range.first!))
         handle?.write(UInt32(size2).toData())
+        handle?.closeFile()
         return true
     }
     
