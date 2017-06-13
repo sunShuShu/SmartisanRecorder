@@ -72,6 +72,21 @@ class SMAudioFileSamplerTest: XCTestCase {
 
 class SMAudioFileEditorTest: XCTestCase {
     
+    func testInterpolate() {
+        let testDataLength = 1024 * 1024 * 10
+        let testTimes = 6
+        let inputBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: testDataLength);
+        for index: Int in 0..<testDataLength {
+            inputBuffer[index] = UInt8(index)
+        }
+        
+        var output: UnsafeMutablePointer<UInt8>?
+        self.measure {
+            output = SMResample.interpolate(testTimes, buffer: inputBuffer, length: testDataLength)
+        }
+        
+    }
+    
     func testPCMMerge() {
         self.measure {
             let exp = self.expectation(description: "Audio file editor")
@@ -93,4 +108,5 @@ class SMAudioFileEditorTest: XCTestCase {
             }
         }
     }
+    
 }
