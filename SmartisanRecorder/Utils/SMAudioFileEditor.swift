@@ -74,24 +74,57 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
         super.init()
     }
     
+    
+    /// Check wave header, record max sample rate in all files, check storage space.
     private func checkAllFiles() {
         for index in 0..<inputFiles.count {
             let result = SMWaveHeaderTool.check(file: inputFiles[index].url)
-            if result.isValid {
-                inputFiles[index].sampleRate = result.sampleRate
-                InputFile.maxSampleRate = max(InputFile.maxSampleRate, result.sampleRate)
-            } else {
+            if result.isValid == false {
                 encounterError()
-                break
+                return
             }
+            inputFiles[index].sampleRate = result.sampleRate
+            InputFile.maxSampleRate = max(InputFile.maxSampleRate, result.sampleRate)
+        }
+        
+        var outputFileSize = 0
+        for index in 0..<inputFiles.count {
+            let info: [FileAttributeKey:Any]
+            inputFiles[index].sampleRateTimes = InputFile.maxSampleRate / inputFiles[index].sampleRate
+            do {
+                try info = FileManager.default.attributesOfItem(atPath: inputFiles[index].url.path)
+            } catch {
+                encounterError()
+                return
+            }
+            if let size = (info[FileAttributeKey.size] as? Int) {
+                outputFileSize += size * inputFiles[index].sampleRateTimes
+            }
+        }
+        //The size of WAVE file can NOT greate than 4G
+        if outputFileSize >= 4 * 1024 * 1024 * 1024 {
+            encounterError(SMAudioFileEditor.EditError.fileSizeExceedLimit)
+            return
+        }
+        
+        let info: [FileAttributeKey:Any]
+        do {
+            try info = FileManager.default.attributesOfFileSystem(forPath: NSHomeDirectory())
+        } catch {
+            encounterError()
+            return
+        }
+        let freeSize = info[FileAttributeKey.systemFreeSize] as! Int
+        //If device free space less than 50M after merge all files
+        if outputFileSize > freeSize - 50 * 1024 * 1024 {
+            encounterError(SMAudioFileEditor.EditError.storageFull)
+            return
         }
     }
     
     func merge() {
-        //TODO: check storage
         //TODO: Cheak memory leaks
         self.checkAllFiles()
-        //TODO: check totle size of files
         
         writeQueue.async {
 
@@ -138,7 +171,6 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
         if let iFile = self.inputFiles.first {
             processingStream = InputStream(url: iFile.url)
             if processingStream != nil {
-                inputFiles[0].sampleRateTimes = InputFile.maxSampleRate / iFile.sampleRate
                 processingStream!.delegate = self
                 processingStream!.schedule(in: RunLoop.current, forMode: .defaultRunLoopMode)
                 processingStream!.open()
