@@ -21,10 +21,10 @@ class SMMainPageViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        waveformView.backgroundColor = UIColor.gray
-        waveformView.frame = CGRect(x: 0, y: 0, width: 1000, height: 300)
-        scrollView.addSubview(waveformView)
-        scrollView.contentSize = waveformView.bounds.size
+//        waveformView.backgroundColor = UIColor.gray
+//        waveformView.frame = CGRect(x: 0, y: 0, width: 1000, height: 300)
+//        scrollView.addSubview(waveformView)
+//        scrollView.contentSize = waveformView.bounds.size
         
 //        recoder.record()
 //        Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(timerFire), userInfo: nil, repeats: true)
@@ -34,17 +34,17 @@ class SMMainPageViewController: UIViewController {
 //            })
 //        }
         
-        let path = Bundle(for: type(of: self)).path(forResource: "Calling_007_10086", ofType: "wav")
-        SMAudioFileSampler.sample(url: URL(fileURLWithPath: path!), countPerSecond: 50, completion: { (sampleData) in
-            DispatchQueue.main.async(execute: {
-                var tempData = [CGFloat]()
-                for data in sampleData! {
-                    tempData.append(CGFloat(data))
-                }
-                self.waveformView.powerLevel = tempData
-            })
-        })
-
+//        let path = Bundle(for: type(of: self)).path(forResource: "Calling_007_10086", ofType: "wav")
+//        SMAudioFileSampler.sample(url: URL(fileURLWithPath: path!), countPerSecond: 50, completion: { (sampleData) in
+//            DispatchQueue.main.async(execute: {
+//                var tempData = [CGFloat]()
+//                for data in sampleData! {
+//                    tempData.append(CGFloat(data))
+//                }
+//                self.waveformView.powerLevel = tempData
+//            })
+//        })
+        
     }
     
 //    @objc private func timerFire() {

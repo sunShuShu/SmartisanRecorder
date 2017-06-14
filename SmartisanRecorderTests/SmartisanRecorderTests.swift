@@ -83,6 +83,7 @@ class SMAudioFileEditorTest: XCTestCase {
         var output: UnsafeMutablePointer<UInt8>?
         self.measure {
             output = SMResample.interpolate(testTimes, buffer: inputBuffer, length: testDataLength)
+            output?.deallocate(capacity: testDataLength * testTimes)
         }
         
     }
@@ -94,7 +95,7 @@ class SMAudioFileEditorTest: XCTestCase {
             
             let url1 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "1 Merge_高_中", ofType: "wav")!)
             let url2 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "低", ofType: "wav")!)
-            let editor = SMAudioFileEditor(inputURLs: [url1, url2], outputURL: outURL) { (result, error) in
+            let editor = SMAudioFileEditor(inputURLs: [url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,], outputURL: outURL) { (result, error) in
                 XCTAssertTrue(result)
                 print(error ?? "Merge success")
                 exp.fulfill()

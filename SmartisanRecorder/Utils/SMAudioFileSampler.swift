@@ -62,6 +62,7 @@ class SMAudioFileSampler {
                                                    dataLength,
                                                    sampleBytes)
                         sampleData.append(sampleBytes, length: dataLength) //TODO: optimize memory,reading data while filtering
+                        sampleBytes.deallocate(capacity: dataLength)
                         CMSampleBufferInvalidate(sampleBuffer)
                     }
                 }

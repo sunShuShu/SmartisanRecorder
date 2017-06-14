@@ -35,6 +35,7 @@ extension Data {
             let num = Int32(bytes.advanced(by: index).pointee)
             result += num
         }
+        bytes.deallocate(capacity: size)
         return result
     }
 }
@@ -44,6 +45,7 @@ extension UInt32 {
         let bytes = UnsafeMutablePointer<UInt32>.allocate(capacity: 1)
         bytes.pointee = self
         let result = Data(bytes: bytes, count: MemoryLayout<UInt32>.size)
+        bytes.deallocate(capacity: 1)
         return result
     }
 }

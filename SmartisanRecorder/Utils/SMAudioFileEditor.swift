@@ -140,6 +140,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
                 }
             }
             let writeLength = self.outputFile.stream.write(buffer, maxLength: headerLength)
+            buffer.deallocate(capacity: headerLength)
             if writeLength != headerLength {
                 self.encounterError()
                 return
@@ -178,6 +179,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
                 let headerLength = SMWaveHeaderTool.waveHeader.count
                 let tempBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: headerLength)
                 let readLength = processingStream!.read(tempBuffer, maxLength: headerLength)
+                tempBuffer.deallocate(capacity: headerLength)
                 if readLength != headerLength {
                     self.encounterError()
                     return
@@ -218,22 +220,26 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
     
     func read() {
         if self.processingStream != nil {
-            let tempBufferLength = InputFile.fragmentLength
+            var tempBufferLength = InputFile.fragmentLength
             var tempBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: tempBufferLength)
             var readLength = self.processingStream!.read(tempBuffer, maxLength: tempBufferLength)
             if readLength <= 0 {
                 return
             }
             
-            let times = inputFiles.first!.sampleRateTimes
-            if times > 1 {
-                tempBuffer = SMResample.interpolate(times, buffer: tempBuffer, length: tempBufferLength)
-                readLength *= times
-            }
+//            let times = inputFiles.first!.sampleRateTimes
+//            if times > 1 {
+//                let resultBuffer = SMResample.interpolate(times, buffer: tempBuffer, length: readLength)
+//                tempBuffer.deallocate(capacity: tempBufferLength)
+//                readLength *= times
+//                tempBuffer = resultBuffer
+//                tempBufferLength = readLength
+//            }
             
             readSemaphore.wait()
             fragmentData.append(tempBuffer, count: readLength)
             writeSemaphore.signal()
+            tempBuffer.deallocate(capacity: tempBufferLength)
         }
     }
     
@@ -249,6 +255,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
         readSemaphore.signal()
         
         self.outputFile.stream.write(tempBuffer!, maxLength: size)
+        tempBuffer?.deallocate(capacity: size)
     }
     
     private func encounterError(_ error: EditError = .fileDamaged) {
