@@ -224,17 +224,18 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
             var tempBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: tempBufferLength)
             var readLength = self.processingStream!.read(tempBuffer, maxLength: tempBufferLength)
             if readLength <= 0 {
+                tempBuffer.deallocate(capacity: tempBufferLength)
                 return
             }
             
-//            let times = inputFiles.first!.sampleRateTimes
-//            if times > 1 {
-//                let resultBuffer = SMResample.interpolate(times, buffer: tempBuffer, length: readLength)
-//                tempBuffer.deallocate(capacity: tempBufferLength)
-//                readLength *= times
-//                tempBuffer = resultBuffer
-//                tempBufferLength = readLength
-//            }
+            let times = inputFiles.first!.sampleRateTimes
+            if times > 1 {
+                let resultBuffer = SMResample.interpolate(times, buffer: tempBuffer, length: readLength)
+                tempBuffer.deallocate(capacity: tempBufferLength)
+                readLength *= times
+                tempBuffer = resultBuffer
+                tempBufferLength = readLength
+            }
             
             readSemaphore.wait()
             fragmentData.append(tempBuffer, count: readLength)
