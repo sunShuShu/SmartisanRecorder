@@ -22,6 +22,8 @@
 		255FF2571E70FB1600D4ECBD /* SMAudioFileSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 255FF2561E70FB1600D4ECBD /* SMAudioFileSampler.swift */; };
 		255FF25E1E714CFC00D4ECBD /* drums.wav in Resources */ = {isa = PBXBuildFile; fileRef = 255FF25C1E714CFC00D4ECBD /* drums.wav */; };
 		255FF25F1E714CFC00D4ECBD /* guitar.wav in Resources */ = {isa = PBXBuildFile; fileRef = 255FF25D1E714CFC00D4ECBD /* guitar.wav */; };
+		256455D91EF36FAD00F23B8A /* 低.wav in Resources */ = {isa = PBXBuildFile; fileRef = 25BD78711E8138F400871BBE /* 低.wav */; };
+		256455DA1EF36FAD00F23B8A /* 1 Merge_高_中.wav in Resources */ = {isa = PBXBuildFile; fileRef = 250CD4981E78091300C2E327 /* 1 Merge_高_中.wav */; };
 		257CF5741ED2F64700007D23 /* SMResample.swift in Sources */ = {isa = PBXBuildFile; fileRef = 257CF5731ED2F64700007D23 /* SMResample.swift */; };
 		259955A21E76B3E400955FB3 /* SMAudioFileEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 259955A11E76B3E400955FB3 /* SMAudioFileEditor.swift */; };
 		25BD78721E8138F400871BBE /* 低.wav in Resources */ = {isa = PBXBuildFile; fileRef = 25BD78711E8138F400871BBE /* 低.wav */; };
@@ -303,6 +305,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				256455D91EF36FAD00F23B8A /* 低.wav in Resources */,
+				256455DA1EF36FAD00F23B8A /* 1 Merge_高_中.wav in Resources */,
 				299BF95C1E71B5B50054F95D /* Calling_007_10086.wav in Resources */,
 				253EB9451E6E841D00E9849E /* LaunchScreen.storyboard in Resources */,
 				253648241E6EACC400476E12 /* Localizable.strings in Resources */,

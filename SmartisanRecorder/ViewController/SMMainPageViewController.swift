@@ -18,9 +18,13 @@ class SMMainPageViewController: UIViewController {
     let waveformView = SMWaveformView()
     let audioMeter = SMAudioMeter(resultRange: 200)
     
+    @IBAction func action(_ sender: UIButton) {
+        testMerge()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
 //        waveformView.backgroundColor = UIColor.gray
 //        waveformView.frame = CGRect(x: 0, y: 0, width: 1000, height: 300)
 //        scrollView.addSubview(waveformView)
@@ -45,6 +49,17 @@ class SMMainPageViewController: UIViewController {
 //            })
 //        })
         
+    }
+    
+    private func testMerge() {
+        let outURL = URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/merge\(arc4random() % 9999).wav")
+        
+        let url1 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "1 Merge_高_中", ofType: "wav")!)
+        let url2 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "低", ofType: "wav")!)
+        let editor = SMAudioFileEditor(inputURLs: [url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, ], outputURL: outURL) { (result, error) in
+            print(error ?? "Merge success")
+        }
+        editor!.merge()
     }
     
 //    @objc private func timerFire() {
