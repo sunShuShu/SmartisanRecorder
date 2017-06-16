@@ -74,6 +74,9 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
         super.init()
     }
     
+    deinit {
+        print("\(self) release")
+    }
     
     /// Check wave header, record max sample rate in all files, check storage space.
     private func checkAllFiles() {
@@ -123,39 +126,39 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
     }
     
     func merge() {
-        //TODO: Cheak memory leaks
-        self.checkAllFiles()
-        
+        checkAllFiles()
         writeQueue.async {
-
-            //write wave header placeholder
-            self.outputFile.stream.open()
-            let headerLength = SMWaveHeaderTool.waveHeader.count
-            let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: headerLength)
-            SMWaveHeaderTool.waveHeader.copyBytes(to: buffer, count: headerLength)
-            while self.outputFile.stream.hasSpaceAvailable == false {
-                if self.outputFile.stream.streamStatus == .error {
-                    self.encounterError()
-                    return
-                }
-            }
-            let writeLength = self.outputFile.stream.write(buffer, maxLength: headerLength)
-            buffer.deallocate(capacity: headerLength)
-            if writeLength != headerLength {
-                self.encounterError()
-                return
-            }
-            
-            //setup output
-            self.outputFile.stream.delegate = self
-            self.outputFile.stream.schedule(in: RunLoop.current, forMode: .defaultRunLoopMode)
+            self.setupOutput()
             RunLoop.current.run()
         }
-        
         readQueue.async {
             self.readNextInput()
             RunLoop.current.run()
         }
+    }
+    
+    private func setupOutput() {
+        //write wave header placeholder
+        self.outputFile.stream.open()
+        let headerLength = SMWaveHeaderTool.waveHeader.count
+        let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: headerLength)
+        SMWaveHeaderTool.waveHeader.copyBytes(to: buffer, count: headerLength)
+        while self.outputFile.stream.hasSpaceAvailable == false {
+            if self.outputFile.stream.streamStatus == .error {
+                self.encounterError()
+                return
+            }
+        }
+        let writeLength = self.outputFile.stream.write(buffer, maxLength: headerLength)
+        buffer.deallocate(capacity: headerLength)
+        if writeLength != headerLength {
+            self.encounterError()
+            return
+        }
+        
+        //setup output stream
+        self.outputFile.stream.delegate = self
+        self.outputFile.stream.schedule(in: RunLoop.current, forMode: .defaultRunLoopMode)
     }
     
     private func readNextInput() {
@@ -206,7 +209,8 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
             if aStream is OutputStream {
                 let result = SMWaveHeaderTool.setHeaderInfo(file: outputFile.url, sampleRate: InputFile.maxSampleRate)
                 if result {
-                    //TODO: release resource
+                    self.outputFile.stream.close()
+                    self.outputFile.stream.remove(from: RunLoop.current, forMode: .defaultRunLoopMode)
                     completion(true, nil)
                 } else {
                     encounterError()
