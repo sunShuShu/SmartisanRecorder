@@ -8,14 +8,32 @@
 
 import UIKit
 import AVFoundation
+import Fabric
+import Crashlytics
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
-
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+        
+        //TODO: test launch time, move configration to globe queue?
+        
+        //Config Crashlytics
+        Fabric.with([Crashlytics.self])
+        
+        //Config UMeng
+        let umConfig = UMAnalyticsConfig.sharedInstance();
+        umConfig?.appKey = "599f96c42ae85b12220022f8";
+        MobClick.setEncryptEnabled(true)
+        MobClick.setCrashReportEnabled(false) //Using Crashlytics instead
+        #if DEBUG
+            umConfig?.ePolicy = REALTIME;
+            MobClick.setLogEnabled(true)
+            MobClick.setEncryptEnabled(false)
+        #endif
+        MobClick.start(withConfigure: umConfig);
         
         //Config audio session category
         let session = AVAudioSession.sharedInstance()
