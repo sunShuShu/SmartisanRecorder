@@ -19,58 +19,13 @@ class SMMainPageViewController: UIViewController {
     let audioMeter = SMAudioMeter(resultRange: 200)
     
     @IBAction func action(_ sender: UIButton) {
-        testMerge()
+        
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
-//        waveformView.backgroundColor = UIColor.gray
-//        waveformView.frame = CGRect(x: 0, y: 0, width: 1000, height: 300)
-//        scrollView.addSubview(waveformView)
-//        scrollView.contentSize = waveformView.bounds.size
-        
-//        recoder.record()
-//        Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(timerFire), userInfo: nil, repeats: true)
-//        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + 10) {
-//            self.recoder.save(with: "Rec_006", completion: { (result) in
-//                print(result)
-//            })
-//        }
-        
-//        let path = Bundle(for: type(of: self)).path(forResource: "Calling_007_10086", ofType: "wav")
-//        SMAudioFileSampler.sample(url: URL(fileURLWithPath: path!), countPerSecond: 50, completion: { (sampleData) in
-//            DispatchQueue.main.async(execute: {
-//                var tempData = [CGFloat]()
-//                for data in sampleData! {
-//                    tempData.append(CGFloat(data))
-//                }
-//                self.waveformView.powerLevel = tempData
-//            })
-//        })
-        
     }
-    
-    private func testMerge() {
-        let outURL = URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/merge\(arc4random() % 9999).wav")
-        
-        let url1 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "1 Merge_高_中", ofType: "wav")!)
-        let url2 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "低", ofType: "wav")!)
-        let editor = SMAudioFileEditor(inputURLs: [url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, url1, url2, ], outputURL: outURL) { (result, error) in
-            print(error ?? "Merge success")
-        }
-        editor!.merge()
-    }
-    
-//    @objc private func timerFire() {
-//        let db = recoder.powerLevel
-//        let amp = audioMeter.linearLevel(with: db)
-//        waveformView.powerLevel.append(CGFloat(amp))
-//        waveformView.powerLevel = waveformView.powerLevel
-//        
-//        waveformView.powerLevel.append(CGFloat(arc4random() % 200))
-//        waveformView.powerLevel = waveformView.powerLevel
-//    }
     
     private func checkPermission() {
         AVAudioSession.sharedInstance().requestRecordPermission { (hasPermission) in
