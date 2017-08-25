@@ -24,4 +24,15 @@ class SMResample {
         return output
     }
     
+    //Currently only 16-bit PCM data is supported
+    static func degrade(_ times: Int, buffer: UnsafeMutablePointer<UInt8>, length: Int) -> UnsafeMutablePointer<UInt8> {
+        let output = UnsafeMutablePointer<UInt8>.allocate(capacity: length * times)
+        for i in stride(from: 0, to: length - 1, by: 2 * times) {
+            let high8Bits = buffer.advanced(by: i).pointee
+            let low8Bits = buffer.advanced(by: i+1).pointee
+            output.advanced(by: i/times).pointee = high8Bits;
+            output.advanced(by: i/times + 1).pointee = low8Bits;
+        }
+        return output
+    }
 }

@@ -58,7 +58,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
     private var processingStream: InputStream?
     private let completion: CompletionBlock
     
-    //MARK:- Mothod
+    //MARK:- Public
     init?(inputURLs: [URL], outputURL: URL, completion: @escaping CompletionBlock) {
         guard inputURLs.isEmpty == false else {
             return nil
@@ -78,7 +78,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
         print("\(self) release")
     }
     
-    /// Check wave header, record max sample rate in all files, check storage space.
+    /// Check wave header, record max sample rate in all files, check available storage.
     private func checkAllFiles() {
         for index in 0..<inputFiles.count {
             let result = SMWaveHeaderTool.check(file: inputFiles[index].url)
@@ -105,7 +105,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
             }
         }
         //The size of WAVE file can NOT greate than 4G
-        if outputFileSize >= 4 * 1024 * 1024 * 1024 {
+        if outputFileSize >= 0xFFFF_0000 {
             encounterError(SMAudioFileEditor.EditError.fileSizeExceedLimit)
             return
         }
@@ -118,13 +118,15 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
             return
         }
         let freeSize = info[FileAttributeKey.systemFreeSize] as! Int
-        //If device free space less than 50M after merge all files
-        if outputFileSize > freeSize - 50 * 1024 * 1024 {
+        //If device free space less than 20M after merge all files
+        if outputFileSize > freeSize - 20 * 1024 * 1024 {
             encounterError(SMAudioFileEditor.EditError.storageFull)
             return
         }
     }
     
+    
+    /// Merge some input wave file in one
     func merge() {
         checkAllFiles()
         writeQueue.async {
@@ -137,6 +139,17 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
         }
     }
     
+    /// Trim ONE input wave file
+    ///
+    /// - Parameters:
+    ///   - start: start position, bytes
+    ///   - end: end position, bytes
+    ///   - sampleRate: smaple rate of output file
+    func trim(start:Int, end:Int, sampleRate:Int) {
+        
+    }
+    
+    //MARK:- Private
     private func setupOutput() {
         //write wave header placeholder
         self.outputFile.stream.open()
