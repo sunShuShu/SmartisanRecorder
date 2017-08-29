@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		250CD4991E78091300C2E327 /* 1 Merge_高_中.wav in Resources */ = {isa = PBXBuildFile; fileRef = 250CD4981E78091300C2E327 /* 1 Merge_高_中.wav */; };
+		252991931F51068E00EBBE69 /* SMUserUsageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 252991921F51068E00EBBE69 /* SMUserUsageInfo.swift */; };
 		252AE9181E6E88AC005FED98 /* SMLocalize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 252AE9171E6E88AC005FED98 /* SMLocalize.swift */; };
 		253648231E6EA9B500476E12 /* SMMainPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253648221E6EA9B500476E12 /* SMMainPageViewController.swift */; };
 		253648241E6EACC400476E12 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 253648261E6EACC400476E12 /* Localizable.strings */; };
@@ -19,13 +20,14 @@
 		253EB9461E6E841D00E9849E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 253EB9421E6E841D00E9849E /* Main.storyboard */; };
 		253EB9501E6E857A00E9849E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253EB94E1E6E857A00E9849E /* AppDelegate.swift */; };
 		25556C591ECC1C0100E41B77 /* SMWaveHeaderTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25556C581ECC1C0100E41B77 /* SMWaveHeaderTool.swift */; };
+		255D28A31F55833E00ED6694 /* ToolTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 255D28A21F55833E00ED6694 /* ToolTests.swift */; };
 		255FF2571E70FB1600D4ECBD /* SMAudioFileSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 255FF2561E70FB1600D4ECBD /* SMAudioFileSampler.swift */; };
 		255FF25E1E714CFC00D4ECBD /* drums.wav in Resources */ = {isa = PBXBuildFile; fileRef = 255FF25C1E714CFC00D4ECBD /* drums.wav */; };
 		255FF25F1E714CFC00D4ECBD /* guitar.wav in Resources */ = {isa = PBXBuildFile; fileRef = 255FF25D1E714CFC00D4ECBD /* guitar.wav */; };
 		256455D91EF36FAD00F23B8A /* 低.wav in Resources */ = {isa = PBXBuildFile; fileRef = 25BD78711E8138F400871BBE /* 低.wav */; };
 		256455DA1EF36FAD00F23B8A /* 1 Merge_高_中.wav in Resources */ = {isa = PBXBuildFile; fileRef = 250CD4981E78091300C2E327 /* 1 Merge_高_中.wav */; };
 		256DC9CC1F4FF90000403C54 /* SMBaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 256DC9CB1F4FF90000403C54 /* SMBaseViewController.swift */; };
-		256DC9CF1F5037F600403C54 /* SmartisanRecorderRecorderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 256DC9CE1F5037F600403C54 /* SmartisanRecorderRecorderTests.swift */; };
+		256DC9CF1F5037F600403C54 /* RecorderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 256DC9CE1F5037F600403C54 /* RecorderTests.swift */; };
 		257CF5741ED2F64700007D23 /* SMResample.swift in Sources */ = {isa = PBXBuildFile; fileRef = 257CF5731ED2F64700007D23 /* SMResample.swift */; };
 		259955A21E76B3E400955FB3 /* SMAudioFileEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 259955A11E76B3E400955FB3 /* SMAudioFileEditor.swift */; };
 		25BD78721E8138F400871BBE /* 低.wav in Resources */ = {isa = PBXBuildFile; fileRef = 25BD78711E8138F400871BBE /* 低.wav */; };
@@ -48,6 +50,7 @@
 
 /* Begin PBXFileReference section */
 		250CD4981E78091300C2E327 /* 1 Merge_高_中.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "1 Merge_高_中.wav"; sourceTree = "<group>"; };
+		252991921F51068E00EBBE69 /* SMUserUsageInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMUserUsageInfo.swift; sourceTree = "<group>"; };
 		252AE9171E6E88AC005FED98 /* SMLocalize.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMLocalize.swift; sourceTree = "<group>"; };
 		253648221E6EA9B500476E12 /* SMMainPageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMMainPageViewController.swift; sourceTree = "<group>"; };
 		253648291E6EAD3300476E12 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -63,12 +66,13 @@
 		253EB94E1E6E857A00E9849E /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		253EB94F1E6E857A00E9849E /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		25556C581ECC1C0100E41B77 /* SMWaveHeaderTool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMWaveHeaderTool.swift; sourceTree = "<group>"; };
+		255D28A21F55833E00ED6694 /* ToolTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolTests.swift; sourceTree = "<group>"; };
 		255FF2561E70FB1600D4ECBD /* SMAudioFileSampler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMAudioFileSampler.swift; sourceTree = "<group>"; };
 		255FF25C1E714CFC00D4ECBD /* drums.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = drums.wav; sourceTree = "<group>"; };
 		255FF25D1E714CFC00D4ECBD /* guitar.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = guitar.wav; sourceTree = "<group>"; };
 		256DC9CA1F4FF1C800403C54 /* SmartisanRecorder-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SmartisanRecorder-Bridging-Header.h"; sourceTree = "<group>"; };
 		256DC9CB1F4FF90000403C54 /* SMBaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMBaseViewController.swift; sourceTree = "<group>"; };
-		256DC9CE1F5037F600403C54 /* SmartisanRecorderRecorderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartisanRecorderRecorderTests.swift; sourceTree = "<group>"; };
+		256DC9CE1F5037F600403C54 /* RecorderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecorderTests.swift; sourceTree = "<group>"; };
 		257CF5731ED2F64700007D23 /* SMResample.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMResample.swift; sourceTree = "<group>"; };
 		259955A11E76B3E400955FB3 /* SMAudioFileEditor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMAudioFileEditor.swift; sourceTree = "<group>"; };
 		25BD78711E8138F400871BBE /* 低.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "低.wav"; sourceTree = "<group>"; };
@@ -121,7 +125,8 @@
 				255FF25D1E714CFC00D4ECBD /* guitar.wav */,
 				2536483A1E6ECF6D00476E12 /* SmartisanRecorderTests.swift */,
 				2536483C1E6ECF6D00476E12 /* Info.plist */,
-				256DC9CE1F5037F600403C54 /* SmartisanRecorderRecorderTests.swift */,
+				256DC9CE1F5037F600403C54 /* RecorderTests.swift */,
+				255D28A21F55833E00ED6694 /* ToolTests.swift */,
 			);
 			path = SmartisanRecorderTests;
 			sourceTree = "<group>";
@@ -160,6 +165,7 @@
 				259955A11E76B3E400955FB3 /* SMAudioFileEditor.swift */,
 				257CF5731ED2F64700007D23 /* SMResample.swift */,
 				25556C581ECC1C0100E41B77 /* SMWaveHeaderTool.swift */,
+				252991921F51068E00EBBE69 /* SMUserUsageInfo.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -467,8 +473,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				256DC9CF1F5037F600403C54 /* SmartisanRecorderRecorderTests.swift in Sources */,
+				256DC9CF1F5037F600403C54 /* RecorderTests.swift in Sources */,
 				2536483B1E6ECF6D00476E12 /* SmartisanRecorderTests.swift in Sources */,
+				255D28A31F55833E00ED6694 /* ToolTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -486,6 +493,7 @@
 				2536482E1E6EAFD200476E12 /* SMRecorder.swift in Sources */,
 				25C4E45F1E6E935D00A2DFD0 /* SMExtension.swift in Sources */,
 				255FF2571E70FB1600D4ECBD /* SMAudioFileSampler.swift in Sources */,
+				252991931F51068E00EBBE69 /* SMUserUsageInfo.swift in Sources */,
 				259955A21E76B3E400955FB3 /* SMAudioFileEditor.swift in Sources */,
 				25E28DDF1E6F9E8A0008E066 /* SMWaveformView.swift in Sources */,
 			);
@@ -656,13 +664,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = M754JW8837;
 				INFOPLIST_FILE = "$(SRCROOT)/SmartisanRecorder/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				OTHER_SWIFT_FLAGS = "-D DEBUG";
+				OTHER_SWIFT_FLAGS = "-DDEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.sunshushu.SmartisanRecorder;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -681,6 +690,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = M754JW8837;
 				INFOPLIST_FILE = "$(SRCROOT)/SmartisanRecorder/Info.plist";
