@@ -36,7 +36,7 @@ class SMAudioFileSampler {
                 print("audio file sampler creat asset reader failed." + error.localizedDescription)
                 return
             }
-            guard let track = asset.tracks(withMediaType: AVMediaTypeAudio).first else {
+            guard let track = asset.tracks(withMediaType: AVMediaType.audio).first else {
                 completion(nil)
                 print("audio file track is nil")
                 return

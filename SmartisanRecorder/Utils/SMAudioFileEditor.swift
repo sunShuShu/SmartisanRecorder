@@ -18,7 +18,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
     }
     
     private struct InputFile {
-        static let fragmentLength = 1024 * 100
+        static let fragmentLength = 6 * 1024 * 100
         static var maxSampleRate = 8_000
         let url: URL
         var sampleRate = 8_000
@@ -78,57 +78,23 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
         print("\(self) release")
     }
     
-    /// Check wave header, record max sample rate in all files, check available storage.
-    private func checkAllFiles() {
-        for index in 0..<inputFiles.count {
-            let result = SMWaveHeaderTool.check(file: inputFiles[index].url)
-            if result.isValid == false {
-                encounterError()
-                return
-            }
-            inputFiles[index].sampleRate = result.sampleRate
-            InputFile.maxSampleRate = max(InputFile.maxSampleRate, result.sampleRate)
-        }
-        
-        var outputFileSize = 0
-        for index in 0..<inputFiles.count {
-            let info: [FileAttributeKey:Any]
-            inputFiles[index].sampleRateTimes = InputFile.maxSampleRate / inputFiles[index].sampleRate
-            do {
-                try info = FileManager.default.attributesOfItem(atPath: inputFiles[index].url.path)
-            } catch {
-                encounterError()
-                return
-            }
-            if let size = (info[FileAttributeKey.size] as? Int) {
-                outputFileSize += size * inputFiles[index].sampleRateTimes
-            }
-        }
-        //The size of WAVE file can NOT greate than 4G
-        if outputFileSize >= 0xFFFF_0000 {
-            encounterError(SMAudioFileEditor.EditError.fileSizeExceedLimit)
-            return
-        }
-        
-        let info: [FileAttributeKey:Any]
-        do {
-            try info = FileManager.default.attributesOfFileSystem(forPath: NSHomeDirectory())
-        } catch {
+    /// Merge some input wave file in one
+    func merge() {
+        guard checkAllFiles() else {
             encounterError()
             return
         }
-        let freeSize = info[FileAttributeKey.systemFreeSize] as! Int
-        //If device free space less than 20M after merge all files
-        if outputFileSize > freeSize - 20 * 1024 * 1024 {
-            encounterError(SMAudioFileEditor.EditError.storageFull)
+        let outputFileSize = setSampleRateTimesAndGetFinalFileSize(sampleRate: InputFile.maxSampleRate)
+        guard outputFileSize != nil else {
+            encounterError()
             return
         }
-    }
-    
-    
-    /// Merge some input wave file in one
-    func merge() {
-        checkAllFiles()
+        SMLog("Merged file size: \(outputFileSize!)")
+        guard checkStorage(fileSize: outputFileSize!) else {
+            encounterError()
+            return
+        }
+
         writeQueue.async {
             self.setupOutput()
             RunLoop.current.run()
@@ -142,14 +108,105 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
     /// Trim ONE input wave file
     ///
     /// - Parameters:
-    ///   - start: start position, bytes
-    ///   - end: end position, bytes
+    ///   - start: start position
+    ///   - end: end position
     ///   - sampleRate: smaple rate of output file
-    func trim(start:Int, end:Int, sampleRate:Int) {
+    func trim(start:TimeInterval, end:TimeInterval, sampleRate:Int) {
+        guard checkAllFiles() else {
+            encounterError()
+            return
+        }
+        let fileTotleTime = TimeInterval(SMWaveHeaderTool.getAudioDataSize(inputFiles[0].url)!) / TimeInterval(SMWaveHeaderTool.getBPS(inputFiles[0].url)!)
+        guard start < end && end <= fileTotleTime else {
+            encounterError()
+            return
+        }
+        var outputFileSize = setSampleRateTimesAndGetFinalFileSize(sampleRate: sampleRate)
+        guard outputFileSize != nil else {
+            encounterError()
+            return
+        }
+        outputFileSize! = Int(Double(outputFileSize!) * ((end - start) / fileTotleTime))
+        SMLog("Trimmed file size: \(outputFileSize!)")
+        guard checkStorage(fileSize: outputFileSize!) else {
+            encounterError()
+            return
+        }
+        
         
     }
     
     //MARK:- Private
+    /// Check wave header, record max sample rate in all files.
+    private func checkAllFiles() -> Bool {
+        for index in 0..<inputFiles.count {
+            let result = SMWaveHeaderTool.check(file: inputFiles[index].url)
+            if result.isValid == false {
+                encounterError()
+                return false
+            }
+            inputFiles[index].sampleRate = result.sampleRate
+            InputFile.maxSampleRate = max(InputFile.maxSampleRate, result.sampleRate)
+        }
+        return true
+    }
+    
+    /// check file size and available storage
+    ///
+    /// - Parameter fileSize: output file size
+    /// - Returns: check result
+    private func checkStorage(fileSize: Int) -> Bool {
+        //The size of WAVE file can NOT greate than 4G
+        if fileSize >= 0xFFFF_F000 {
+            encounterError(SMAudioFileEditor.EditError.fileSizeExceedLimit)
+            return false
+        }
+        
+        let info: [FileAttributeKey:Any]
+        do {
+            try info = FileManager.default.attributesOfFileSystem(forPath: NSHomeDirectory())
+        } catch {
+            encounterError()
+            return false
+        }
+        let freeSize = info[FileAttributeKey.systemFreeSize] as! Int
+        //If device free space less than 10M after merge all files
+        if fileSize > freeSize - 10 * 1024 * 1024 {
+            encounterError(SMAudioFileEditor.EditError.storageFull)
+            return false
+        }
+        return true
+    }
+    
+    private func setSampleRateTimesAndGetFinalFileSize(sampleRate: Int) -> Int? {
+        var outputFileSize = 0
+        var info: [FileAttributeKey:Any]
+        for index in 0..<inputFiles.count {
+            if sampleRate < inputFiles[index].sampleRate {
+                inputFiles[index].sampleRateTimes = -(inputFiles[index].sampleRate / sampleRate)
+            } else {
+                inputFiles[index].sampleRateTimes = sampleRate / inputFiles[index].sampleRate
+            }
+            do {
+                try info = FileManager.default.attributesOfItem(atPath: inputFiles[index].url.path)
+            } catch {
+                encounterError()
+                return nil
+            }
+            if let size = (info[FileAttributeKey.size] as? Int) {
+                if inputFiles[index].sampleRateTimes < 0 {
+                    outputFileSize += size / inputFiles[index].sampleRateTimes
+                } else {
+                    outputFileSize += size * inputFiles[index].sampleRateTimes
+                }
+            } else {
+                SMLog("File size attribute can NOT be read", level: .high)
+                return nil
+            }
+        }
+        return outputFileSize
+    }
+    
     private func setupOutput() {
         //write wave header placeholder
         self.outputFile.stream.open()
@@ -237,27 +294,22 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
     
     func read() {
         if self.processingStream != nil {
-            var tempBufferLength = InputFile.fragmentLength
-            var tempBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: tempBufferLength)
-            var readLength = self.processingStream!.read(tempBuffer, maxLength: tempBufferLength)
+            let tempBufferLength = InputFile.fragmentLength
+            let tempBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: tempBufferLength)
+            let readLength = self.processingStream!.read(tempBuffer, maxLength: tempBufferLength)
             if readLength <= 0 {
                 tempBuffer.deallocate(capacity: tempBufferLength)
                 return
             }
             
             let times = inputFiles.first!.sampleRateTimes
-            if times > 1 {
-                let resultBuffer = SMResample.interpolate(times, buffer: tempBuffer, length: readLength)
-                tempBuffer.deallocate(capacity: tempBufferLength)
-                readLength *= times
-                tempBuffer = resultBuffer
-                tempBufferLength = readLength
-            }
+            let resultBuffer = SMResample.resample(times, buffer: tempBuffer, length: readLength)
+            tempBuffer.deallocate(capacity: tempBufferLength)
             
             readSemaphore.wait()
-            fragmentData.append(tempBuffer, count: readLength)
+            fragmentData.append(resultBuffer.buffer, count: resultBuffer.length)
             writeSemaphore.signal()
-            tempBuffer.deallocate(capacity: tempBufferLength)
+            resultBuffer.buffer.deallocate(capacity: resultBuffer.length)
         }
     }
     
