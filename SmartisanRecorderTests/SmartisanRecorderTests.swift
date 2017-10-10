@@ -72,20 +72,32 @@ class SMAudioFileSamplerTest: XCTestCase {
 
 class SMAudioFileEditorTest: XCTestCase {
     
-    func testInterpolate() {
+    func testResampleSpeed() {
         let testDataLength = 1024 * 1024 * 10
         let testTimes = 6
         let inputBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: testDataLength);
         for index: Int in 0..<testDataLength {
-            inputBuffer[index] = UInt8(index)
+            inputBuffer[index] = UInt8(index % 255)
         }
         
-        var output: UnsafeMutablePointer<UInt8>?
         self.measure {
-            output = SMResample.interpolate(testTimes, buffer: inputBuffer, length: testDataLength)
-            output?.deallocate(capacity: testDataLength * testTimes)
+            let output = SMResample.resample(testTimes, buffer: inputBuffer, length: testDataLength)
+            output.buffer.deallocate(capacity: testDataLength * testTimes)
         }
-        
+    }
+    
+    func testResample() {
+        let testDataLength = 20
+        let testTimes = -3
+        let inputBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: testDataLength);
+        for index: Int in 0..<testDataLength {
+            inputBuffer[index] = UInt8(index % 255)
+        }
+        let output = SMResample.resample(testTimes, buffer: inputBuffer, length: testDataLength)
+        for index in 0..<output.length {
+            SMLog("\(output.buffer[index])")
+        }
+        output.buffer.deallocate(capacity: testDataLength * testTimes)
     }
     
     func testPCMMerge() {

@@ -18,4 +18,9 @@ class SMBaseViewController: UIViewController {
         super.viewWillAppear(animated)
          MobClick.endLogPageView("\(type(of: self))");
     }
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        SMLog("Memory warning!", level: .high)
+    }
 }
