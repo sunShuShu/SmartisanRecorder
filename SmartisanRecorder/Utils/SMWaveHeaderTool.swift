@@ -36,29 +36,21 @@ class SMWaveHeaderTool {
     /// - Parameter url: file URL
     /// - Returns: (validity, sampl rate)
     static func check(file: URL) -> (isValid: Bool, sampleRate:Int) {
-        var handle: FileHandle?
-        do {
-            try handle = FileHandle(forReadingFrom: file)
-        } catch  {
-            return (false, 0)
-        }
-        
-        let headerLength = SMWaveHeaderTool.waveHeader.count;
-        let iData = handle!.readData(ofLength: headerLength)
-        handle!.closeFile()
-        guard iData.count == headerLength else {
+        let iData = self.getHeaderData(file)
+        if iData == nil {
             return (false, 0)
         }
         
         let range = SMWaveHeaderTool.waveSampleRateRange
-        let sampleRate = Int(iData.subData(range.first!, range.count).toInt32(isLittleEndian: true))
+        let sampleRate = Int(iData!.subData(range.first!, range.count).toInt32(isLittleEndian: true))
         guard SMRecorder.QualitySettings.low.sampleRate <= sampleRate
             && sampleRate <= SMRecorder.QualitySettings.high.sampleRate
             && sampleRate % SMRecorder.QualitySettings.low.sampleRate == 0 else {
                 return (false, 0)
         }
         
-        var headerData = iData.subData(0, headerLength)
+        let headerLength = SMWaveHeaderTool.waveHeader.count;
+        var headerData = iData!.subData(0, headerLength)
         headerData.replaceSubrange(SMWaveHeaderTool.waveSize1Range,
                                    with: Data(repeatElement(0, count: SMWaveHeaderTool.waveSize1Range.count)))
         headerData.replaceSubrange(SMWaveHeaderTool.waveSampleRateRange,
@@ -103,6 +95,41 @@ class SMWaveHeaderTool {
         handle?.write(UInt32(size2).toData())
         handle?.closeFile()
         return true
+    }
+    
+    static func getHeaderData(_ file: URL) -> Data? {
+        var handle: FileHandle?
+        do {
+            try handle = FileHandle(forReadingFrom: file)
+        } catch  {
+            return nil
+        }
+        
+        let headerLength = SMWaveHeaderTool.waveHeader.count;
+        let headerData = handle!.readData(ofLength: headerLength)
+        handle!.closeFile()
+        guard headerData.count == headerLength else {
+            return nil
+        }
+        return headerData
+    }
+    
+    static func getAudioDataSize(_ file: URL) -> Int? {
+        if let headerData = self.getHeaderData(file) {
+            let size = headerData.subData(self.waveSize2Range.first!, self.waveSize2Range.last!).toInt32(isLittleEndian: true)
+            return Int(size)
+        } else {
+            return nil
+        }
+    }
+    
+    static func getBPS(_ file: URL) -> Int? {
+        if let headerData = self.getHeaderData(file) {
+            let size = headerData.subData(self.waveBPSRange.first!, self.waveBPSRange.last!).toInt32(isLittleEndian: true)
+            return Int(size)
+        } else {
+            return nil
+        }
     }
     
 }
