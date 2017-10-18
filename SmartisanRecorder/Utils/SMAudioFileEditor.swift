@@ -84,7 +84,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
             encounterError()
             return
         }
-        let outputFileSize = setSampleRateTimesAndGetFinalFileSize(sampleRate: InputFile.maxSampleRate)
+        let outputFileSize = setSampleRateTimesAndGetFileSize(sampleRate: InputFile.maxSampleRate)?.outputSize
         guard outputFileSize != nil else {
             encounterError()
             return
@@ -121,19 +121,29 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
             encounterError()
             return
         }
-        var outputFileSize = setSampleRateTimesAndGetFinalFileSize(sampleRate: sampleRate)
-        guard outputFileSize != nil else {
+        let fileSize = setSampleRateTimesAndGetFileSize(sampleRate: sampleRate)
+        guard fileSize != nil else {
             encounterError()
             return
         }
-        outputFileSize! = Int(Double(outputFileSize!) * ((end - start) / fileTotleTime))
-        SMLog("Trimmed file size: \(outputFileSize!)")
-        guard checkStorage(fileSize: outputFileSize!) else {
+        var outputFileSize = fileSize!.outputSize
+        outputFileSize = Int(Double(outputFileSize) * ((end - start) / fileTotleTime))
+        SMLog("Trimmed file size: \(outputFileSize)")
+        guard checkStorage(fileSize: outputFileSize) else {
             encounterError()
             return
         }
         
-        
+        let startLocation = start / fileTotleTime * Double(fileSize!.inputSize)
+        let endLocation = end / fileTotleTime * Double(fileSize!.inputSize)
+        writeQueue.async {
+            self.setupOutput()
+            RunLoop.current.run()
+        }
+        readQueue.async {
+            self.readNextInput(from: Int(startLocation), to: Int(endLocation))
+            RunLoop.current.run()
+        }
     }
     
     //MARK:- Private
@@ -178,10 +188,11 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
         return true
     }
     
-    private func setSampleRateTimesAndGetFinalFileSize(sampleRate: Int) -> Int? {
+    private func setSampleRateTimesAndGetFileSize(sampleRate: Int) -> (inputSize:Int, outputSize:Int)? {
+        var inputFileSize = 0
         var outputFileSize = 0
-        var info: [FileAttributeKey:Any]
         for index in 0..<inputFiles.count {
+            var info: [FileAttributeKey:Any]
             if sampleRate < inputFiles[index].sampleRate {
                 inputFiles[index].sampleRateTimes = -(inputFiles[index].sampleRate / sampleRate)
             } else {
@@ -194,6 +205,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
                 return nil
             }
             if let size = (info[FileAttributeKey.size] as? Int) {
+                inputFileSize = size
                 if inputFiles[index].sampleRateTimes < 0 {
                     outputFileSize += size / inputFiles[index].sampleRateTimes
                 } else {
@@ -204,7 +216,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
                 return nil
             }
         }
-        return outputFileSize
+        return (inputFileSize, outputFileSize)
     }
     
     private func setupOutput() {
@@ -231,7 +243,13 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
         self.outputFile.stream.schedule(in: RunLoop.current, forMode: .defaultRunLoopMode)
     }
     
-    private func readNextInput() {
+    
+    /// read next input file
+    ///
+    /// - Parameters:
+    ///   - from: start offset location, bytes
+    ///   - to: end offset location, bytes
+    private func readNextInput(from: Int = 0, to: Int = Int.max) {
         //TODO: move to method of release resource
         if processingStream != nil {
             processingStream!.close()
@@ -250,10 +268,8 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
                 processingStream!.open()
                 //skip wave header
                 let headerLength = SMWaveHeaderTool.waveHeader.count
-                let tempBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: headerLength)
-                let readLength = processingStream!.read(tempBuffer, maxLength: headerLength)
-                tempBuffer.deallocate(capacity: headerLength)
-                if readLength != headerLength {
+                let result = processingStream?.setProperty(headerLength, forKey: Stream.PropertyKey.fileCurrentOffsetKey)
+                if result == false {
                     self.encounterError()
                     return
                 }
