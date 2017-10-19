@@ -107,7 +107,7 @@ class SMAudioFileEditorTest: XCTestCase {
             
             let url1 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "1 Merge_高_中", ofType: "wav")!)
             let url2 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "低", ofType: "wav")!)
-            let editor = SMAudioFileEditor(inputURLs: [url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,url1, url2, url1, url2, url1, url2,], outputURL: outURL) { (result, error) in
+            let editor = SMAudioFileEditor(inputURLs: [url1, url2], outputURL: outURL) { (result, error) in
                 XCTAssertTrue(result)
                 print(error ?? "Merge success")
                 exp.fulfill()
@@ -115,6 +115,27 @@ class SMAudioFileEditorTest: XCTestCase {
             
             XCTAssertNotNil(editor)
             editor!.merge()
+            
+            self.waitForExpectations(timeout: 600) { (error) in
+                XCTAssertTrue(true)
+            }
+        }
+    }
+    
+    func testPCMTrim() {
+        self.measure {
+            let exp = self.expectation(description: "Audio file editor, trimming")
+            let outURL = URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/merge\(arc4random() % 9999).wav")
+            
+            let url1 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "1 Merge_高_中", ofType: "wav")!)
+            let editor = SMAudioFileEditor(inputURLs: [url1], outputURL: outURL) { (result, error) in
+                XCTAssertTrue(result)
+                print(error ?? "Merge success")
+                exp.fulfill()
+            }
+            
+            XCTAssertNotNil(editor)
+            editor!.trim(start: 5.6, end: 20.4, sampleRate: 8000)
             
             self.waitForExpectations(timeout: 600) { (error) in
                 XCTAssertTrue(true)

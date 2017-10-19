@@ -55,6 +55,8 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
     private var fragmentData = Data()
     private var inputFiles = [InputFile]()
     private let outputFile: OutputFile
+    private var startTrimLocation = 0 //start offset location, bytes
+    private var endTrimLocation = Int.max //end offset location, bytes
     private var processingStream: InputStream?
     private let completion: CompletionBlock
     
@@ -116,7 +118,15 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
             encounterError()
             return
         }
-        let fileTotleTime = TimeInterval(SMWaveHeaderTool.getAudioDataSize(inputFiles[0].url)!) / TimeInterval(SMWaveHeaderTool.getBPS(inputFiles[0].url)!)
+        guard inputFiles.count == 1 else {
+            SMLog("Trimmed inputFiles array count is NOT 1!", level: .high)
+            encounterError()
+            return
+        }
+        let headerData = SMWaveHeaderTool.getHeaderData(inputFiles[0].url)
+        let audioDataSize = headerData?.getAudioDataSize2FromWaveHeader()
+        let audioBps = headerData?.getBPSFromWaveHeader()
+        let fileTotleTime = TimeInterval(audioDataSize!) / TimeInterval(audioBps!)
         guard start < end && end <= fileTotleTime else {
             encounterError()
             return
@@ -134,14 +144,14 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
             return
         }
         
-        let startLocation = start / fileTotleTime * Double(fileSize!.inputSize)
-        let endLocation = end / fileTotleTime * Double(fileSize!.inputSize)
+        self.startTrimLocation = Int(start * Double(fileSize!.inputSize) / fileTotleTime)
+        self.endTrimLocation = Int(end * Double(fileSize!.inputSize) / fileTotleTime)
         writeQueue.async {
             self.setupOutput()
             RunLoop.current.run()
         }
         readQueue.async {
-            self.readNextInput(from: Int(startLocation), to: Int(endLocation))
+            self.readNextInput()
             RunLoop.current.run()
         }
     }
@@ -243,13 +253,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
         self.outputFile.stream.schedule(in: RunLoop.current, forMode: .defaultRunLoopMode)
     }
     
-    
-    /// read next input file
-    ///
-    /// - Parameters:
-    ///   - from: start offset location, bytes
-    ///   - to: end offset location, bytes
-    private func readNextInput(from: Int = 0, to: Int = Int.max) {
+    private func readNextInput() {
         //TODO: move to method of release resource
         if processingStream != nil {
             processingStream!.close()
@@ -266,9 +270,9 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
                 processingStream!.delegate = self
                 processingStream!.schedule(in: RunLoop.current, forMode: .defaultRunLoopMode)
                 processingStream!.open()
-                //skip wave header
+                //skip wave header and trimmed data
                 let headerLength = SMWaveHeaderTool.waveHeader.count
-                let result = processingStream?.setProperty(headerLength, forKey: Stream.PropertyKey.fileCurrentOffsetKey)
+                let result = processingStream?.setProperty(headerLength + startTrimLocation, forKey: Stream.PropertyKey.fileCurrentOffsetKey)
                 if result == false {
                     self.encounterError()
                     return
@@ -310,17 +314,21 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
     
     func read() {
         if self.processingStream != nil {
-            let tempBufferLength = InputFile.fragmentLength
-            let tempBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: tempBufferLength)
-            let readLength = self.processingStream!.read(tempBuffer, maxLength: tempBufferLength)
+            var readyToReadLength = InputFile.fragmentLength
+            let currentOffset = self.processingStream!.property(forKey: Stream.PropertyKey.fileCurrentOffsetKey) as! Int
+            if currentOffset + readyToReadLength > endTrimLocation {
+                readyToReadLength = endTrimLocation - currentOffset
+            }
+            let tempBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: readyToReadLength)
+            let readLength = self.processingStream!.read(tempBuffer, maxLength: readyToReadLength)
             if readLength <= 0 {
-                tempBuffer.deallocate(capacity: tempBufferLength)
+                tempBuffer.deallocate(capacity: readyToReadLength)
                 return
             }
             
             let times = inputFiles.first!.sampleRateTimes
             let resultBuffer = SMResample.resample(times, buffer: tempBuffer, length: readLength)
-            tempBuffer.deallocate(capacity: tempBufferLength)
+            tempBuffer.deallocate(capacity: readyToReadLength)
             
             readSemaphore.wait()
             fragmentData.append(resultBuffer.buffer, count: resultBuffer.length)
