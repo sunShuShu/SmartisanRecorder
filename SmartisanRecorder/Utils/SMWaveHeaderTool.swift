@@ -52,7 +52,7 @@ class SMWaveHeaderTool {
         
         //check bps
         let bps = headerData.getBPSFromWaveHeader()
-        guard bps == Int(self.supportedBitWidth) * sampleRate else {
+        guard bps == Int(self.supportedBitWidth / BYTE_SIZE) * sampleRate else {
             return (false, 0)
         }
         
@@ -65,11 +65,11 @@ class SMWaveHeaderTool {
         }
         if let fileSize = (info[FileAttributeKey.size] as? Int) {
             let size1 = headerData.getAudioDataSize1FromWaveHeader()
-            guard size1 == fileSize - self.waveSize1Range.last! + 1 else {
+            guard size1 == fileSize - (self.waveSize1Range.last! + 1) else {
                 return (false, 0)
             }
             let size2 = headerData.getAudioDataSize2FromWaveHeader()
-            guard size2 == fileSize - self.waveSize2Range.last! + 1 else {
+            guard size2 == fileSize - (self.waveSize2Range.last! + 1) else {
                 return (false, 0)
             }
         } else {
