@@ -20,6 +20,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
     private struct InputFile {
         static let fragmentLength = 6 * 1024 * 100
         static var maxSampleRate = 8_000
+        static var targetSampleRate = 8_000
         let url: URL
         var sampleRate = 8_000
         var sampleRateTimes = 1 //times of interpolation data and the original data
@@ -82,6 +83,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
     
     /// Merge some input wave file in one
     func merge() {
+        //check
         guard checkAllFiles() else {
             encounterError()
             return
@@ -96,7 +98,11 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
             encounterError()
             return
         }
+        
+        //set merge parameter
+        InputFile.targetSampleRate = InputFile.maxSampleRate
 
+        //start merge
         writeQueue.async {
             self.setupOutput()
             RunLoop.current.run()
@@ -114,6 +120,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
     ///   - end: end position
     ///   - sampleRate: smaple rate of output file
     func trim(start:TimeInterval, end:TimeInterval, sampleRate:Int) {
+        //check
         guard checkAllFiles() else {
             encounterError()
             return
@@ -144,8 +151,12 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
             return
         }
         
+        //set trim parameter
+        InputFile.targetSampleRate = sampleRate
         self.startTrimLocation = Int(start * Double(fileSize!.inputSize) / fileTotleTime)
         self.endTrimLocation = Int(end * Double(fileSize!.inputSize) / fileTotleTime)
+        
+        //start trim
         writeQueue.async {
             self.setupOutput()
             RunLoop.current.run()
@@ -217,7 +228,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
             if let size = (info[FileAttributeKey.size] as? Int) {
                 inputFileSize = size
                 if inputFiles[index].sampleRateTimes < 0 {
-                    outputFileSize += size / inputFiles[index].sampleRateTimes
+                    outputFileSize += size / (-inputFiles[index].sampleRateTimes)
                 } else {
                     outputFileSize += size * inputFiles[index].sampleRateTimes
                 }
@@ -297,7 +308,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
             self.encounterError()
         case Stream.Event.endEncountered:
             if aStream is OutputStream {
-                let result = SMWaveHeaderTool.setHeaderInfo(file: outputFile.url, sampleRate: InputFile.maxSampleRate)
+                let result = SMWaveHeaderTool.setHeaderInfo(file: outputFile.url, sampleRate: InputFile.targetSampleRate)
                 if result {
                     self.outputFile.stream.close()
                     self.outputFile.stream.remove(from: RunLoop.current, forMode: .defaultRunLoopMode)
