@@ -21,7 +21,6 @@ class SMResample {
         if times < 0 {
             return (degrade(-times, buffer: buffer, length: length), length / -times)
         } else {
-            
             return (interpolate(times, buffer: buffer, length: length), times * length)
         }
     }

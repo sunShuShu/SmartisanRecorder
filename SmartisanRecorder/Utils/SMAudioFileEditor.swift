@@ -326,9 +326,15 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
                 return
             }
             
+            //resample
+            let resultBuffer: (buffer:UnsafeMutablePointer<UInt8>, length:Int)
             let times = inputFiles.first!.sampleRateTimes
-            let resultBuffer = SMResample.resample(times, buffer: tempBuffer, length: readLength)
-            tempBuffer.deallocate(capacity: readyToReadLength)
+            if times != 1 {
+                resultBuffer = SMResample.resample(times, buffer: tempBuffer, length: readLength)
+                tempBuffer.deallocate(capacity: readyToReadLength)
+            } else {
+                resultBuffer = (tempBuffer, readLength)
+            }
             
             readSemaphore.wait()
             fragmentData.append(resultBuffer.buffer, count: resultBuffer.length)
