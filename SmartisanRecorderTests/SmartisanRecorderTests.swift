@@ -101,13 +101,14 @@ class SMAudioFileEditorTest: XCTestCase {
     }
     
     func testPCMMerge() {
+        objc_sync_enter(self)
         self.measure {
             let exp = self.expectation(description: "Audio file editor")
             let outURL = URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/merge\(arc4random() % 9999).wav")
             
             let url1 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "1 Merge_高_中", ofType: "wav")!)
             let url2 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "低", ofType: "wav")!)
-            let editor = SMAudioFileEditor(inputURLs: [url1, url2], outputURL: outURL) { (result, error) in
+            let editor = SMAudioFileEditor(inputURLs: [url1, url2, url1, url2, url1, url2, url1, url2, url1, url2], outputURL: outURL) { (result, error) in
                 XCTAssertTrue(result)
                 print(error ?? "Merge success")
                 exp.fulfill()
@@ -120,6 +121,7 @@ class SMAudioFileEditorTest: XCTestCase {
                 XCTAssertTrue(true)
             }
         }
+        objc_sync_exit(self)
     }
     
     func testPCMTrim() {
@@ -141,6 +143,74 @@ class SMAudioFileEditorTest: XCTestCase {
                 XCTAssertTrue(true)
             }
         }
+    }
+    
+    func testAVFoundationMerge() {
+        objc_sync_enter(self)
+        self.measure {
+            let exp = self.expectation(description: "AVFoundation merge failed")
+            let outURL = URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/merge\(arc4random() % 9999).wav")
+            let url1 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "1 Merge_高_中", ofType: "wav")!)
+            let url2 = URL(fileURLWithPath: Bundle(for: type(of: self)).path(forResource: "低", ofType: "wav")!)
+            var urlArray = [url1, url2, url1, url2, url1, url2, url1, url2, url1, url2]
+            
+            var writer: AVAssetWriter?
+            do {
+                writer = try AVAssetWriter(outputURL: outURL, fileType: AVFileType.wav)
+            } catch {
+            }
+            let input = AVAssetWriterInput(mediaType: AVMediaType.audio,
+                                           outputSettings: [AVLinearPCMBitDepthKey:16,
+                                                            AVLinearPCMIsBigEndianKey:false,
+                                                            AVLinearPCMIsNonInterleaved:false,
+                                                            AVLinearPCMIsFloatKey:false,
+                                                            AVSampleRateKey:48000,
+                                                            AVNumberOfChannelsKey:1,
+                                                            AVFormatIDKey:kAudioFormatLinearPCM])
+            writer?.add(input)
+            writer?.startWriting()
+            writer?.startSession(atSourceTime: kCMTimeZero)
+            input.requestMediaDataWhenReady(on: DispatchQueue.global(), using: {
+                var complete = false
+                var currentOutput: AVAssetReaderTrackOutput?
+                while input.isReadyForMoreMediaData && complete == false {
+                    if let sampleBuffer = currentOutput?.copyNextSampleBuffer() {
+                        input.append(sampleBuffer)
+                        complete = false
+                    } else {
+                        if urlArray.count > 0 {
+                            let asset = AVAsset(url: urlArray.first!)
+                            urlArray.remove(at: 0)
+                            let track = asset.tracks(withMediaType: AVMediaType.audio).first!
+                            var reader: AVAssetReader?
+                            do {
+                                reader = try AVAssetReader(asset: asset)
+                            } catch {
+                            }
+                            currentOutput = AVAssetReaderTrackOutput(track: track, outputSettings: [AVFormatIDKey:kAudioFormatLinearPCM])
+                            reader?.add(currentOutput!)
+                            reader?.startReading()
+                        } else {
+                            input.markAsFinished()
+                            complete = true
+                            exp.fulfill()
+                        }
+                    }
+                }
+                if (complete) {
+                    writer?.finishWriting {
+                        if writer?.status != .completed {
+                            print(writer?.error as Any)
+                        }
+                    }
+                }
+            })
+
+            self.waitForExpectations(timeout: 600) { (error) in
+                XCTAssertTrue(true)
+            }
+        }
+        objc_sync_exit(self)
     }
     
 }
