@@ -9,6 +9,7 @@ target 'SmartisanRecorder' do
   pod 'UMengAnalytics-NO-IDFA'
   pod 'Fabric'
   pod 'Crashlytics'
+  pod 'WCDB'
 
   target 'SmartisanRecorderTests' do
     inherit! :search_paths

@@ -29,6 +29,9 @@
 		256DC9CC1F4FF90000403C54 /* SMBaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 256DC9CB1F4FF90000403C54 /* SMBaseViewController.swift */; };
 		256DC9CF1F5037F600403C54 /* RecorderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 256DC9CE1F5037F600403C54 /* RecorderTests.swift */; };
 		257CF5741ED2F64700007D23 /* SMResample.swift in Sources */ = {isa = PBXBuildFile; fileRef = 257CF5731ED2F64700007D23 /* SMResample.swift */; };
+		2593C8981FBAC0D70062A2AE /* SMStorage.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2593C8971FBAC0D70062A2AE /* SMStorage.mm */; };
+		2593C89A1FBAC3230062A2AE /* StorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2593C8991FBAC3230062A2AE /* StorageTests.swift */; };
+		2593C89D1FBAD4AD0062A2AE /* SMFileStorageModel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2593C89C1FBAD4AD0062A2AE /* SMFileStorageModel.mm */; };
 		259955A21E76B3E400955FB3 /* SMAudioFileEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 259955A11E76B3E400955FB3 /* SMAudioFileEditor.swift */; };
 		25BD78721E8138F400871BBE /* 低.wav in Resources */ = {isa = PBXBuildFile; fileRef = 25BD78711E8138F400871BBE /* 低.wav */; };
 		25C4E45F1E6E935D00A2DFD0 /* SMExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C4E45E1E6E935D00A2DFD0 /* SMExtension.swift */; };
@@ -74,6 +77,11 @@
 		256DC9CB1F4FF90000403C54 /* SMBaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMBaseViewController.swift; sourceTree = "<group>"; };
 		256DC9CE1F5037F600403C54 /* RecorderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecorderTests.swift; sourceTree = "<group>"; };
 		257CF5731ED2F64700007D23 /* SMResample.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMResample.swift; sourceTree = "<group>"; };
+		2593C8961FBAC0D60062A2AE /* SMStorage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SMStorage.h; sourceTree = "<group>"; };
+		2593C8971FBAC0D70062A2AE /* SMStorage.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = SMStorage.mm; sourceTree = "<group>"; };
+		2593C8991FBAC3230062A2AE /* StorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageTests.swift; sourceTree = "<group>"; };
+		2593C89B1FBAD4AD0062A2AE /* SMFileStorageModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SMFileStorageModel.h; sourceTree = "<group>"; };
+		2593C89C1FBAD4AD0062A2AE /* SMFileStorageModel.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SMFileStorageModel.mm; sourceTree = "<group>"; };
 		259955A11E76B3E400955FB3 /* SMAudioFileEditor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMAudioFileEditor.swift; sourceTree = "<group>"; };
 		25BD78711E8138F400871BBE /* 低.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "低.wav"; sourceTree = "<group>"; };
 		25C4E45E1E6E935D00A2DFD0 /* SMExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMExtension.swift; sourceTree = "<group>"; };
@@ -126,6 +134,7 @@
 				2536483A1E6ECF6D00476E12 /* SmartisanRecorderTests.swift */,
 				2536483C1E6ECF6D00476E12 /* Info.plist */,
 				256DC9CE1F5037F600403C54 /* RecorderTests.swift */,
+				2593C8991FBAC3230062A2AE /* StorageTests.swift */,
 				255D28A21F55833E00ED6694 /* ToolTests.swift */,
 			);
 			path = SmartisanRecorderTests;
@@ -134,6 +143,8 @@
 		253BCED01E6D5B4500C6F6BE /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				2593C89B1FBAD4AD0062A2AE /* SMFileStorageModel.h */,
+				2593C89C1FBAD4AD0062A2AE /* SMFileStorageModel.mm */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -166,6 +177,8 @@
 				257CF5731ED2F64700007D23 /* SMResample.swift */,
 				25556C581ECC1C0100E41B77 /* SMWaveHeaderTool.swift */,
 				252991921F51068E00EBBE69 /* SMUserUsageInfo.swift */,
+				2593C8961FBAC0D60062A2AE /* SMStorage.h */,
+				2593C8971FBAC0D70062A2AE /* SMStorage.mm */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -476,6 +489,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				256DC9CF1F5037F600403C54 /* RecorderTests.swift in Sources */,
+				2593C89A1FBAC3230062A2AE /* StorageTests.swift in Sources */,
 				2536483B1E6ECF6D00476E12 /* SmartisanRecorderTests.swift in Sources */,
 				255D28A31F55833E00ED6694 /* ToolTests.swift in Sources */,
 			);
@@ -495,8 +509,10 @@
 				2536482E1E6EAFD200476E12 /* SMRecorder.swift in Sources */,
 				25C4E45F1E6E935D00A2DFD0 /* SMExtension.swift in Sources */,
 				255FF2571E70FB1600D4ECBD /* SMAudioFileSampler.swift in Sources */,
+				2593C8981FBAC0D70062A2AE /* SMStorage.mm in Sources */,
 				252991931F51068E00EBBE69 /* SMUserUsageInfo.swift in Sources */,
 				259955A21E76B3E400955FB3 /* SMAudioFileEditor.swift in Sources */,
+				2593C89D1FBAD4AD0062A2AE /* SMFileStorageModel.mm in Sources */,
 				25E28DDF1E6F9E8A0008E066 /* SMWaveformView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
