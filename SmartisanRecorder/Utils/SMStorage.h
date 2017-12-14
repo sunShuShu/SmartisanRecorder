@@ -10,7 +10,7 @@
 
 @interface SMStorage : NSObject
 
-- (instancetype)initWithDatabasePath:(NSURL *)fileUrl;
+- (instancetype)initWithDatabasePath:(NSURL *)fileUrl errorBlock:(void(^)(NSError*))block;
 
 - (BOOL)createTable:(NSString *)name class:(Class)cls;
 - (BOOL)dropTable:(NSString *)name;

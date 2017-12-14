@@ -18,9 +18,12 @@
     return nil;
 }
 
-- (instancetype)initWithDatabasePath:(NSURL *)fileUrl {
+- (instancetype)initWithDatabasePath:(NSURL *)fileUrl errorBlock:(void(^)(NSError*))block {
     self = [super init];
     if (self) {
+        if (block) {
+            [WCTStatistics SetGlobalErrorReport:block];
+        }
         _database = [[WCTDatabase alloc] initWithPath:fileUrl.absoluteString];
         if ([_database canOpen] == NO) {
             return nil;
