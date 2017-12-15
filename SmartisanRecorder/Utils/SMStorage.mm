@@ -9,8 +9,18 @@
 #import "SMStorage.h"
 #import <WCDB/WCDB.h>
 
+@interface SubstituteModel : NSObject <SMStorageModel, WCTTableCoding>
+@end
+@implementation SubstituteModel
+WCDB_IMPLEMENTATION(SubstituteModel)
+WCDB_SYNTHESIZE(SubstituteModel, localID)
+@synthesize localID;
+
+@end
+
 @implementation SMStorage {
-    WCTDatabase *_database;
+    WCTTable *_table;
+    Class<SMStorageModel, WCTTableCoding> _cls;
 }
 
 - (id)init {
@@ -18,30 +28,61 @@
     return nil;
 }
 
-- (instancetype)initWithDatabasePath:(NSURL *)fileUrl errorBlock:(void(^)(NSError*))block {
+- (instancetype)initWithDatabasePath:(NSURL *)fileUrl table:(NSString *)table class:(Class<SMStorageModel>)cls errorBlock:(void(^)(NSError*))block {
     self = [super init];
     if (self) {
         if (block) {
             [WCTStatistics SetGlobalErrorReport:block];
         }
-        _database = [[WCTDatabase alloc] initWithPath:fileUrl.absoluteString];
-        if ([_database canOpen] == NO) {
+        if ([cls conformsToProtocol:@protocol(SMStorageModel)] &&
+            [cls conformsToProtocol:@protocol(WCTTableCoding)]) {
+            _cls = (Class<SMStorageModel, WCTTableCoding>)cls;
+        } else {
+            NSAssert(NO, @"Model class must comforms SMStorageModel and WCTTableCoding.");
             return nil;
         }
+        WCTDatabase *database = [[WCTDatabase alloc] initWithPath:fileUrl.absoluteString];
+        if (NO == [database canOpen]) {
+            return nil;
+        }
+        if (NO == [database isTableExists:table]) {
+            BOOL createResult = [database createTableAndIndexesOfName:table withClass:(Class<WCTTableCoding>)cls];
+            if (NO == createResult) {
+                return nil;
+            }
+        }
+        _table = [database getTableOfName:table withClass:_cls];
     }
     return self;
 }
 
-- (BOOL)createTable:(NSString *)name class:(Class)cls {
-    return [_database createTableAndIndexesOfName:name withClass:cls];
+- (BOOL)insertObject:(id)obj {
+    if (NO == [obj isMemberOfClass:_cls]) {
+        NSAssert(NO, @"Class of the object is not same to table's.");
+        return NO;
+    }
+    if ([_table insertObject:obj]) {
+        [obj setValue:[obj valueForKey:@"lastInsertedRowID"] forKey:@"localID"];
+        return YES;
+    } else {
+        return NO;
+    }
 }
 
-- (BOOL)dropTable:(NSString *)name {
-    return [_database dropTableOfName:name];
+- (BOOL)deleteObject:(NSInteger)localID {
+    return [_table deleteObjectsWhere:SubstituteModel.localID == localID];
 }
 
-- (BOOL)insertObject:(id)model intoTable:(NSString *)table {
-    return [_database insertObject:model into:table];
+- (BOOL)updateObject:(id)obj {
+    if (NO == [obj isMemberOfClass:_cls]) {
+        NSAssert(NO, @"Class of the object is not same to table's.");
+        return NO;
+    }
+    return [_table insertOrReplaceObject:obj];
+}
+
+- (NSArray *)getAllObjects {
+    return [_table getAllObjects];
 }
 
 @end

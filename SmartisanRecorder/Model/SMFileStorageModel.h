@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "SMStorage.h"
 
 typedef enum : NSUInteger {
     SMVoiceTypeDefault,
@@ -15,7 +16,7 @@ typedef enum : NSUInteger {
     SMVoiceTypeIdeaCapsule,
 } SMVoiceType;
 
-@interface SMFileStorageModel : NSObject 
+@interface SMFileStorageModel : NSObject <SMStorageModel>
 
 @property(nonatomic, readonly, assign) NSInteger localID;
 @property(nonatomic, copy) NSString *name;

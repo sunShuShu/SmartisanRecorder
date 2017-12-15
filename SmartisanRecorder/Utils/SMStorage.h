@@ -8,15 +8,20 @@
 
 #import <Foundation/Foundation.h>
 
+@protocol SMStorageModel <NSObject>
+@property(nonatomic, readonly, assign) NSInteger localID;
+@end
+
 @interface SMStorage : NSObject
 
-- (instancetype)initWithDatabasePath:(NSURL *)fileUrl errorBlock:(void(^)(NSError*))block;
+- (id _Nullable)initWithDatabasePath:(NSURL *_Nonnull)fileUrl
+                               table:(NSString *_Nonnull)table
+                               class:(Class<SMStorageModel> _Nonnull)cls
+                          errorBlock:(void(^_Nullable)(NSError*_Nonnull))block;
 
-- (BOOL)createTable:(NSString *)name class:(Class)cls;
-- (BOOL)dropTable:(NSString *)name;
-
-- (BOOL)insertObject:(id)model intoTable:(NSString *)table;
-- (BOOL)deleteRow:(id)content column:(NSString *)column fromTable:(NSString *)table;
-- (BOOL)getAllObject:(id)model fromTable:(NSString *)table;
+- (BOOL)insertObject:(id _Nonnull)obj;
+- (BOOL)deleteObject:(NSInteger)localID;
+- (BOOL)updateObject:(id _Nonnull)obj;
+- (NSArray *_Nullable)getAllObjects;
 
 @end

@@ -32,4 +32,17 @@ WCDB_NOT_NULL(SMFileStorageModel, pointCount)
 WCDB_NOT_NULL(SMFileStorageModel, pointFileName)
 WCDB_NOT_NULL(SMFileStorageModel, waveformFileName)
 
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.isAutoIncrement = YES;
+    }
+    return self;
+}
+
+- (void)setLocalID:(NSInteger)localID {
+    _localID = localID;
+}
+
 @end
