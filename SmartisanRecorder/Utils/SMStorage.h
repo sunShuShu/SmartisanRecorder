@@ -14,7 +14,7 @@
 
 @interface SMStorage : NSObject
 
-- (id _Nullable)initWithDatabasePath:(NSURL *_Nonnull)fileUrl
+- (id _Nullable)initWithDatabasePath:(NSString *_Nonnull)path
                                table:(NSString *_Nonnull)table
                                class:(Class<SMStorageModel> _Nonnull)cls
                           errorBlock:(void(^_Nullable)(NSError*_Nonnull))block;

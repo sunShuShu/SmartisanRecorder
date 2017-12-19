@@ -28,11 +28,19 @@ WCDB_SYNTHESIZE(SubstituteModel, localID)
     return nil;
 }
 
-- (instancetype)initWithDatabasePath:(NSURL *)fileUrl table:(NSString *)table class:(Class<SMStorageModel>)cls errorBlock:(void(^)(NSError*))block {
+- (instancetype)initWithDatabasePath:(NSString *)path table:(NSString *)table class:(Class<SMStorageModel>)cls errorBlock:(void(^)(NSError*))block {
     self = [super init];
     if (self) {
         if (block) {
-            [WCTStatistics SetGlobalErrorReport:block];
+            [WCTStatistics SetGlobalErrorReport:^(WCTError *error) {
+                if (error.type != WCTErrorTypeSQLiteGlobal) {
+                    block(error);
+                } else {
+#ifdef DEBUG
+                    NSLog(@"%@", error);
+#endif
+                }
+            }];
         }
         if ([cls conformsToProtocol:@protocol(SMStorageModel)] &&
             [cls conformsToProtocol:@protocol(WCTTableCoding)]) {
@@ -41,7 +49,7 @@ WCDB_SYNTHESIZE(SubstituteModel, localID)
             NSAssert(NO, @"Model class must comforms SMStorageModel and WCTTableCoding.");
             return nil;
         }
-        WCTDatabase *database = [[WCTDatabase alloc] initWithPath:fileUrl.absoluteString];
+        WCTDatabase *database = [[WCTDatabase alloc] initWithPath:path];
         if (NO == [database canOpen]) {
             return nil;
         }

@@ -134,8 +134,8 @@
 				2536483A1E6ECF6D00476E12 /* SmartisanRecorderTests.swift */,
 				2536483C1E6ECF6D00476E12 /* Info.plist */,
 				256DC9CE1F5037F600403C54 /* RecorderTests.swift */,
-				2593C8991FBAC3230062A2AE /* StorageTests.swift */,
 				255D28A21F55833E00ED6694 /* ToolTests.swift */,
+				2593C8991FBAC3230062A2AE /* StorageTests.swift */,
 			);
 			path = SmartisanRecorderTests;
 			sourceTree = "<group>";
