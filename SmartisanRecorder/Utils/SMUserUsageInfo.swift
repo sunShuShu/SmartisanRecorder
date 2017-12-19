@@ -18,7 +18,7 @@ enum LogLevel {
     case high, medium, low
 }
 
-func SMLog(_ content:String ,level:LogLevel = .low, file:String = #file, function:String = #function, line:Int = #line) {
+func SMLog(_ content:String, error:NSError? = nil, level:LogLevel = .low, file:String = #file, line:Int = #line, function:String = #function) {
     #if !DEBUG
     if level == .low {
         return
@@ -28,23 +28,33 @@ func SMLog(_ content:String ,level:LogLevel = .low, file:String = #file, functio
         assertionFailure("Log content is empty!")
         return
     }
+    
     let time = Date(timeIntervalSinceNow: 0)
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "MM-dd HH:mm:ss.SSS"
     let timeString = dateFormatter.string(from: time)
-    let fileName = URL(fileURLWithPath: file).lastPathComponent.replacingOccurrences(of: ".swift", with: "")
-    let location = "\(timeString) \(fileName):\(line) \(function):"
+    let cSet = CharacterSet(charactersIn: "/")
+    let fileName = file.components(separatedBy: cSet).last
+    let location = "\(timeString) \(fileName ?? file):\(line) \(function): "
     var logInfo = location
+    
     switch level {
     case .low:
-        logInfo += content
+        logInfo += "☕️\(content)"
     case .medium:
         logInfo += "⚠️\(content)"
         CLSLogv(logInfo,getVaList([]))
     case .high:
         logInfo += "⛔️\(content)"
-        let error = NSError(domain: file, code: line, userInfo: ["content":logInfo])
-        Crashlytics.sharedInstance().recordError(error)
+        let recordError: Error
+        if error != nil {
+            var userInfo = error!.userInfo
+            userInfo.updateValue(logInfo, forKey: "content")
+            recordError = NSError(domain: error!.domain, code: error!.code, userInfo: userInfo)
+        } else {
+            recordError = NSError(domain: fileName ?? file, code: line, userInfo: ["content":logInfo])
+        }
+        Crashlytics.sharedInstance().recordError(recordError)
     }
     #if DEBUG
     print(logInfo)
