@@ -10,6 +10,7 @@ import Foundation
 import AVFoundation
 
 class SMRecorder: NSObject, AVAudioRecorderDelegate {
+    static let FilePath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
     
     private static let qualityHighSampleRate = 48_000 //Hz
     private static let qualityMediumSampleRate = 24_000
@@ -18,14 +19,12 @@ class SMRecorder: NSObject, AVAudioRecorderDelegate {
     private static let qualityDefault = QualitySettings.medium
     private static let fileSuffix = ".wav"
     private static let fileNameDefaultFormat = "Rec_%03d" + SMRecorder.fileSuffix //like Rec_012.wav
-    
     private static let kQuality = "kSoundQuality"
-    private static let docDirectory = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/"
     
     private var audioRecorder: AVAudioRecorder?
     override init() {
         super.init()
-        let urlPath = SMRecorder.docDirectory + defaultFileName
+        let urlPath = SMRecorder.FilePath + "/\(defaultFileName)"
         let settings: [String : Any] = [AVFormatIDKey : kAudioFormatLinearPCM,
                                         AVSampleRateKey : SMRecorder.soundQuality.sampleRate,
                                         AVNumberOfChannelsKey : 1,
@@ -79,7 +78,7 @@ class SMRecorder: NSObject, AVAudioRecorderDelegate {
         var tempPath: String?
         repeat {
             fileNameNumber += 1
-            tempPath = SMRecorder.docDirectory + String(format: SMRecorder.fileNameDefaultFormat, fileNameNumber)
+            tempPath = SMRecorder.FilePath + "/" + String(format: SMRecorder.fileNameDefaultFormat, fileNameNumber)
         } while (FileManager.default.fileExists(atPath: tempPath!))
         return String(format: SMRecorder.fileNameDefaultFormat, fileNameNumber)
     }()
@@ -124,7 +123,7 @@ class SMRecorder: NSObject, AVAudioRecorderDelegate {
             return false
         }
         let fileNameWithSuffix = name + SMRecorder.fileSuffix
-        let fileExist = fileNameWithSuffix != defaultFileName && FileManager.default.fileExists(atPath: SMRecorder.docDirectory + fileNameWithSuffix)
+        let fileExist = fileNameWithSuffix != defaultFileName && FileManager.default.fileExists(atPath: SMRecorder.FilePath + "/" + fileNameWithSuffix)
         guard fileExist == false else {
             return false
         }
@@ -141,8 +140,8 @@ class SMRecorder: NSObject, AVAudioRecorderDelegate {
     //MARK:- Delegate
     func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
         if flag == true {
-            let defaultFilePath = SMRecorder.docDirectory + defaultFileName
-            let finalFilePath = SMRecorder.docDirectory + finalFileName
+            let defaultFilePath = SMRecorder.FilePath + "/" + defaultFileName
+            let finalFilePath = SMRecorder.FilePath + "/" + finalFileName
             if defaultFilePath == finalFilePath {
                 saveCompletionBlock?(true)
             } else {

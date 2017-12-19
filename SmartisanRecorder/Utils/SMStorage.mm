@@ -81,7 +81,7 @@ WCDB_SYNTHESIZE(SubstituteModel, localID)
     return [_table deleteObjectsWhere:SubstituteModel.localID == localID];
 }
 
-- (BOOL)updateObject:(id)obj {
+- (BOOL)modifyObject:(id)obj {
     if (NO == [obj isMemberOfClass:_cls]) {
         NSAssert(NO, @"Class of the object is not same to table's.");
         return NO;

@@ -20,8 +20,10 @@ typedef enum : NSUInteger {
 
 @property(nonatomic, readonly, assign) NSInteger localID;
 @property(nonatomic, copy) NSString *name;
-@property(nonatomic, copy) NSString *md5;
+@property(nonatomic, assign) NSInteger fileSize;
+@property(nonatomic, assign) NSInteger createTime;
 @property(nonatomic, assign) SMVoiceType voiceType;
+@property(nonatomic, assign) NSInteger duration;
 @property(nonatomic, assign) NSInteger pointCount;
 @property(nonatomic, copy) NSString *pointFileName;
 @property(nonatomic, copy) NSString *waveformFileName;

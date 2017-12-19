@@ -21,7 +21,7 @@
 
 - (BOOL)insertObject:(id _Nonnull)obj;
 - (BOOL)deleteObject:(NSInteger)localID;
-- (BOOL)updateObject:(id _Nonnull)obj;
+- (BOOL)modifyObject:(id _Nonnull)obj;
 - (NSArray *_Nullable)getAllObjects;
 
 @end
