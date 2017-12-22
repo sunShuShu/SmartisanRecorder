@@ -9,7 +9,7 @@
 import Foundation
 
 class SMFileInfoStorage {
-    static let filePath = NSSearchPathForDirectoriesInDomains(.libraryDirectory, .userDomainMask, true).last!
+    static let filePath = NSSearchPathForDirectoriesInDomains(.libraryDirectory, .userDomainMask, true).last! + "/AudioInfo"
     private let storage: SMStorage
     
     init?() {

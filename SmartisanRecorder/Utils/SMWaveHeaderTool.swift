@@ -9,8 +9,6 @@
 import Foundation
 
 class SMWaveHeaderTool {
-    
-    static let supportedBitWidth = 2 * BYTE_SIZE
     static let waveHeader = Data(bytes:
         [0x52,0x49,0x46,0x46,//RIFF
         0x00,0x00,0x00,0x00, //size(placeholder)
@@ -30,6 +28,7 @@ class SMWaveHeaderTool {
     fileprivate static let waveSampleRateRange = 0x18...0x1B
     fileprivate static let waveBPSRange = 0x1C...0x1F
     fileprivate static let waveSize2Range = 0x28...0x2B
+    private static let supportedBitWidth = SMRecorder.bitDepth
     
     /// Check wave file header validity
     ///

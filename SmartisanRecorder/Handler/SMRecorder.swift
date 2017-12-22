@@ -11,13 +11,15 @@ import AVFoundation
 
 class SMRecorder: NSObject, AVAudioRecorderDelegate {
     static let filePath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
+    static let bitDepth = 2 * BYTE_SIZE
+    /// Time of electrical level update per second.
+    static let levelsPerSecond = 50
+    static let qualityHighSampleRate = 48_000 //Hz
+    static let qualityMediumSampleRate = 24_000
+    static let qualityLowSampleRate = 8_000
     
-    private static let qualityHighSampleRate = 48_000 //Hz
-    private static let qualityMediumSampleRate = 24_000
-    private static let qualityLowSampleRate = 8_000
-    private static let bitDepth = SMWaveHeaderTool.supportedBitWidth
-    private static let qualityDefault = QualitySettings.medium
     private static let fileSuffix = ".wav"
+    private static let qualityDefault = QualitySettings.medium
     private static let fileNameDefaultFormat = "Rec_%03d" + SMRecorder.fileSuffix //like Rec_012.wav
     private static let kQuality = "kSoundQuality"
     
