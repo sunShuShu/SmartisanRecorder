@@ -9,7 +9,6 @@
 #ifndef SmartisanRecorder_Bridging_Header_h
 #define SmartisanRecorder_Bridging_Header_h
 
-#import <UMMobClick/MobClick.h>
 #import "SMStorage.h"
 #import "SMFileStorageModel.h"
 

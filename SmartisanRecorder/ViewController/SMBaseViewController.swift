@@ -7,18 +7,9 @@
 //
 
 import Foundation
+import UIKit
 
 class SMBaseViewController: UIViewController {
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        MobClick.beginLogPageView("\(type(of: self))");
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-         MobClick.endLogPageView("\(type(of: self))");
-    }
-    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         SMLog("Memory warning!", level: .high)
