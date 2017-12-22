@@ -25,7 +25,7 @@ class SMFileInfoStorage {
     }
     
     deinit {
-        SMLog("\(type(of: self)) RELEASE! :\(self)")
+        SMLog("\(type(of: self)) RELEASE!")
     }
     
     func addFile(_ model: SMFileStorageModel) -> Bool {
@@ -47,25 +47,32 @@ class SMFileInfoStorage {
         if let allFiles = (storage.getAllObjects() as? [SMFileStorageModel]) {
             var finalDic = [SMFileStorageModel]()
             for fileInfo in allFiles {
-                var checkResult = false
-                let fileAttributes: [FileAttributeKey:Any]
-                do {
-                    try fileAttributes = FileManager.default.attributesOfItem(atPath: SMFileInfoStorage.filePath + "/\(fileInfo.name)")
-                } catch {
-                    SMLog("Get file attributes failed.", error: error as NSError, level: .high)
-                    if (error as NSError).code == 260 {
-                        //No such file
-                        checkResult = false
+                var isFileExist = true
+                defer {
+                    if isFileExist {
+                        finalDic.append(fileInfo)
                     } else {
-                        //Only if there is no file to delete it from the database, do not delete the file at will
-                        checkResult = true
+                        storage.deleteObject(fileInfo.localID)
                     }
                 }
-                let fileModifayData = fileAttributes[FileAttributeKey.modificationDate]
-                let fileSize = fileAttributes[FileAttributeKey.size]
-//                if fileModifayData == fileInfo.createTime && fileSize == fileInfo.fileSize {
-                    finalDic.append(fileInfo)
-//                }
+                let fileAttributes: [FileAttributeKey:Any]
+                do {
+                    try fileAttributes = FileManager.default.attributesOfItem(atPath: SMRecorder.filePath + "/" + fileInfo.name!)
+                } catch {
+                    SMLog("\(error)", error: error as NSError, level: .high)
+                    //Only if there is no such file, delete it from the database, do not delete the file at will
+                    isFileExist = (error as NSError).code != 260 //No such file
+                    continue
+                }
+                let creationDate = fileAttributes[FileAttributeKey.creationDate] as? Date
+                let fileSize = fileAttributes[FileAttributeKey.size] as? Int
+                if creationDate != nil && fileSize != nil {
+                    if Int(creationDate!.timeIntervalSince1970) != Int(fileInfo.createTime.timeIntervalSince1970) ||
+                        fileSize != fileInfo.fileSize {
+                        isFileExist = false
+                        SMLog("Check file info faile! database:\(fileInfo.createTime!),\(fileInfo.fileSize). file:\(creationDate!),\(fileSize!)", level: .high)
+                    }
+                }
             }
             return finalDic
         }

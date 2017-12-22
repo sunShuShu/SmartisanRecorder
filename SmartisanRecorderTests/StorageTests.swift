@@ -41,7 +41,8 @@ class SMStorageTest: XCTestCase {
             let model = SMFileStorageModel();
             model.name = "Rec_录音_\(arc4random() % 9999)"
             model.voiceType = SMVoiceTypePhontCall
-            model.md5 = "fhdjsklafh436543dsjkalfjdsafdsa5555fdhsg5555"
+            model.fileSize = 4*1024*1024*1024
+            model.createTime = Date()
             model.pointCount = 5
             model.pointFileName = "I am point file name"
             model.waveformFileName = "Waveform File Name"
@@ -57,12 +58,13 @@ class SMStorageTest: XCTestCase {
         let model = SMFileStorageModel();
         model.name = "Rec_录音_test_update"
         model.voiceType = SMVoiceTypePhontCall
-        model.md5 = "fhdjsklafh436543dsjkalfjdsafdsa5555fdhsg5555"
+        model.fileSize = 4*1024*1024*1024
+        model.createTime = Date()
         model.pointCount = 5
         model.pointFileName = "I am point file name"
         model.waveformFileName = "Waveform File Name"
         model.setValue(1, forKey: "localID")
-        let updateResult = storage?.update(model)
+        let updateResult = storage?.modifyObject(model)
         XCTAssertNotNil(updateResult)
         
         let deleteResult = storage?.deleteObject(1)
@@ -77,5 +79,45 @@ class SMStorageTest: XCTestCase {
             XCTAssert(false, error.localizedDescription)
         }
         objc_sync_exit(self)
+    }
+    
+    func testFileInfoStorag() {
+        let storage = SMFileInfoStorage()
+        XCTAssertNotNil(storage)
+        
+        var allModel = [SMFileStorageModel]()
+        for _ in 0..<optionTimes {
+            let model = SMFileStorageModel();
+            let filePath = Bundle.main.path(forResource: "1 Merge_高_中", ofType: "wav")
+            model.name = "Rec_录音_\(arc4random() % 9999).wav"
+            model.voiceType = SMVoiceTypePhontCall
+            model.fileSize = 2319400
+            model.createTime = Date()
+            model.pointCount = 5
+            model.pointFileName = "I am point file name"
+            model.waveformFileName = "Waveform File Name"
+            let insertResult = storage!.addFile(model)
+            XCTAssertTrue(insertResult)
+            let data = try! Data(contentsOf: URL(fileURLWithPath: filePath!))
+            let fakeFile = FileManager.default.createFile(atPath: "\(SMRecorder.filePath)/\(model.name!)", contents: data, attributes: nil)
+            XCTAssertTrue(fakeFile)
+            allModel.append(model)
+        }
+        
+        let files = storage?.getAllFiles()
+        XCTAssert(files?.count == allModel.count)
+        
+        for model in allModel {
+            do {
+                try FileManager.default.removeItem(atPath: "\(SMRecorder.filePath)/\(model.name!)")
+            } catch  {
+                XCTAssert(false, "\(error)")
+            }
+        }
+        do {
+            try FileManager.default.removeItem(atPath: "\(SMFileInfoStorage.filePath)/SMAudioFile.db")
+        } catch  {
+            XCTAssert(false, error.localizedDescription)
+        }
     }
 }
