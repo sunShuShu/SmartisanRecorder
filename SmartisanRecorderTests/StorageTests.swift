@@ -114,4 +114,23 @@ class SMStorageTest: XCTestCase {
             XCTAssert(false, error.localizedDescription)
         }
     }
+    
+    func testAudioInfo() {
+        var storage: SMAudioInfoStorage? = SMAudioInfoStorage(audioFileName: "test.wav")
+        XCTAssertNotNil(storage)
+        
+        var fakeWaveformArray = [UInt8]()
+        for _ in 0..<1080 {
+            let fakeValue = UInt8(arc4random() % 255)
+            storage!.waveform.append(fakeValue)
+            fakeWaveformArray.append(fakeValue)
+        }
+        storage = nil
+        
+        let storage2 = SMAudioInfoStorage(audioFileName: "test.wav")
+        XCTAssertNotNil(storage2)
+        
+        XCTAssert(storage2.waveform == fakeWaveformArray)
+        storage2.deleteFile()
+    }
 }

@@ -13,7 +13,15 @@
 @end
 
 @interface SMStorage : NSObject
+/**
+ Init database
 
+ @param path database file path
+ @param table table name
+ @param cls class of model stored (must confirm WCTTableCoding protocol)
+ @param block error block of database opration
+ @return object
+ */
 - (id _Nullable)initWithDatabasePath:(NSString *_Nonnull)path
                                table:(NSString *_Nonnull)table
                                class:(Class<SMStorageModel> _Nonnull)cls

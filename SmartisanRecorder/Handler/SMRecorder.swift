@@ -17,8 +17,8 @@ class SMRecorder: NSObject, AVAudioRecorderDelegate {
     static let qualityHighSampleRate = 48_000 //Hz
     static let qualityMediumSampleRate = 24_000
     static let qualityLowSampleRate = 8_000
+    static let fileSuffix = ".wav"
     
-    private static let fileSuffix = ".wav"
     private static let qualityDefault = QualitySettings.medium
     private static let fileNameDefaultFormat = "Rec_%03d" + SMRecorder.fileSuffix //like Rec_012.wav
     private static let kQuality = "kSoundQuality"
