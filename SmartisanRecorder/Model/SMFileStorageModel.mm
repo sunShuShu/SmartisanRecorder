@@ -22,8 +22,6 @@ WCDB_SYNTHESIZE(SMFileStorageModel, createTime)
 WCDB_SYNTHESIZE(SMFileStorageModel, voiceType)
 WCDB_SYNTHESIZE(SMFileStorageModel, duration)
 WCDB_SYNTHESIZE(SMFileStorageModel, pointCount)
-WCDB_SYNTHESIZE(SMFileStorageModel, pointFileName)
-WCDB_SYNTHESIZE(SMFileStorageModel, waveformFileName)
 
 WCDB_PRIMARY_ASC_AUTO_INCREMENT(SMFileStorageModel, localID)
 WCDB_UNIQUE(SMFileStorageModel, name)
@@ -33,8 +31,6 @@ WCDB_NOT_NULL(SMFileStorageModel, createTime)
 WCDB_NOT_NULL(SMFileStorageModel, voiceType)
 WCDB_NOT_NULL(SMFileStorageModel, duration)
 WCDB_NOT_NULL(SMFileStorageModel, pointCount)
-WCDB_NOT_NULL(SMFileStorageModel, pointFileName)
-WCDB_NOT_NULL(SMFileStorageModel, waveformFileName)
 
 - (instancetype)init
 {

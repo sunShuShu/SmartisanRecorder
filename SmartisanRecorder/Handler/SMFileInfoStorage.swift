@@ -57,7 +57,7 @@ class SMFileInfoStorage {
                 }
                 let fileAttributes: [FileAttributeKey:Any]
                 do {
-                    try fileAttributes = FileManager.default.attributesOfItem(atPath: SMRecorder.filePath + "/" + fileInfo.name!)
+                    try fileAttributes = FileManager.default.attributesOfItem(atPath: SMRecorder.filePath + "/" + fileInfo.name)
                 } catch {
                     SMLog("\(error)", error: error as NSError, level: .high)
                     //Only if there is no such file, delete it from the database, do not delete the file at will
@@ -70,7 +70,7 @@ class SMFileInfoStorage {
                     if Int(creationDate!.timeIntervalSince1970) != Int(fileInfo.createTime.timeIntervalSince1970) ||
                         fileSize != fileInfo.fileSize {
                         isFileExist = false
-                        SMLog("Check file info faile! database:\(fileInfo.createTime!),\(fileInfo.fileSize). file:\(creationDate!),\(fileSize!)", level: .high)
+                        SMLog("Check file info faile! database:\(fileInfo.createTime),\(fileInfo.fileSize). file:\(creationDate!),\(fileSize!)", level: .high)
                     }
                 }
             }

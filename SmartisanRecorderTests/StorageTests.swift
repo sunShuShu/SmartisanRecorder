@@ -44,8 +44,6 @@ class SMStorageTest: XCTestCase {
             model.fileSize = 4*1024*1024*1024
             model.createTime = Date()
             model.pointCount = 5
-            model.pointFileName = "I am point file name"
-            model.waveformFileName = "Waveform File Name"
             let insertResult = storage?.insert(model)
             XCTAssert(model.localID != 0)
             XCTAssertNotNil(insertResult)
@@ -61,8 +59,6 @@ class SMStorageTest: XCTestCase {
         model.fileSize = 4*1024*1024*1024
         model.createTime = Date()
         model.pointCount = 5
-        model.pointFileName = "I am point file name"
-        model.waveformFileName = "Waveform File Name"
         model.setValue(1, forKey: "localID")
         let updateResult = storage?.modifyObject(model)
         XCTAssertNotNil(updateResult)
@@ -94,12 +90,10 @@ class SMStorageTest: XCTestCase {
             model.fileSize = 2319400
             model.createTime = Date()
             model.pointCount = 5
-            model.pointFileName = "I am point file name"
-            model.waveformFileName = "Waveform File Name"
             let insertResult = storage!.addFile(model)
             XCTAssertTrue(insertResult)
             let data = try! Data(contentsOf: URL(fileURLWithPath: filePath!))
-            let fakeFile = FileManager.default.createFile(atPath: "\(SMRecorder.filePath)/\(model.name!)", contents: data, attributes: nil)
+            let fakeFile = FileManager.default.createFile(atPath: "\(SMRecorder.filePath)/\(model.name)", contents: data, attributes: nil)
             XCTAssertTrue(fakeFile)
             allModel.append(model)
         }
@@ -109,7 +103,7 @@ class SMStorageTest: XCTestCase {
         
         for model in allModel {
             do {
-                try FileManager.default.removeItem(atPath: "\(SMRecorder.filePath)/\(model.name!)")
+                try FileManager.default.removeItem(atPath: "\(SMRecorder.filePath)/\(model.name)")
             } catch  {
                 XCTAssert(false, "\(error)")
             }
