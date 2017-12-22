@@ -6,7 +6,6 @@ target 'SmartisanRecorder' do
   use_frameworks!
 
   # Pods for SmartisanRecorder
-  pod 'UMengAnalytics-NO-IDFA'
   pod 'Fabric'
   pod 'Crashlytics'
   pod 'WCDB'

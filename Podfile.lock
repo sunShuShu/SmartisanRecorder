@@ -2,21 +2,18 @@ PODS:
   - Crashlytics (3.9.3):
     - Fabric (~> 1.7.2)
   - Fabric (1.7.2)
-  - UMengAnalytics-NO-IDFA (4.2.5)
   - WCDB (1.0.5)
 
 DEPENDENCIES:
   - Crashlytics
   - Fabric
-  - UMengAnalytics-NO-IDFA
   - WCDB
 
 SPEC CHECKSUMS:
   Crashlytics: dbb07d01876c171c5ccbdf7826410380189e452c
   Fabric: 9cd6a848efcf1b8b07497e0b6a2e7d336353ba15
-  UMengAnalytics-NO-IDFA: 16666e32edce5be44ae5b14aaaa7f3582e09d6ab
   WCDB: 535e8d9b6513dd8cc647d9fdde84695a1fde290c
 
-PODFILE CHECKSUM: 4c57edc2bc7c9d4e4c7e5b94f25ffd866a374d13
+PODFILE CHECKSUM: ff016c16fb55ec185516c5d3a7368a950cb7083d
 
 COCOAPODS: 1.0.1
