@@ -117,20 +117,34 @@ class SMStorageTest: XCTestCase {
     
     func testAudioInfo() {
         var storage: SMAudioInfoStorage? = SMAudioInfoStorage(audioFileName: "test.wav")
-        XCTAssertNotNil(storage)
-        
         var fakeWaveformArray = [UInt8]()
+        var fakePointsArray = [UInt32]()
         for _ in 0..<1080 {
             let fakeValue = UInt8(arc4random() % 255)
             storage!.waveform.append(fakeValue)
             fakeWaveformArray.append(fakeValue)
         }
+        for _ in 0..<100 {
+            let fakeValue = UInt32(arc4random() % (72*3600*50))
+            storage!.pointLocation.append(fakeValue)
+            fakePointsArray.append(fakeValue)
+        }
         storage = nil
         
-        let storage2 = SMAudioInfoStorage(audioFileName: "test.wav")
-        XCTAssertNotNil(storage2)
+        var storage2: SMAudioInfoStorage? = SMAudioInfoStorage(audioFileName: "test.wav")
+        XCTAssert(storage2!.waveform == fakeWaveformArray)
+        XCTAssertTrue(storage2!.pointLocation == fakePointsArray)
         
-        XCTAssert(storage2.waveform == fakeWaveformArray)
-        storage2.deleteFile()
+        storage2!.waveform.remove(at: 1079)
+        storage2!.waveform.remove(at: 3)
+        fakeWaveformArray.remove(at: 1079)
+        fakeWaveformArray.remove(at: 3)
+        storage2!.saveEneireWaveform()
+        storage2 = nil
+        
+        let storage3 = SMAudioInfoStorage(audioFileName: "test.wav")
+        XCTAssertTrue(storage3.waveform == fakeWaveformArray)
+        
+        storage3.deleteFile()
     }
 }

@@ -33,22 +33,28 @@ class SMAudioInfoStorage {
     
     var pointLocation = [UInt32]() {
         didSet {
-            //TODO: save points
+            let pointFilePath = filePath + SMAudioInfoStorage.pointSuffix
+            if (pointLocation as NSArray).write(toFile: pointFilePath, atomically: false) == false {
+                pointLocation = oldValue
+                SMLog("Write point failed!", level: .high)
+            }
         }
     }
     
     init(audioFileName: String) {
         var audioFileName = audioFileName
         guard audioFileName.isEmpty == false else {
-            SMLog("File name is empty!", level: .high)
             assert(false)
+            SMLog("File name is empty!", level: .high)
         }
         audioFileName.removeLast(SMAudioInfoStorage.recordSuffix.characters.count)
         filePath = SMAudioInfoStorage.fileDir + "/\(audioFileName)"
         
+        //wareform
         let waveformFilePath = filePath + SMAudioInfoStorage.waveformSuffix
         let isWaveformExists = FileManager.default.fileExists(atPath: waveformFilePath)
         if isWaveformExists == false {
+            //Going to start recording
             try? FileManager.default.createDirectory(atPath: SMAudioInfoStorage.fileDir, withIntermediateDirectories: true, attributes: nil)
             FileManager.default.createFile(atPath: waveformFilePath, contents: nil, attributes: nil)
             waveformWriteHandle = FileHandle(forWritingAtPath: waveformFilePath)
@@ -56,34 +62,59 @@ class SMAudioInfoStorage {
                 SMLog("Waveform file create faile!", level: .high)
             }
         } else {
+            //Going to read wareform data
             waveformWriteHandle = nil
             if let readHandle = FileHandle(forReadingAtPath: waveformFilePath) {
                 let tempData = readHandle.readDataToEndOfFile()
                 self.waveform = [UInt8](tempData)
+                readHandle.closeFile()
+            } else {
+                SMLog("Read waveform failed!", level: .high)
+            }
+        }
+        
+        //point
+        let pointFilePath = filePath + SMAudioInfoStorage.pointSuffix
+        let isPointExists = FileManager.default.fileExists(atPath: pointFilePath)
+        if isPointExists == false {
+            try? FileManager.default.createDirectory(atPath: SMAudioInfoStorage.fileDir, withIntermediateDirectories: true, attributes: nil)
+            FileManager.default.createFile(atPath: pointFilePath, contents: nil, attributes: nil)
+        } else {
+            if let tempArray = NSArray(contentsOfFile: pointFilePath) {
+                if let pointsArray = tempArray as? [UInt32] {
+                    pointLocation = pointsArray
+                }
             }
         }
     }
     
     deinit {
-        self.saveWaveform()
-//        if let writeHandle = self.waveformWriteHandle { {
-//            writeHandle.close()
-//        }
+        self.saveRestWaveform()
+        if let writeHandle = waveformWriteHandle {
+            writeHandle.closeFile()
+        }
         SMLog("\(type(of: self)) RELEASE!")
     }
     
-    private func saveRestWaveform() {
-        if let writeHandle = self.waveformWriteHandle {
+    /// Usually, no manual invocation is required, and the rest data is automatically saved before the object is released.
+    func saveRestWaveform() {
+        if waveformWriteHandle != nil && unsaveWaveform > 0 {
             let subArray = waveform[(waveform.count - unsaveWaveform)..<waveform.count]
             let tempData = Data(bytes: subArray)
-            writeHandle.write(tempData)
+            waveformWriteHandle!.write(tempData)
         }
     }
     
-    //Save the entire file at once. usually, no manual invocation is required, and the entire file is automatically saved before the object is released.
-    func saveWaveform() {
-        if self.unsaveWaveform > 0 {
-            self.saveRestWaveform()
+    //Save the entire file manually after editing the audio file.
+    func saveEneireWaveform() {
+        if let writeHandle = FileHandle(forWritingAtPath: filePath + SMAudioInfoStorage.waveformSuffix) {
+            let tempData = Data(bytes: waveform)
+            writeHandle.seekToEndOfFile()
+            writeHandle.truncateFile(atOffset: 0)
+            writeHandle.write(tempData)
+            writeHandle.closeFile()
+        } else {
+            SMLog("Write eneire waveform failed!", level: .high)
         }
     }
     
