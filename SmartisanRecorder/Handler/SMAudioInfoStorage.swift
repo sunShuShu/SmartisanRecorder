@@ -9,10 +9,11 @@
 import Foundation
 
 class SMAudioInfoStorage {
+    static let maxFlagCount = 99
     private static let fileDir = SMFileInfoStorage.filePath
     private static let recordSuffix = SMRecorder.fileSuffix
     private static let waveformSuffix = ".waveform"
-    private static let pointSuffix = ".point"
+    private static let flagSuffix = ".flag"
     /// When the waveform data is modified to a certain amount, save it to file
     private static let unsaveWaveformCount = SMRecorder.levelsPerSecond
     
@@ -31,13 +32,21 @@ class SMAudioInfoStorage {
         }
     }
     
-    var pointLocation = [UInt32]() {
+    var flagLocation = [UInt32]() {
         didSet {
-            let pointFilePath = filePath + SMAudioInfoStorage.pointSuffix
-            if (pointLocation as NSArray).write(toFile: pointFilePath, atomically: false) == false {
-                pointLocation = oldValue
-                SMLog("Write point failed!", level: .high)
+            var isAllowModify = true
+            defer {
+                if isAllowModify == false {
+                    flagLocation = oldValue
+                    SMLog("Write flag failed!", level: .high)
+                }
             }
+            guard flagLocation.count <= SMAudioInfoStorage.maxFlagCount else {
+                isAllowModify = false
+                return
+            }
+            let flagFilePath = filePath + SMAudioInfoStorage.flagSuffix
+            isAllowModify = (flagLocation as NSArray).write(toFile: flagFilePath, atomically: false)
         }
     }
     
@@ -73,16 +82,16 @@ class SMAudioInfoStorage {
             }
         }
         
-        //point
-        let pointFilePath = filePath + SMAudioInfoStorage.pointSuffix
-        let isPointExists = FileManager.default.fileExists(atPath: pointFilePath)
-        if isPointExists == false {
+        //flag
+        let flagFilePath = filePath + SMAudioInfoStorage.flagSuffix
+        let isFlagExists = FileManager.default.fileExists(atPath: flagFilePath)
+        if isFlagExists == false {
             try? FileManager.default.createDirectory(atPath: SMAudioInfoStorage.fileDir, withIntermediateDirectories: true, attributes: nil)
-            FileManager.default.createFile(atPath: pointFilePath, contents: nil, attributes: nil)
+            FileManager.default.createFile(atPath: flagFilePath, contents: nil, attributes: nil)
         } else {
-            if let tempArray = NSArray(contentsOfFile: pointFilePath) {
-                if let pointsArray = tempArray as? [UInt32] {
-                    pointLocation = pointsArray
+            if let tempArray = NSArray(contentsOfFile: flagFilePath) {
+                if let flagsArray = tempArray as? [UInt32] {
+                    flagLocation = flagsArray
                 }
             }
         }
@@ -120,6 +129,6 @@ class SMAudioInfoStorage {
     
     func deleteFile() {
         try? FileManager.default.removeItem(atPath: filePath + SMAudioInfoStorage.waveformSuffix)
-        try? FileManager.default.removeItem(atPath: filePath + SMAudioInfoStorage.pointSuffix)
+        try? FileManager.default.removeItem(atPath: filePath + SMAudioInfoStorage.flagSuffix)
     }
 }

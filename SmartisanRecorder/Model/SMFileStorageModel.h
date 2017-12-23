@@ -24,6 +24,6 @@ typedef enum : NSUInteger {
 @property(nonatomic, strong, nonnull)     NSDate *createTime;
 @property(nonatomic, assign)         SMVoiceType voiceType;
 @property(nonatomic, assign)           NSInteger duration;
-@property(nonatomic, assign)           NSInteger pointCount;
+@property(nonatomic, assign)           NSInteger flagCount;
 
 @end

@@ -43,7 +43,7 @@ class SMStorageTest: XCTestCase {
             model.voiceType = SMVoiceTypePhontCall
             model.fileSize = 4*1024*1024*1024
             model.createTime = Date()
-            model.pointCount = 5
+            model.flagCount = 5
             let insertResult = storage?.insert(model)
             XCTAssert(model.localID != 0)
             XCTAssertNotNil(insertResult)
@@ -58,7 +58,7 @@ class SMStorageTest: XCTestCase {
         model.voiceType = SMVoiceTypePhontCall
         model.fileSize = 4*1024*1024*1024
         model.createTime = Date()
-        model.pointCount = 5
+        model.flagCount = 5
         model.setValue(1, forKey: "localID")
         let updateResult = storage?.modifyObject(model)
         XCTAssertNotNil(updateResult)
@@ -89,7 +89,7 @@ class SMStorageTest: XCTestCase {
             model.voiceType = SMVoiceTypePhontCall
             model.fileSize = 2319400
             model.createTime = Date()
-            model.pointCount = 5
+            model.flagCount = 5
             let insertResult = storage!.addFile(model)
             XCTAssertTrue(insertResult)
             let data = try! Data(contentsOf: URL(fileURLWithPath: filePath!))
@@ -118,22 +118,23 @@ class SMStorageTest: XCTestCase {
     func testAudioInfo() {
         var storage: SMAudioInfoStorage? = SMAudioInfoStorage(audioFileName: "test.wav")
         var fakeWaveformArray = [UInt8]()
-        var fakePointsArray = [UInt32]()
+        var fakeFlagsArray = [UInt32]()
         for _ in 0..<1080 {
             let fakeValue = UInt8(arc4random() % 255)
             storage!.waveform.append(fakeValue)
             fakeWaveformArray.append(fakeValue)
         }
-        for _ in 0..<100 {
+        for _ in 0..<SMAudioInfoStorage.maxFlagCount + 1 {
             let fakeValue = UInt32(arc4random() % (72*3600*50))
-            storage!.pointLocation.append(fakeValue)
-            fakePointsArray.append(fakeValue)
+            storage!.flagLocation.append(fakeValue)
+            fakeFlagsArray.append(fakeValue)
         }
+        fakeFlagsArray.remove(at: SMAudioInfoStorage.maxFlagCount)
         storage = nil
         
         var storage2: SMAudioInfoStorage? = SMAudioInfoStorage(audioFileName: "test.wav")
         XCTAssert(storage2!.waveform == fakeWaveformArray)
-        XCTAssertTrue(storage2!.pointLocation == fakePointsArray)
+        XCTAssertTrue(storage2!.flagLocation == fakeFlagsArray)
         
         storage2!.waveform.remove(at: 1079)
         storage2!.waveform.remove(at: 3)
