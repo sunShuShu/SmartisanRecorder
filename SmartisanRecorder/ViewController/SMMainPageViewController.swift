@@ -12,19 +12,20 @@ import AVFoundation
 
 class SMMainPageViewController: UIViewController {
     
-    @IBOutlet weak var scrollView: UIScrollView!
-    
     private var recoder = SMRecorder()
-    let waveformView = SMWaveformView()
+    @IBOutlet weak var waveformView: SMWaveformView!
     let audioMeter = SMAudioMeter(resultRange: 200)
     
     @IBAction func action(_ sender: UIButton) {
-        
+        var waveformArray = [UInt8]()
+        for index in 0..<255 {
+            waveformArray.append(UInt8(index))
+        }
+        waveformView.powerLevel = waveformArray
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
     }
     
     private func checkPermission() {
