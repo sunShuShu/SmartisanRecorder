@@ -413,7 +413,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Fabric/run\" 28e9d1d545282808b12440faad069685b874c2c5 7398710464325c685de14842c7129da752815a0f23175b4aaf0a0c7bfb8aaac1";
+			shellScript = "TAGS=\"TODO:|FIXME:\"\necho \"Searching ${SRCROOT} for ${TAGS}\"\nfind \"${SRCROOT}\" \\( -name \"*.swift\" \\) -print0 | xargs -0 egrep --with-filename --line-number --only-matching \"($TAGS).*\\$\" | perl -p -e \"s/($TAGS)/ warning: \\$1/\"\n\n\"${PODS_ROOT}/Fabric/run\" 28e9d1d545282808b12440faad069685b874c2c5 7398710464325c685de14842c7129da752815a0f23175b4aaf0a0c7bfb8aaac1";
 		};
 		291A46799C6B146297B64D8D /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
