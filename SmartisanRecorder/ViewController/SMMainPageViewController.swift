@@ -15,41 +15,16 @@ class SMMainPageViewController: UIViewController {
     private var recoder = SMRecorder()
     @IBOutlet weak var waveformView: SMWaveformView!
     let audioMeter = SMAudioMeter(resultRange: 200)
-    let timer = DispatchSource.makeTimerSource(flags: [], queue: DispatchQueue.main)
-    var lastTime = NSDate().timeIntervalSince1970
     
-    private var dispatchLink: CADisplayLink?
-    
-    @objc func wf() {
-        var waveformArray = waveformView.powerLevel
-        let firstValue = waveformArray.removeFirst()
-        waveformArray.append(firstValue)
-        self.waveformView.powerLevel = waveformArray
-    }
     override func viewDidLoad() {
         super.viewDidLoad()
-//        dispatchLink = CADisplayLink(target: self, selector: #selector(wf))
-//        dispatchLink!.add(to: RunLoop.main, forMode: .commonModes)
-//        dispatchLink?.isPaused = true
-        
-        var waveformArray = [UInt8]()
-        for index in 0..<255 {
-            waveformArray.append(UInt8(index))
-        }
-        timer.schedule(deadline: .now(), repeating: 1/60.0)
-        timer.setEventHandler {
-            self.wf()
-        }
-        timer.resume()
     }
     
     @IBAction func action(_ sender: UIButton) {
-        var waveformArray = [UInt8]()
-        for index in 0..<255 {
-            waveformArray.append(UInt8(index))
+        waveformView.updatePlayedTime = {
+            return CGFloat(arc4random()%100)
         }
-//        self.waveformView.powerLevel = waveformArray
-//        dispatchLink!.isPaused = sender.isSelected
+        waveformView.isDynamic = !sender.isSelected
         sender.isSelected = !sender.isSelected
     }
     
