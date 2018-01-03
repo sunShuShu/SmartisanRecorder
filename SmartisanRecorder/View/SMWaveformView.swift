@@ -34,14 +34,27 @@ class SMWaveformView: UIView {
             shiftIsDynamic()
         }
     }
+    
+    private lazy var renderQueue = DispatchQueue(label: "com.sunshushu.WaveformRenderQueue", qos: .userInteractive)
 
     /// The block need to return current played time. Block execution time can NOT exceed 1/60 second. The shorter the block executes, the better, and don't make time-consuming operations inside.
     var updatePlayedTime: (() -> (CGFloat))?
-    var updateDisplayRange: (CGFloat, CGFloat)? {
-        willSet {
-            
+    var displayTimeRange: (start: CGFloat, end: CGFloat)? {
+        didSet {
+            guard displayTimeRange != nil &&
+                displayTimeRange!.start < displayTimeRange!.end else {
+                return
+            }
+            isDynamic = false
+            renderQueue.async {
+//                [weak self] in
+                self.render()
+            }
         }
     }
+    
+    /// If isDynamic is true, the value should be set.
+//    var dataCountPerSecond = 50
     var audioDuration: CGFloat = 0
     var powerLevelArray: [UInt8] = Array()
     
@@ -67,14 +80,12 @@ class SMWaveformView: UIView {
     
     //MARK:-
     private var renderTimer: CADisplayLink?
-    private var renderQueue: DispatchQueue?
-    private var renderTimerNeedRemoved = true
+    private var renderTimerNeedRemoved = false
     private func shiftIsDynamic() {
         if renderTimer == nil {
             renderTimer = CADisplayLink(target: self, selector: #selector(render))
-            renderQueue = DispatchQueue(label: "com.sunshushu.WaveformRenderQueue", qos: .userInteractive)
             renderTimerNeedRemoved = false
-            renderQueue?.async {
+            renderQueue.async {
                 [weak self] in
                 self?.renderTimer?.add(to: RunLoop.current, forMode: .defaultRunLoopMode)
                 RunLoop.current.run()
@@ -98,40 +109,67 @@ class SMWaveformView: UIView {
             renderTimer?.remove(from: RunLoop.current, forMode: .defaultRunLoopMode)
             return
         }
-        if let block = updatePlayedTime {
-            let currentTime = block()
-            guard audioDuration > 0 else {
+        
+        let isDynamic = self.isDynamic
+        var currentTime: CGFloat = 0
+        if isDynamic {
+            let block = updatePlayedTime
+            guard block != nil else {
                 return
             }
-            
-            let currentDataLocation = currentTime * CGFloat(powerLevelArray.count) / audioDuration
-            let currentDataIndex = Int(currentDataLocation)
-            let displayLocationOffset = currentDataLocation - CGFloat(currentDataIndex)
-            
-            let renderLineCount = Int(width / self.lineWidth) + 2
-            let renderRangeStart = currentDataIndex - renderLineCount / 2
-            let renderRangeEnd = renderRangeStart + renderLineCount
-            let renderDataRange =  renderRangeStart..<renderRangeEnd
-            
-            let tempPath = CGMutablePath()
-            for index in renderDataRange {
-                if index < 0 || index >= powerLevelArray.count {
-                    continue
-                } else {
-                    let level = powerLevelArray[index]
-                    let x = (CGFloat(index-renderRangeStart) - displayLocationOffset) * lineWidth
-                    let lineHeight = CGFloat(level) * height / SMWaveformView.maxPowerLevel
-                    let startY = (height - lineHeight) / 2
-                    let endY = startY + lineHeight
-                    tempPath.move(to: CGPoint(x: x, y: startY))
-                    tempPath.addLine(to: CGPoint(x: x, y: endY))
-                }
+            currentTime = block!()
+        }
+        
+        let duration = audioDuration
+        guard duration > 0 else {
+            return
+        }
+        
+        let tempPath = CGMutablePath()
+        let startDataLocation: CGFloat
+        let scalingFactor: CGFloat
+        
+        if isDynamic {
+            let currentDataLocation = currentTime * CGFloat(powerLevelArray.count) / duration
+            startDataLocation = currentDataLocation - (width / self.lineWidth) / 2
+            scalingFactor = 1
+        } else {
+            //TODO: 优化一些不会变的计算过程，固定为计算因数
+            let range = displayTimeRange
+            guard range != nil else {
+                return
+            }     
+            let duration = audioDuration
+            guard duration > 0 else {
+                return
             }
-            
-            DispatchQueue.main.async {
-                self.path = tempPath
-                self.setNeedsDisplay()
+            startDataLocation = range!.start * CGFloat(powerLevelArray.count) / duration
+            let endDataLocation = range!.end * CGFloat(powerLevelArray.count) / duration
+            scalingFactor = (endDataLocation - startDataLocation) / (width / lineWidth)
+        }
+        
+        let startDataIndex = Int(startDataLocation)
+        let displayLocationOffset = startDataLocation - CGFloat(startDataIndex)
+        
+        for lineIndex in 0 ..< Int(width / lineWidth) + 2 {
+            let currentDataIndex = startDataIndex + Int(CGFloat(lineIndex) * scalingFactor)
+            if currentDataIndex < 0 || currentDataIndex >= powerLevelArray.count {
+                continue
+            } else {
+                //TODO: 给数组增加同步锁，防止越界、修改数组时访问数组导致崩溃
+                let level = powerLevelArray[currentDataIndex]
+                let x = (CGFloat(lineIndex) - displayLocationOffset) * lineWidth
+                let lineHeight = CGFloat(level) * height / SMWaveformView.maxPowerLevel
+                let startY = (height - lineHeight) / 2
+                let endY = startY + lineHeight
+                tempPath.move(to: CGPoint(x: x, y: startY))
+                tempPath.addLine(to: CGPoint(x: x, y: endY))
             }
+        }
+    
+        DispatchQueue.main.async {
+            self.path = tempPath
+            self.setNeedsDisplay()
         }
     }
     

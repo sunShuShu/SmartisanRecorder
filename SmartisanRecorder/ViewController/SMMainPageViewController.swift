@@ -20,7 +20,7 @@ class SMMainPageViewController: UIViewController {
     var nowTime = Date(timeIntervalSinceNow: 0)
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         waveformView?.lineWidth = 1
         
         if waveformView != nil {
@@ -31,6 +31,11 @@ class SMMainPageViewController: UIViewController {
             }
             updatePowerLevelTimer.resume()
         }
+        
+//        for index in 0..<5000 {
+//            waveformView?.powerLevelArray.append(UInt8(index % 200))
+//        }
+//        waveformView?.audioDuration = 100
     }
     
     deinit {
@@ -39,21 +44,29 @@ class SMMainPageViewController: UIViewController {
     }
     
     @IBAction func action(_ sender: UIButton) {
-        nowTime = Date(timeIntervalSinceNow: 0)
-        self.recoder.record()
-        waveformView?.updatePlayedTime = {
-            [weak self] in
-            if self != nil {
-                let currentTime = CGFloat(self!.recoder.currentTime)
-                self?.waveformView?.audioDuration = CGFloat(self!.waveformView!.powerLevelArray.count) / 50
-                return currentTime
-            } else {
-                return 0
+        if true {
+            //test dynamic
+            self.recoder.record()
+            waveformView?.audioDuration = 0.0000000000001
+            waveformView?.updatePlayedTime = {
+                [weak self] in
+                if self != nil {
+                    let currentTime = CGFloat(self!.recoder.currentTime)
+                    self?.waveformView?.audioDuration = CGFloat(self!.waveformView!.powerLevelArray.count) / 50.0
+                    return currentTime
+                } else {
+                    return 0
+                }
             }
+            waveformView?.isDynamic = !sender.isSelected
+            (waveformView?.isDynamic)! ? updatePowerLevelTimer.schedule(deadline: .now(), repeating: 1/50.0) : updatePowerLevelTimer.schedule(wallDeadline: .distantFuture)
+            sender.isSelected = !sender.isSelected
+        } else {
+            //test static
+            let start = CGFloat(arc4random() % 10_000) / 100
+            let end = CGFloat(arc4random() % 10_000) / 100
+            waveformView?.displayTimeRange = (min(start, end), max(start, end))
         }
-        waveformView?.isDynamic = !sender.isSelected
-        (waveformView?.isDynamic)! ? updatePowerLevelTimer.schedule(deadline: .now(), repeating: 1/50.0) : updatePowerLevelTimer.schedule(wallDeadline: .distantFuture)
-        sender.isSelected = !sender.isSelected
     }
     
     private func checkPermission() {
