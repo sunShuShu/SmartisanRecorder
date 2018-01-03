@@ -19,6 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         
         //TODO: test launch time, move configration to globe queue?
+        //TODO: Modify and hide the test APIKey of Fabric.
         
         //Config Crashlytics
         Fabric.with([Crashlytics.self])

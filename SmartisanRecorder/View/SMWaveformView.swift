@@ -25,33 +25,13 @@ class SMWaveformView: UIView {
     /// line color
     var color: CGColor = UIColor.black.cgColor
     
-    private var renderTimer: CADisplayLink?
-    private var renderQueue: DispatchQueue?
-    private var renderTimerNeedRemoved = true
-    
     /// The waveform view has two kind of way to update display. If isDynamic is true, the updatePlayedTime will be call when it's time to render screen. If isDymanic is false, waveform view will be render when the updateDisplayRange changed.
-    @objc var isDynamic = false {
+    var isDynamic = false {
         didSet {
             guard isDynamic != oldValue else {
                 return
             }
-            if renderTimer == nil {
-                renderTimer = CADisplayLink(target: self, selector: #selector(render))
-                renderQueue = DispatchQueue(label: "com.sunshushu.WaveformRenderQueue", qos: .userInteractive)
-                renderTimerNeedRemoved = false
-                renderQueue?.async {
-                    [weak self] in
-                    self?.renderTimer?.add(to: RunLoop.current, forMode: .defaultRunLoopMode)
-                    RunLoop.current.run()
-                }
-            } else {
-                if isDynamic {
-                    guard updatePlayedTime != nil else {
-                        assert(false, "updatePlayedTime is not set!")
-                    }
-                }
-                renderTimer?.isPaused = !isDynamic
-            }
+            shiftIsDynamic()
         }
     }
 
@@ -63,8 +43,6 @@ class SMWaveformView: UIView {
         }
     }
     var audioDuration: CGFloat = 0
-    
-    private var path = CGMutablePath()
     var powerLevelArray: [UInt8] = Array()
     
     //MARK:-
@@ -79,7 +57,39 @@ class SMWaveformView: UIView {
         renderTimerNeedRemoved = true
     }
     
+    private var width: CGFloat = 0
+    private var height: CGFloat = 0
+    override func willMove(toSuperview newSuperview: UIView?) {
+        super.willMove(toSuperview: newSuperview)
+        width = self.bounds.size.width
+        height = self.bounds.size.height
+    }
+    
     //MARK:-
+    private var renderTimer: CADisplayLink?
+    private var renderQueue: DispatchQueue?
+    private var renderTimerNeedRemoved = true
+    private func shiftIsDynamic() {
+        if renderTimer == nil {
+            renderTimer = CADisplayLink(target: self, selector: #selector(render))
+            renderQueue = DispatchQueue(label: "com.sunshushu.WaveformRenderQueue", qos: .userInteractive)
+            renderTimerNeedRemoved = false
+            renderQueue?.async {
+                [weak self] in
+                self?.renderTimer?.add(to: RunLoop.current, forMode: .defaultRunLoopMode)
+                RunLoop.current.run()
+            }
+        } else {
+            if isDynamic {
+                guard updatePlayedTime != nil else {
+                    assert(false, "updatePlayedTime is not set!")
+                }
+            }
+            renderTimer?.isPaused = !isDynamic
+        }
+    }
+    
+    private var path = CGMutablePath()
     @objc func render() {
         //Stop and remove render timer in render queue.
         guard renderTimerNeedRemoved == false else {
@@ -90,7 +100,38 @@ class SMWaveformView: UIView {
         }
         if let block = updatePlayedTime {
             let currentTime = block()
-            SMLog("\(currentTime)")
+            guard audioDuration > 0 else {
+                return
+            }
+            
+            let currentDataLocation = currentTime * CGFloat(powerLevelArray.count) / audioDuration
+            let currentDataIndex = Int(currentDataLocation)
+            let displayLocationOffset = currentDataLocation - CGFloat(currentDataIndex)
+            
+            let renderLineCount = Int(width / self.lineWidth) + 2
+            let renderRangeStart = currentDataIndex - renderLineCount / 2
+            let renderRangeEnd = renderRangeStart + renderLineCount
+            let renderDataRange =  renderRangeStart..<renderRangeEnd
+            
+            let tempPath = CGMutablePath()
+            for index in renderDataRange {
+                if index < 0 || index >= powerLevelArray.count {
+                    continue
+                } else {
+                    let level = powerLevelArray[index]
+                    let x = (CGFloat(index-renderRangeStart) - displayLocationOffset) * lineWidth
+                    let lineHeight = CGFloat(level) * height / SMWaveformView.maxPowerLevel
+                    let startY = (height - lineHeight) / 2
+                    let endY = startY + lineHeight
+                    tempPath.move(to: CGPoint(x: x, y: startY))
+                    tempPath.addLine(to: CGPoint(x: x, y: endY))
+                }
+            }
+            
+            DispatchQueue.main.async {
+                self.path = tempPath
+                self.setNeedsDisplay()
+            }
         }
     }
     

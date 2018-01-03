@@ -11,20 +11,48 @@ import UIKit
 import AVFoundation
 
 class SMMainPageViewController: UIViewController {
-    
     private var recoder = SMRecorder()
-    @IBOutlet weak var waveformView: SMWaveformView!
+    @IBOutlet weak var waveformView: SMWaveformView?
     let audioMeter = SMAudioMeter(resultRange: 200)
+    private let updatePowerLevelTimer = DispatchSource.makeTimerSource(flags: [], queue: DispatchQueue.global(qos: .userInitiated))
     
+    var fireTimes = 0
+    var nowTime = Date(timeIntervalSinceNow: 0)
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        waveformView?.lineWidth = 1
+        
+        if waveformView != nil {
+            updatePowerLevelTimer.setEventHandler {
+                [weak self] in
+                let level = self?.recoder.powerLevel
+                self?.waveformView?.powerLevelArray.append(UInt8(level!*255))
+            }
+            updatePowerLevelTimer.resume()
+        }
+    }
+    
+    deinit {
+        updatePowerLevelTimer.cancel()
+        SMLog("\(type(of: self)) RELEASE!")
     }
     
     @IBAction func action(_ sender: UIButton) {
-        waveformView.updatePlayedTime = {
-            return CGFloat(arc4random()%100)
+        nowTime = Date(timeIntervalSinceNow: 0)
+        self.recoder.record()
+        waveformView?.updatePlayedTime = {
+            [weak self] in
+            if self != nil {
+                let currentTime = CGFloat(self!.recoder.currentTime)
+                self?.waveformView?.audioDuration = CGFloat(self!.waveformView!.powerLevelArray.count) / 50
+                return currentTime
+            } else {
+                return 0
+            }
         }
-        waveformView.isDynamic = !sender.isSelected
+        waveformView?.isDynamic = !sender.isSelected
+        (waveformView?.isDynamic)! ? updatePowerLevelTimer.schedule(deadline: .now(), repeating: 1/50.0) : updatePowerLevelTimer.schedule(wallDeadline: .distantFuture)
         sender.isSelected = !sender.isSelected
     }
     

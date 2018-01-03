@@ -94,10 +94,12 @@ class SMRecorder: NSObject, AVAudioRecorderDelegate {
     
     var powerLevel: Float {
         guard audioRecorder != nil else {
-            return -160 //Device returning value of -160 dB indicates minimum power
+            return 0 //Device returning value of -160 dB indicates minimum power
         }
         audioRecorder!.updateMeters()
-        return audioRecorder!.averagePower(forChannel: 0)
+        let power = audioRecorder!.averagePower(forChannel: 0)
+        let amp = powf(10.0, 0.05 * power)
+        return amp
     }
     
     //MARK:- Record control
