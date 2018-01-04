@@ -32,9 +32,9 @@ class SMMainPageViewController: UIViewController {
             updatePowerLevelTimer.resume()
         }
         
-//        for index in 0..<5000 {
-//            waveformView?.powerLevelArray.append(UInt8(index % 200))
-//        }
+        for index in 0..<5000 {
+            waveformView?.powerLevelArray.append(UInt8(index % 200))
+        }
 //        waveformView?.audioDuration = 100
     }
     

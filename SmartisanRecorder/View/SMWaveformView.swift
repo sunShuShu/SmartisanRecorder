@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 import CoreGraphics
 
-class SMWaveformView: UIView {
+class SMWaveformView: SMBaseView {
     static let maxPowerLevel = CGFloat(UInt8.max)
     
     /// line width(point) e.g. 1 point = 2 pixels in iPhone7, 1 point = 3 pixels in plus series
@@ -65,6 +65,8 @@ class SMWaveformView: UIView {
     
     override func removeFromSuperview() {
         super.removeFromSuperview()
+        measure.getReport()
+        
         //Only remove render timer in render queue, the timer must be fire.
         renderTimer?.isPaused = false
         renderTimerNeedRemoved = true
@@ -102,6 +104,7 @@ class SMWaveformView: UIView {
     
     private var path = CGMutablePath()
     @objc func render() {
+        measure.start()
         //Stop and remove render timer in render queue.
         guard renderTimerNeedRemoved == false else {
             renderTimer?.isPaused = true
@@ -128,6 +131,7 @@ class SMWaveformView: UIView {
         let tempPath = CGMutablePath()
         let startDataLocation: CGFloat
         let scalingFactor: CGFloat
+//        let powerLevelArray = self.powerLevelArray
         
         if isDynamic {
             let currentDataLocation = currentTime * CGFloat(powerLevelArray.count) / duration
@@ -171,6 +175,8 @@ class SMWaveformView: UIView {
             self.path = tempPath
             self.setNeedsDisplay()
         }
+        
+        measure.end()
     }
     
     override func draw(_ rect: CGRect) {
