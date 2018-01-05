@@ -26,7 +26,7 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="PUSH"/>
                                 <connections>
-                                    <segue destination="3YJ-yV-dgp" kind="show" id="KPC-DM-9Gf"/>
+                                    <segue destination="zeV-IM-6Xx" kind="show" id="Wwj-WV-lMl"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -37,48 +37,13 @@
             </objects>
             <point key="canvasLocation" x="846" y="18"/>
         </scene>
-        <!--Main Page View Controller-->
-        <scene sceneID="734-Jg-uik">
+        <!--SMWaveformViewTest-->
+        <scene sceneID="6Ds-hS-sJi">
             <objects>
-                <viewController id="3YJ-yV-dgp" customClass="SMMainPageViewController" customModule="SmartisanRecorder" customModuleProvider="target" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="YbS-fK-fWo"/>
-                        <viewControllerLayoutGuide type="bottom" id="PKQ-xM-Cbl"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="I70-Wi-wc1">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Huc-k3-aRh" customClass="SMWaveformView" customModule="SmartisanRecorder" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="133.5" width="374" height="200"/>
-                                <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="200" id="5dh-BN-n8M"/>
-                                </constraints>
-                            </view>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GKW-Wq-vx4">
-                                <rect key="frame" x="135" y="406" width="104" height="49"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="ACTION"/>
-                                <connections>
-                                    <action selector="action:" destination="3YJ-yV-dgp" eventType="touchUpInside" id="vsD-6M-cQo"/>
-                                </connections>
-                            </button>
-                        </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <constraints>
-                            <constraint firstItem="Huc-k3-aRh" firstAttribute="centerX" secondItem="I70-Wi-wc1" secondAttribute="centerX" id="0sx-ul-W3N"/>
-                            <constraint firstItem="Huc-k3-aRh" firstAttribute="leading" secondItem="I70-Wi-wc1" secondAttribute="leading" id="cbx-eL-EIU"/>
-                            <constraint firstItem="Huc-k3-aRh" firstAttribute="centerY" secondItem="I70-Wi-wc1" secondAttribute="centerY" constant="-100" id="fO5-G4-btn"/>
-                        </constraints>
-                    </view>
-                    <connections>
-                        <outlet property="waveformView" destination="Huc-k3-aRh" id="RNK-hB-S6S"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="vjO-Hu-Onw" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <viewControllerPlaceholder storyboardName="SMWaveformViewTest" id="zeV-IM-6Xx" sceneMemberID="viewController"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="MQ5-CH-oi5" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1559" y="18"/>
+            <point key="canvasLocation" x="1710" y="18"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="gal-rT-pjY">

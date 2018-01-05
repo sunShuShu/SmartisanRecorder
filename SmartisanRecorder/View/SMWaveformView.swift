@@ -58,14 +58,7 @@ class SMWaveformView: SMBaseView {
     /// The property should be set if autio length is fixed.
     var audioDuration: CGFloat = 0
     /// This property is required if the audio length is not fixed when rendering, such as a real-time recording. If this property is set, the length of the audio will be automatically calculated using the power level data count, and the audioDuration value will be ignored.
-    var dataCountPerSecond: CGFloat? {
-        didSet {
-            if dataCountPerSecond == 0 {
-                dataCountPerSecond = oldValue
-                assert(false)
-            }
-        }
-    }
+    var dataCountPerSecond: CGFloat?
     private var powerLevelDataCount:Int = 0
     
     //MARK:- Waveform Data

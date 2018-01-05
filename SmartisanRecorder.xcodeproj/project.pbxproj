@@ -10,6 +10,8 @@
 		250CD4991E78091300C2E327 /* 1 Merge_高_中.wav in Resources */ = {isa = PBXBuildFile; fileRef = 250CD4981E78091300C2E327 /* 1 Merge_高_中.wav */; };
 		251113B21FFE005D00200E2A /* SMBaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 251113B11FFE005D00200E2A /* SMBaseView.swift */; };
 		251113B41FFE068A00200E2A /* SMUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 251113B31FFE068A00200E2A /* SMUtils.swift */; };
+		251113B61FFF5FFE00200E2A /* SMWaveformViewTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 251113B51FFF5FFE00200E2A /* SMWaveformViewTest.swift */; };
+		251113BB1FFF612200200E2A /* SMWaveformViewTest.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 251113BA1FFF612200200E2A /* SMWaveformViewTest.storyboard */; };
 		252991931F51068E00EBBE69 /* SMUserUsageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 252991921F51068E00EBBE69 /* SMUserUsageInfo.swift */; };
 		252AE9181E6E88AC005FED98 /* SMLocalize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 252AE9171E6E88AC005FED98 /* SMLocalize.swift */; };
 		253648231E6EA9B500476E12 /* SMMainPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253648221E6EA9B500476E12 /* SMMainPageViewController.swift */; };
@@ -59,6 +61,8 @@
 		250CD4981E78091300C2E327 /* 1 Merge_高_中.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "1 Merge_高_中.wav"; sourceTree = "<group>"; };
 		251113B11FFE005D00200E2A /* SMBaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMBaseView.swift; sourceTree = "<group>"; };
 		251113B31FFE068A00200E2A /* SMUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMUtils.swift; sourceTree = "<group>"; };
+		251113B51FFF5FFE00200E2A /* SMWaveformViewTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMWaveformViewTest.swift; sourceTree = "<group>"; };
+		251113BA1FFF612200200E2A /* SMWaveformViewTest.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = SMWaveformViewTest.storyboard; sourceTree = "<group>"; };
 		252991921F51068E00EBBE69 /* SMUserUsageInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMUserUsageInfo.swift; sourceTree = "<group>"; };
 		252AE9171E6E88AC005FED98 /* SMLocalize.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMLocalize.swift; sourceTree = "<group>"; };
 		253648221E6EA9B500476E12 /* SMMainPageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMMainPageViewController.swift; sourceTree = "<group>"; };
@@ -124,6 +128,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		251113B71FFF609C00200E2A /* Test */ = {
+			isa = PBXGroup;
+			children = (
+				251113B51FFF5FFE00200E2A /* SMWaveformViewTest.swift */,
+				251113BA1FFF612200200E2A /* SMWaveformViewTest.storyboard */,
+			);
+			path = Test;
+			sourceTree = "<group>";
+		};
 		2536482C1E6EAFD200476E12 /* Handler */ = {
 			isa = PBXGroup;
 			children = (
@@ -162,6 +175,7 @@
 		253BCED21E6D5B4500C6F6BE /* View */ = {
 			isa = PBXGroup;
 			children = (
+				251113B71FFF609C00200E2A /* Test */,
 				251113B11FFE005D00200E2A /* SMBaseView.swift */,
 				25E28DDE1E6F9E8A0008E066 /* SMWaveformView.swift */,
 			);
@@ -383,6 +397,7 @@
 				253EB9451E6E841D00E9849E /* LaunchScreen.storyboard in Resources */,
 				253648241E6EACC400476E12 /* Localizable.strings in Resources */,
 				253EB9431E6E841D00E9849E /* Assets.xcassets in Resources */,
+				251113BB1FFF612200200E2A /* SMWaveformViewTest.storyboard in Resources */,
 				253EB9461E6E841D00E9849E /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -536,6 +551,7 @@
 				255FF2571E70FB1600D4ECBD /* SMAudioFileSampler.swift in Sources */,
 				2593C8981FBAC0D70062A2AE /* SMStorage.mm in Sources */,
 				252991931F51068E00EBBE69 /* SMUserUsageInfo.swift in Sources */,
+				251113B61FFF5FFE00200E2A /* SMWaveformViewTest.swift in Sources */,
 				259955A21E76B3E400955FB3 /* SMAudioFileEditor.swift in Sources */,
 				2593C89D1FBAD4AD0062A2AE /* SMFileStorageModel.mm in Sources */,
 				25E28DDF1E6F9E8A0008E066 /* SMWaveformView.swift in Sources */,
