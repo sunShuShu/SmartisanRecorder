@@ -10,31 +10,44 @@ import Foundation
 import UIKit
 import AVFoundation
 
-class SMMainPageViewController: UIViewController {
+class SMMainPageViewController: SMBaseViewController {
     private var recoder = SMRecorder()
     @IBOutlet weak var waveformView: SMWaveformView?
     let audioMeter = SMAudioMeter(resultRange: 200)
-    private let updatePowerLevelTimer = DispatchSource.makeTimerSource(flags: [], queue: DispatchQueue.global(qos: .userInitiated))
+    private let updatePowerLevelTimer = DispatchSource.makeTimerSource(flags: [], queue: DispatchQueue.global(qos: .userInteractive))
     
     var fireTimes = 0
-    var nowTime = Date(timeIntervalSinceNow: 0)
+    var powerLevel = [UInt8]()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         waveformView?.lineWidth = 1
+        self.waveformView?.dataCountPerSecond = 50
         
         if waveformView != nil {
             updatePowerLevelTimer.setEventHandler {
                 [weak self] in
+                let startTime = NSDate()
+                
                 let level = self?.recoder.powerLevel
-                self?.waveformView?.powerLevelArray.append(UInt8(level!*255))
+                self?.powerLevel.append(UInt8(level!*255))
+                self?.waveformView?.addPowerLevel(UInt8(level!*255))
+                
+                let missFire = startTime.timeIntervalSinceNow / (1/50)
+                if missFire >= 1 {
+                    //Insert fake data
+                    assert(false)
+                }
             }
             updatePowerLevelTimer.resume()
         }
         
-        for index in 0..<5000 {
-            waveformView?.powerLevelArray.append(UInt8(index % 200))
+        var levelArray = [UInt8]()
+        for index in 0..<12_000_000 {
+            levelArray.append(UInt8(index % 200))
         }
+        self.powerLevel = levelArray
 //        waveformView?.audioDuration = 100
     }
     
@@ -43,20 +56,26 @@ class SMMainPageViewController: UIViewController {
         SMLog("\(type(of: self)) RELEASE!")
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        measure.getReport()
+    }
+    
     @IBAction func action(_ sender: UIButton) {
         if true {
             //test dynamic
             self.recoder.record()
             waveformView?.audioDuration = 0.0000000000001
             waveformView?.updatePlayedTime = {
+                //////////////
                 [weak self] in
                 if self != nil {
                     let currentTime = CGFloat(self!.recoder.currentTime)
-                    self?.waveformView?.audioDuration = CGFloat(self!.waveformView!.powerLevelArray.count) / 50.0
                     return currentTime
                 } else {
                     return 0
                 }
+                //////////////
             }
             waveformView?.isDynamic = !sender.isSelected
             (waveformView?.isDynamic)! ? updatePowerLevelTimer.schedule(deadline: .now(), repeating: 1/50.0) : updatePowerLevelTimer.schedule(wallDeadline: .distantFuture)
