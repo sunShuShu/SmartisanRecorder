@@ -78,8 +78,9 @@ class SMWaveformViewTestViewController: SMBaseViewController {
                 updatePowerLevelTimer = DispatchSource.makeTimerSource(flags: [], queue: DispatchQueue.global(qos: .userInteractive))
                 updatePowerLevelTimer?.setEventHandler {
                     [weak self] in
-                    usleep(5000) //simulate update power level
-                    self?.waveformView?.addPowerLevel(UInt8(arc4random() % UInt32(SMWaveformView.maxPowerLevel)))
+                    if let strongSelf = self {
+                        strongSelf.waveformView?.addPowerLevel(UInt8(arc4random() % UInt32(SMWaveformView.maxPowerLevel)))
+                    }
                 }
                 updatePowerLevelTimer?.resume()
             }
@@ -111,6 +112,7 @@ class SMWaveformViewTestViewController: SMBaseViewController {
         timer.stop()
         waveformView.setPowerLevelArray(nil)
         waveformView.updatePlayedTime = nil
+        waveformView.isDynamic = false
         waveformView.refreshView()
     }
     
@@ -132,6 +134,7 @@ class SMWaveformViewTestViewController: SMBaseViewController {
         waveformView.isDynamic = sender.isSelected
     }
     
+    @IBOutlet weak var speedLabel: UILabel!
     private var speedFactor: CGFloat = 1
     @IBAction func speedAction(_ sender: Any) {
         guard isTestingPlay else {
@@ -139,7 +142,7 @@ class SMWaveformViewTestViewController: SMBaseViewController {
         }
         
         speedFactor = CGFloat(arc4random() % 20) / 10
-        SMLog("Play rate change to: \(speedFactor)")
+        speedLabel.text = "\(speedFactor)"
         waveformView.updatePlayedTime = {
             [weak self] in
             if self != nil {
@@ -156,23 +159,21 @@ class SMWaveformViewTestViewController: SMBaseViewController {
             waveformView.setPowerLevelArray(self.powerLevel)
             waveformView.audioDuration = CGFloat(self.audioDuration)
         }
-        let start = CGFloat(arc4random() % 10_000) / 100
-        let end = CGFloat(arc4random() % 10_000) / 100
+        let start = CGFloat(arc4random() % 10000) / 100
+        let end = CGFloat(arc4random() % 10000) / 100
         waveformView?.displayTimeRange = (min(start, end), max(start, end))
     }
     
     @IBAction func compressionAction(_ sender: Any) {
-        if waveformView.displayTimeRange == nil {
-            waveformView.setPowerLevelArray(self.powerLevel)
-            waveformView.audioDuration = CGFloat(self.audioDuration)
+        if shortWaveformView.displayTimeRange == nil {
+            shortWaveformView.setPowerLevelArray(self.powerLevel)
+            shortWaveformView.audioDuration = CGFloat(self.audioDuration)
         }
-        waveformView?.displayTimeRange = (0, CGFloat(audioDuration))
+        shortWaveformView?.displayTimeRange = (0, CGFloat(audioDuration))
     }
     
     @IBAction func lineWidthAction(_ sender: Any) {
-    }
-    
-    @IBAction func rateAction(_ sender: Any) {
+        waveformView.lineWidth = CGFloat(arc4random() % 50) / 10
     }
     
 }

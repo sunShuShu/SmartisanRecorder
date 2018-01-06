@@ -123,6 +123,7 @@ class SMWaveformView: SMBaseView {
     }
     
     //MARK:-
+    //TODO: Add cache to reduce render calculation. 
 //    private lazy var lineHeightCache = [Int:CGFloat]()
     private lazy var renderTimer: CADisplayLink = {
         let timer = CADisplayLink(target: self, selector: #selector(render))

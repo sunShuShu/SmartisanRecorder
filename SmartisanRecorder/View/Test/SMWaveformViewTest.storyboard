@@ -72,17 +72,6 @@
                                     <action selector="playAction:" destination="9wv-46-0Le" eventType="touchUpInside" id="evG-I5-76B"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hcW-ig-xCl">
-                                <rect key="frame" x="100" y="577" width="80" height="40"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="80" id="BP5-Vr-2UM"/>
-                                    <constraint firstAttribute="height" constant="40" id="XQR-Rf-7ld"/>
-                                </constraints>
-                                <state key="normal" title="Rate"/>
-                                <connections>
-                                    <action selector="rateAction:" destination="9wv-46-0Le" eventType="touchUpInside" id="duR-0f-X3z"/>
-                                </connections>
-                            </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lVU-QB-pB5">
                                 <rect key="frame" x="10" y="577" width="80" height="40"/>
                                 <constraints>
@@ -101,17 +90,6 @@
                                     <constraint firstAttribute="height" constant="40" id="Fl8-Wt-q7B"/>
                                 </constraints>
                             </view>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HvW-9g-j0l">
-                                <rect key="frame" x="10" y="375" width="60" height="40"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="40" id="FYh-SN-eMK"/>
-                                    <constraint firstAttribute="width" constant="60" id="j6Z-GP-sMR"/>
-                                </constraints>
-                                <state key="normal" title="Speed"/>
-                                <connections>
-                                    <action selector="speedAction:" destination="9wv-46-0Le" eventType="touchUpInside" id="tEc-Xm-hXq"/>
-                                </connections>
-                            </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x8n-Af-73v">
                                 <rect key="frame" x="290" y="325" width="40" height="40"/>
                                 <constraints>
@@ -123,35 +101,53 @@
                                     <action selector="stopAction:" destination="9wv-46-0Le" eventType="touchUpInside" id="zLu-ei-2mi"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2vP-FO-uTA">
+                                <rect key="frame" x="160" y="587" width="8" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HvW-9g-j0l">
+                                <rect key="frame" x="100" y="577" width="60" height="40"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="FYh-SN-eMK"/>
+                                    <constraint firstAttribute="width" constant="60" id="j6Z-GP-sMR"/>
+                                </constraints>
+                                <state key="normal" title="Speed:"/>
+                                <connections>
+                                    <action selector="speedAction:" destination="9wv-46-0Le" eventType="touchUpInside" id="tEc-Xm-hXq"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="x8n-Af-73v" firstAttribute="centerY" secondItem="mar-WI-Yn3" secondAttribute="centerY" id="1ND-O8-Lsy"/>
-                            <constraint firstItem="hcW-ig-xCl" firstAttribute="centerY" secondItem="lVU-QB-pB5" secondAttribute="centerY" id="3w7-eZ-7gr"/>
                             <constraint firstItem="KeF-Qo-0mp" firstAttribute="centerY" secondItem="SKI-al-lAr" secondAttribute="centerY" id="4EA-4m-POj"/>
                             <constraint firstItem="SKI-al-lAr" firstAttribute="leading" secondItem="Gi4-gL-RFy" secondAttribute="leading" constant="10" id="57L-fT-l7L"/>
+                            <constraint firstItem="HvW-9g-j0l" firstAttribute="centerY" secondItem="lVU-QB-pB5" secondAttribute="centerY" id="BZt-cj-PG2"/>
                             <constraint firstItem="etU-Kf-5aR" firstAttribute="centerY" secondItem="SKI-al-lAr" secondAttribute="centerY" id="CcV-C2-FYm"/>
                             <constraint firstItem="lVU-QB-pB5" firstAttribute="leading" secondItem="Gi4-gL-RFy" secondAttribute="leading" constant="10" id="Cqa-is-kfK"/>
-                            <constraint firstItem="HvW-9g-j0l" firstAttribute="centerX" secondItem="SKI-al-lAr" secondAttribute="centerX" id="DNk-Kd-E5h"/>
                             <constraint firstItem="etU-Kf-5aR" firstAttribute="leading" secondItem="SKI-al-lAr" secondAttribute="trailing" constant="10" id="FDN-Rj-05W"/>
                             <constraint firstItem="mar-WI-Yn3" firstAttribute="centerY" secondItem="SKI-al-lAr" secondAttribute="centerY" id="Fi8-Ds-rea"/>
                             <constraint firstItem="x8n-Af-73v" firstAttribute="leading" secondItem="mar-WI-Yn3" secondAttribute="trailing" constant="10" id="G0U-iB-asY"/>
-                            <constraint firstItem="HvW-9g-j0l" firstAttribute="top" secondItem="SKI-al-lAr" secondAttribute="bottom" constant="10" id="GYn-28-cSG"/>
                             <constraint firstItem="tsD-4A-OEz" firstAttribute="trailing" secondItem="Gi4-gL-RFy" secondAttribute="trailing" id="TLA-r5-z4N"/>
                             <constraint firstItem="SKI-al-lAr" firstAttribute="top" secondItem="7BE-Gf-akS" secondAttribute="bottom" constant="30" id="UrV-Bi-P5C"/>
                             <constraint firstItem="cnS-Kt-eXJ" firstAttribute="top" secondItem="tsD-4A-OEz" secondAttribute="bottom" id="XJA-49-13J"/>
+                            <constraint firstItem="HvW-9g-j0l" firstAttribute="leading" secondItem="lVU-QB-pB5" secondAttribute="trailing" constant="10" id="Xg1-Ef-u7u"/>
+                            <constraint firstItem="2vP-FO-uTA" firstAttribute="leading" secondItem="HvW-9g-j0l" secondAttribute="trailing" id="dHA-1h-zRS"/>
                             <constraint firstItem="tsD-4A-OEz" firstAttribute="top" secondItem="lVU-QB-pB5" secondAttribute="bottom" constant="10" id="dMc-Rw-fA6"/>
                             <constraint firstItem="mar-WI-Yn3" firstAttribute="leading" secondItem="KeF-Qo-0mp" secondAttribute="trailing" constant="10" id="dPI-MI-emR"/>
-                            <constraint firstItem="hcW-ig-xCl" firstAttribute="leading" secondItem="lVU-QB-pB5" secondAttribute="trailing" constant="10" id="jm6-5B-g0p"/>
                             <constraint firstItem="KeF-Qo-0mp" firstAttribute="leading" secondItem="etU-Kf-5aR" secondAttribute="trailing" constant="10" id="kM1-0Q-54L"/>
                             <constraint firstItem="tsD-4A-OEz" firstAttribute="leading" secondItem="Gi4-gL-RFy" secondAttribute="leading" id="ki1-3Z-GpE"/>
                             <constraint firstItem="7BE-Gf-akS" firstAttribute="leading" secondItem="Gi4-gL-RFy" secondAttribute="leading" id="oT0-Wu-3Jn"/>
                             <constraint firstAttribute="trailing" secondItem="7BE-Gf-akS" secondAttribute="trailing" id="q9g-BN-MgR"/>
+                            <constraint firstItem="2vP-FO-uTA" firstAttribute="centerY" secondItem="HvW-9g-j0l" secondAttribute="centerY" id="rbY-z8-tA3"/>
                             <constraint firstItem="7BE-Gf-akS" firstAttribute="top" secondItem="ozv-Ia-uKQ" secondAttribute="bottom" constant="20" id="wjR-am-XNo"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="shortWaveformView" destination="tsD-4A-OEz" id="itK-lv-PP6"/>
+                        <outlet property="speedLabel" destination="2vP-FO-uTA" id="2RH-o4-TOw"/>
                         <outlet property="waveformView" destination="7BE-Gf-akS" id="Ylv-o6-uw7"/>
                     </connections>
                 </viewController>
