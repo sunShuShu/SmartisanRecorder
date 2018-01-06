@@ -65,21 +65,7 @@ class SMWaveformViewTestViewController: SMBaseViewController {
     }
     
     deinit {
-        stopRecordAction()
-        stopPlayAction()
         SMLog("\(type(of: self)) RELEASE!")
-    }
-    
-    @IBAction func action(_ sender: UIButton) {
-        if true {
-            //test dynamic
-            
-        } else {
-            //test static
-            let start = CGFloat(arc4random() % 10_000) / 100
-            let end = CGFloat(arc4random() % 10_000) / 100
-            waveformView?.displayTimeRange = (min(start, end), max(start, end))
-        }
     }
     
     private var updatePowerLevelTimer: DispatchSourceTimer?
@@ -118,13 +104,14 @@ class SMWaveformViewTestViewController: SMBaseViewController {
         waveformView?.isDynamic = sender.isSelected
     }
     
-    private func stopRecordAction() {
-        waveformView.isDynamic = false
+    @IBAction func stopAction(_ sender: UIButton) {
         updatePowerLevelTimer?.cancel()
         updatePowerLevelTimer = nil
+        isTestingPlay = false
         timer.stop()
-        waveformView.updatePlayedTime = nil
         waveformView.setPowerLevelArray(nil)
+        waveformView.updatePlayedTime = nil
+        waveformView.refreshView()
     }
     
     private var isTestingPlay = false
@@ -164,18 +151,22 @@ class SMWaveformViewTestViewController: SMBaseViewController {
         }
     }
     
-    private func stopPlayAction() {
-        isTestingPlay = false
-        timer.stop()
-        waveformView.isDynamic = false
-        waveformView.setPowerLevelArray(nil)
-        waveformView.updatePlayedTime = nil
-    }
-    
     @IBAction func zoomAction(_ sender: Any) {
+        if waveformView.displayTimeRange == nil {
+            waveformView.setPowerLevelArray(self.powerLevel)
+            waveformView.audioDuration = CGFloat(self.audioDuration)
+        }
+        let start = CGFloat(arc4random() % 10_000) / 100
+        let end = CGFloat(arc4random() % 10_000) / 100
+        waveformView?.displayTimeRange = (min(start, end), max(start, end))
     }
     
     @IBAction func compressionAction(_ sender: Any) {
+        if waveformView.displayTimeRange == nil {
+            waveformView.setPowerLevelArray(self.powerLevel)
+            waveformView.audioDuration = CGFloat(self.audioDuration)
+        }
+        waveformView?.displayTimeRange = (0, CGFloat(audioDuration))
     }
     
     @IBAction func lineWidthAction(_ sender: Any) {

@@ -29,11 +29,17 @@ class SMWaveformView: SMBaseView {
     /// The waveform view has two kind of way to update display. If isDynamic is true, the updatePlayedTime will be call when it's time to render screen. If isDymanic is false, waveform view will be render when the updateDisplayRange changed.
     var isDynamic = false {
         didSet {
-            guard isDynamic != oldValue else {
-                return
+            if isDynamic {
+                guard updatePlayedTime != nil else {
+                    assert(false, "updatePlayedTime is not set!")
+                }
             }
-            shiftIsDynamic()
+            renderTimer.isPaused = !isDynamic
         }
+    }
+    
+    func refreshView() {
+        renderTimerFireOnce = true
     }
     
     //MARK:- Display Location
@@ -47,10 +53,7 @@ class SMWaveformView: SMBaseView {
                 displayTimeRange!.start < displayTimeRange!.end else {
                 return
             }
-            isDynamic = false
-            renderQueue.async {
-                self.render()
-            }
+            renderTimerFireOnce = true
         }
     }
     
@@ -98,7 +101,7 @@ class SMWaveformView: SMBaseView {
         measure.getReport()
         
         //Only remove render timer in render queue, the timer must be fire.
-        renderTimer?.isPaused = false
+        renderTimer.isPaused = false
         renderTimerNeedRemoved = true
     }
     
@@ -121,24 +124,21 @@ class SMWaveformView: SMBaseView {
     
     //MARK:-
 //    private lazy var lineHeightCache = [Int:CGFloat]()
-    private var renderTimer: CADisplayLink?
+    private lazy var renderTimer: CADisplayLink = {
+        let timer = CADisplayLink(target: self, selector: #selector(render))
+        renderQueue.async {
+            [weak self] in
+            timer.add(to: RunLoop.current, forMode: .defaultRunLoopMode)
+            RunLoop.current.run()
+        }
+        return timer
+    }()
     private var renderTimerNeedRemoved = false
-    private func shiftIsDynamic() {
-        if renderTimer == nil {
-            renderTimer = CADisplayLink(target: self, selector: #selector(render))
-            renderTimerNeedRemoved = false
-            renderQueue.async {
-                [weak self] in
-                self?.renderTimer?.add(to: RunLoop.current, forMode: .defaultRunLoopMode)
-                RunLoop.current.run()
+    private var renderTimerFireOnce = false {
+        didSet {
+            if renderTimerFireOnce {
+                renderTimer.isPaused = false
             }
-        } else {
-            if isDynamic {
-                guard updatePlayedTime != nil else {
-                    assert(false, "updatePlayedTime is not set!")
-                }
-            }
-            renderTimer?.isPaused = !isDynamic
         }
     }
     
@@ -147,10 +147,15 @@ class SMWaveformView: SMBaseView {
         measure.start()
         //Stop and remove render timer in render queue.
         guard renderTimerNeedRemoved == false else {
-            renderTimer?.isPaused = true
-            renderTimer?.invalidate()
-            renderTimer?.remove(from: RunLoop.current, forMode: .defaultRunLoopMode)
+            renderTimer.isPaused = true
+            renderTimer.invalidate()
+            renderTimer.remove(from: RunLoop.current, forMode: .defaultRunLoopMode)
             return
+        }
+        
+        if renderTimerFireOnce {
+            renderTimer.isPaused = true
+            renderTimerFireOnce = false
         }
         
         //The view is refreshed regardless of whether the rendered data is successful or not.
