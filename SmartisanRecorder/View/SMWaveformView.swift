@@ -62,20 +62,27 @@ class SMWaveformView: SMBaseView {
     private var powerLevelDataCount:Int = 0
     
     //MARK:- Waveform Data
-    private lazy var powerLevelArray = [UInt8]()
+    private var powerLevelArray: [UInt8]?
     //The function should NOT be invoked frequently. When real-time recoding, the addPowerLevel() is recommended.
-    func setPowerLevelArray(_ array: [UInt8]) {
+    func setPowerLevelArray(_ array: [UInt8]?) {
         objc_sync_enter(self)
         powerLevelArray = array
-        powerLevelDataCount = array.count
+        if array != nil {
+            powerLevelDataCount = array!.count
+        } else {
+            powerLevelDataCount = 0
+        }
         objc_sync_exit(self)
     }
     // The function should be used if the waveform is used to display the real-time recording data.In order to optimize performance, after the interface is called, the previous data is removed, and only the last data to be displayed is retained.
     func addPowerLevel(_ level: UInt8) {
         objc_sync_enter(self)
-        powerLevelArray.append(level)
-        if CGFloat(powerLevelArray.count + 2) > lineCount {
-            powerLevelArray.removeFirst()
+        if powerLevelArray == nil {
+            powerLevelArray = [UInt8]()
+        }
+        powerLevelArray!.append(level)
+        if CGFloat(powerLevelArray!.count + 2) > lineCount {
+            powerLevelArray!.removeFirst()
         }
         powerLevelDataCount += 1
         objc_sync_exit(self)
@@ -170,6 +177,9 @@ class SMWaveformView: SMBaseView {
         let powerLevelArray = self.powerLevelArray
         let powerLevelDataCount = self.powerLevelDataCount
         objc_sync_exit(self)
+        guard powerLevelArray != nil else {
+            return
+        }
         
         //Get duration
         var audioDuration = self.audioDuration
@@ -201,7 +211,7 @@ class SMWaveformView: SMBaseView {
         // Calculate startDataIndex and displayLocationOffset
         var startDataIndex = Int(startDataLocation)
         let displayLocationOffset = startDataLocation - CGFloat(startDataIndex)
-        let missDataCount = powerLevelDataCount - powerLevelArray.count
+        let missDataCount = powerLevelDataCount - powerLevelArray!.count
         if missDataCount > 0 {
             startDataIndex -= missDataCount
         }
@@ -214,7 +224,7 @@ class SMWaveformView: SMBaseView {
                 currentDataIndex += lineIndex
             }
             
-            if currentDataIndex < 0 || currentDataIndex >= powerLevelArray.count {
+            if currentDataIndex < 0 || currentDataIndex >= powerLevelArray!.count {
                 continue
             } else {
                 var x = (CGFloat(lineIndex) - displayLocationOffset)
@@ -222,7 +232,7 @@ class SMWaveformView: SMBaseView {
                     x *= lineWidth
                 }
                 
-                let level = powerLevelArray[currentDataIndex]
+                let level = powerLevelArray![currentDataIndex]
                 let lineHeight = CGFloat(level) * lineHeightFactor
                 let startY = (height - lineHeight) / 2
                 let endY = startY + lineHeight

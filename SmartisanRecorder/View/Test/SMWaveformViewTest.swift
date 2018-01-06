@@ -9,16 +9,55 @@
 import Foundation
 import UIKit
 
+class SMAudioTimer {
+    private var startDate: Date?
+    private var lastPlayedTime: TimeInterval = 0
+    
+    var duration: TimeInterval {
+        guard startDate != nil else {
+            return 0
+        }
+        return -(startDate!.timeIntervalSinceNow)
+    }
+    
+    func start() {
+        if startDate == nil {
+            startDate = Date()
+        } else {
+            startDate = Date(timeIntervalSinceNow: -lastPlayedTime)
+        }
+    }
+    
+    func pause() {
+        if let startDate = self.startDate {
+            lastPlayedTime = Date().timeIntervalSinceNow - startDate.timeIntervalSinceNow
+        }
+    }
+    
+    func stop() {
+        startDate = nil
+        lastPlayedTime = 0
+    }
+}
+
+//MARK:-
+
 class SMWaveformViewTestViewController: SMBaseViewController {
     @IBOutlet weak var waveformView: SMWaveformView!
     @IBOutlet weak var shortWaveformView: SMWaveformView!
     
-    private lazy var powerLevel: [UInt8] = {
+    private static let dataCountPerSecond: CGFloat = 50
+
+    private var powerLevel: [UInt8] = {
         var array = [UInt8]()
-        for index in 0..<72 * 3600 * 50 {
+        for index in 0..<72 * 3600 * Int(SMWaveformViewTestViewController.dataCountPerSecond) {
             array.append(UInt8(index % Int(SMWaveformView.maxPowerLevel)))
         }
         return array
+    }()
+    private lazy var audioDuration: TimeInterval = {
+        let duration = CGFloat(self.powerLevel.count) / SMWaveformViewTestViewController.dataCountPerSecond
+        return Double(duration)
     }()
     
     override func viewDidLoad() {
@@ -26,7 +65,8 @@ class SMWaveformViewTestViewController: SMBaseViewController {
     }
     
     deinit {
-        updatePowerLevelTimer?.cancel()
+        stopRecordAction()
+        stopPlayAction()
         SMLog("\(type(of: self)) RELEASE!")
     }
     
@@ -43,9 +83,8 @@ class SMWaveformViewTestViewController: SMBaseViewController {
     }
     
     private var updatePowerLevelTimer: DispatchSourceTimer?
-    private var dataCountPerSecond = 50
-    private var startDate: Date?
-    private var lastPlayedTime: TimeInterval = 0
+    private lazy var timer = SMAudioTimer()
+
     @IBAction func recordAction(_ sender: UIButton) {
         sender.isSelected = !sender.isSelected
         if sender.isSelected {
@@ -53,43 +92,71 @@ class SMWaveformViewTestViewController: SMBaseViewController {
                 updatePowerLevelTimer = DispatchSource.makeTimerSource(flags: [], queue: DispatchQueue.global(qos: .userInteractive))
                 updatePowerLevelTimer?.setEventHandler {
                     [weak self] in
-                    usleep(SDhawn710
-                        000) //simulate update power level
+                    usleep(5000) //simulate update power level
                     self?.waveformView?.addPowerLevel(UInt8(arc4random() % UInt32(SMWaveformView.maxPowerLevel)))
                 }
                 updatePowerLevelTimer?.resume()
             }
-            if startDate == nil {
-                startDate = Date()
-            } else {
-                startDate = Date(timeIntervalSinceNow: -lastPlayedTime)
-            }
+
             waveformView.updatePlayedTime = {
                 [weak self] in
                 if self != nil {
-                    let currentTime = CGFloat(-(self!.startDate!.timeIntervalSinceNow))
+                    let currentTime = CGFloat(self!.timer.duration)
                     return currentTime
                 } else {
                     return 0
                 }
             }
-            waveformView.dataCountPerSecond = 50
-            updatePowerLevelTimer?.schedule(deadline: .now(), repeating: 1/50.0)
+            waveformView.dataCountPerSecond = SMWaveformViewTestViewController.dataCountPerSecond
+            updatePowerLevelTimer?.schedule(deadline: .now(), repeating: 1/Double(SMWaveformViewTestViewController.dataCountPerSecond))
+            timer.start()
         } else {
             updatePowerLevelTimer?.schedule(wallDeadline: .distantFuture)
-            lastPlayedTime = Date().timeIntervalSinceNow - startDate!.timeIntervalSinceNow
+            timer.pause()
         }
         
         waveformView?.isDynamic = sender.isSelected
     }
     
+    private func stopRecordAction() {
+        waveformView.isDynamic = false
+        updatePowerLevelTimer?.cancel()
+        updatePowerLevelTimer = nil
+        timer.stop()
+        waveformView.updatePlayedTime = nil
+        waveformView.setPowerLevelArray(nil)
+    }
     
+    private var isTestingPlay = false
+    @IBAction func playAction(_ sender: UIButton) {
+        isTestingPlay = true
+        sender.isSelected = !sender.isSelected
+        if sender.isSelected {
+            waveformView.setPowerLevelArray(powerLevel)
+            timer.start()
+            waveformView.updatePlayedTime = {
+                [weak self] in
+                return CGFloat(self!.timer.duration)
+            }
+            waveformView.audioDuration = CGFloat(audioDuration)
+        } else {
+            self.timer.pause()
+        }
+        waveformView.isDynamic = sender.isSelected
+    }
+    
+    private var speedFactor: CGFloat = 1
     @IBAction func speedAction(_ sender: Any) {
+        guard isTestingPlay else {
+            return
+        }
+        
+        speedFactor = CGFloat(arc4random() % 20) / 10
+        SMLog("Play rate change to: \(speedFactor)")
         waveformView.updatePlayedTime = {
             [weak self] in
-            let factor = Double(arc4random() % 20) / 10
             if self != nil {
-                let currentTime = CGFloat(-(self?.startDate?.timeIntervalSinceNow)! * factor)
+                let currentTime = CGFloat(self!.timer.duration) * self!.speedFactor
                 return currentTime
             } else {
                 return 0
@@ -97,8 +164,12 @@ class SMWaveformViewTestViewController: SMBaseViewController {
         }
     }
     
-    
-    @IBAction func playAction(_ sender: Any) {
+    private func stopPlayAction() {
+        isTestingPlay = false
+        timer.stop()
+        waveformView.isDynamic = false
+        waveformView.setPowerLevelArray(nil)
+        waveformView.updatePlayedTime = nil
     }
     
     @IBAction func zoomAction(_ sender: Any) {
