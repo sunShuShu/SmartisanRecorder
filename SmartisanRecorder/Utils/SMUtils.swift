@@ -22,11 +22,13 @@ class SMMeasure {
         startDate = Date()
     }
     
-    @discardableResult func end() -> TimeInterval {
+    @discardableResult func end(printLog: Bool = false) -> TimeInterval {
         let time = -startDate.timeIntervalSinceNow
         timeArray.append(time)
-        let log = String(format: "Measure time: %.3f ms", time * 1000)
-        SMLog(log)
+        if printLog {
+            let log = String(format: "Measure time: %.3f ms", time * 1000)
+            SMLog(log)
+        }
         return time
     }
     

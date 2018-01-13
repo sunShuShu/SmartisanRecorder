@@ -13,4 +13,8 @@ class SMBaseView: UIView {
     #if DEBUG
     lazy var measure = SMMeasure()
     #endif
+    
+    deinit {
+        SMLog("\(type(of: self)) RELEASE!")
+    }
 }

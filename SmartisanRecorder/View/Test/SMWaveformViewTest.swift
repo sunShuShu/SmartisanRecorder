@@ -64,10 +64,6 @@ class SMWaveformViewTestViewController: SMBaseViewController {
         super.viewDidLoad()
     }
     
-    deinit {
-        SMLog("\(type(of: self)) RELEASE!")
-    }
-    
     private var updatePowerLevelTimer: DispatchSourceTimer?
     private lazy var timer = SMAudioTimer()
 

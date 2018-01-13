@@ -12,19 +12,20 @@ import CoreGraphics
 
 class SMWaveformView: SMBaseView {
     static let maxPowerLevel = CGFloat(UInt8.max)
-    //MARK:- Appearance Settings
+    
     /// line width(point) e.g. 1 point = 2 pixels in iPhone7, 1 point = 3 pixels in plus series
     var lineWidth: CGFloat = 1 {
         didSet {
             guard lineWidth > 0 else {
                 lineWidth = oldValue
-                assert(false)
+                assert(false, "Line width <= 0!")
             }
-            lineCount = width / lineWidth
+            lineCount = self.bounds.width / lineWidth
         }
     }
+    
     /// line color
-    var color: CGColor = UIColor.black.cgColor
+    var lineColor: CGColor = UIColor.black.cgColor
     
     /// The waveform view has two kind of way to update display. If isDynamic is true, the updatePlayedTime will be call when it's time to render screen. If isDymanic is false, waveform view will be render when the updateDisplayRange changed.
     var isDynamic = false {
@@ -92,10 +93,6 @@ class SMWaveformView: SMBaseView {
     }
     
     //MARK:-
-    deinit {
-        SMLog("\(type(of: self)) RELEASE!")
-    }
-    
     override func removeFromSuperview() {
         super.removeFromSuperview()
         measure.getReport()
@@ -123,8 +120,6 @@ class SMWaveformView: SMBaseView {
     }
     
     //MARK:-
-    //TODO: Add cache to reduce render calculation. 
-//    private lazy var lineHeightCache = [Int:CGFloat]()
     private lazy var renderTimer: CADisplayLink = {
         let timer = CADisplayLink(target: self, selector: #selector(render))
         renderQueue.async {
@@ -144,7 +139,7 @@ class SMWaveformView: SMBaseView {
     }
     
     private var path = CGMutablePath()
-    @objc func render() {
+    @objc private func render() {
         measure.start()
         //Stop and remove render timer in render queue.
         guard renderTimerNeedRemoved == false else {
@@ -257,7 +252,7 @@ class SMWaveformView: SMBaseView {
         }
 
         contex!.addPath(path)
-        contex!.setStrokeColor(color)
+        contex!.setStrokeColor(lineColor)
         contex!.setLineWidth(lineWidth)
         contex!.drawPath(using: .stroke)
     }

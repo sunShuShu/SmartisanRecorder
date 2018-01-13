@@ -18,4 +18,8 @@ class SMBaseViewController: UIViewController {
         super.didReceiveMemoryWarning()
         SMLog("Memory warning!", level: .high)
     }
+    
+    deinit {
+        SMLog("\(type(of: self)) RELEASE!")
+    }
 }
