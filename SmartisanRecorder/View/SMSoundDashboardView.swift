@@ -26,6 +26,9 @@ class SMTimeElapseIndicator: SMBaseView {
     
     var isMovable = false {
         didSet {
+            guard isMovable != oldValue else {
+                return
+            }
             refreshTimer.isPaused = !isMovable
         }
     }
@@ -49,20 +52,23 @@ class SMTimeElapseIndicator: SMBaseView {
     
     private lazy var path = CGMutablePath()
     @objc private func refreshIndicator() {
-        guard updateCurrentPosition != nil else {
-            assert(false, "updatePlayedTime is nil!")
-            return
-        }
         let tempPath = CGMutablePath()
-        if let block = updateCurrentPosition {
-            let currentPosition = block()
-            let redLineX = currentPosition * self.bounds.width
-            let endY = self.bounds.height
-            tempPath.move(to: CGPoint(x: redLineX, y: 0))
-            tempPath.addLine(to: CGPoint(x: redLineX, y: endY))
-            path = tempPath
-            setNeedsDisplay()
+        var currentPosition = self.currentPosition
+        if isMovable {
+            if let block = updateCurrentPosition {
+                currentPosition = block()
+            } else {
+                assert(false, "updatePlayedTime is nil!")
+                return
+            }
         }
+        
+        let redLineX = currentPosition * self.bounds.width
+        let endY = self.bounds.height
+        tempPath.move(to: CGPoint(x: redLineX, y: 0))
+        tempPath.addLine(to: CGPoint(x: redLineX, y: endY))
+        path = tempPath
+        setNeedsDisplay()
     }
     
     deinit {
@@ -71,7 +77,15 @@ class SMTimeElapseIndicator: SMBaseView {
         refreshTimer.remove(from: RunLoop.current, forMode: .defaultRunLoopMode)
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        backgroundColor = UIColor.clear
+        refreshIndicator()
+    }
+    
     override func draw(_ rect: CGRect) {
+        super.draw(rect)
+        backgroundColor = UIColor.clear
         let contex = UIGraphicsGetCurrentContext()
         guard contex != nil else {
             return
@@ -90,7 +104,15 @@ class SMEditSoundView: SMBaseView {
 class SMAxisView: SMBaseView {
     var color = UIColor(red: 180/255, green: 180/255, blue: 180/255, alpha: 1).cgColor
     var lineWidth: CGFloat = 1
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        backgroundColor = UIColor.clear
+        layer.setNeedsDisplay()
+    }
+    
     override func draw(_ layer: CALayer, in ctx: CGContext) {
+        super.draw(layer, in: ctx)
         let path = CGMutablePath()
         let halfHeight = self.bounds.height / 2
         path.move(to: CGPoint(x: 0, y: halfHeight))
@@ -134,6 +156,7 @@ class SMSoundDashboardView: SMBaseView {
         super.layoutSubviews()
         
         func getConstraints(top: CGFloat, bottom: CGFloat, view: UIView) -> [NSLayoutConstraint] {
+            view.translatesAutoresizingMaskIntoConstraints = false
             let vflH = "H:|[view]|"
             let vflV = "V:|-top-[view]-bottom-|"
             let metrics = ["top": top, "bottom": bottom]
@@ -153,8 +176,6 @@ class SMSoundDashboardView: SMBaseView {
         if components.contains(.Time) {
             timeViewHeight = self.timeViewHeight
             if subviews.contains(timeView) == false {
-                ///////////////////////
-                timeView.backgroundColor = UIColor.purple
                 addSubview(timeView)
             }
             let c = getConstraints(top: 0, bottom: self.bounds.height - timeViewHeight, view: timeView)
@@ -174,6 +195,14 @@ class SMSoundDashboardView: SMBaseView {
                 addSubview(waveformView)
             }
             let c = getConstraints(top: timeViewHeight, bottom: 0, view: waveformView)
+            constraints.append(contentsOf: c)
+        }
+        
+        if components.contains(.Indicator) {
+            if subviews.contains(indicatorView) == false {
+                addSubview(indicatorView)
+            }
+            let c = getConstraints(top: timeViewHeight, bottom: 0, view: indicatorView)
             constraints.append(contentsOf: c)
         }
         

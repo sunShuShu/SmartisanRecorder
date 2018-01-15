@@ -113,6 +113,7 @@ class SMWaveformView: SMBaseView {
     private var lineHeightFactor: CGFloat = 0
     override func layoutSubviews() {
         super.layoutSubviews()
+        backgroundColor = UIColor.clear
         width = self.bounds.size.width
         height = self.bounds.size.height
         lineCount = width / lineWidth

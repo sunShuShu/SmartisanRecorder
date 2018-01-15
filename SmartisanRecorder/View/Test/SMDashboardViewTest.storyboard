@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="TDy-lr-E87">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13173"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Dashboard View Test View Controller-->
+        <scene sceneID="agg-lG-Bd9">
+            <objects>
+                <viewController id="TDy-lr-E87" customClass="SMDashboardViewTestViewController" customModule="SmartisanRecorder" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="sKU-AR-WQj"/>
+                        <viewControllerLayoutGuide type="bottom" id="ivv-uL-ULC"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="ZsQ-ZK-5L4">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BkN-ED-2GD" customClass="SMSoundDashboardView" customModule="SmartisanRecorder" customModuleProvider="target">
+                                <rect key="frame" x="26" y="40" width="323" height="269"/>
+                                <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="BkN-ED-2GD" secondAttribute="height" multiplier="1.2:1" id="B1s-mb-KgV"/>
+                                </constraints>
+                            </view>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0U7-kc-d2r">
+                                <rect key="frame" x="147" y="409" width="80" height="40"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="X91-nx-AOb"/>
+                                    <constraint firstAttribute="width" constant="80" id="yyX-aq-LKQ"/>
+                                </constraints>
+                                <state key="normal" title="Refresh"/>
+                                <connections>
+                                    <action selector="refreshViewAction:" destination="TDy-lr-E87" eventType="touchUpInside" id="J3a-OK-rxC"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="0U7-kc-d2r" firstAttribute="top" secondItem="BkN-ED-2GD" secondAttribute="bottom" constant="100" id="DBm-2f-f3N"/>
+                            <constraint firstItem="BkN-ED-2GD" firstAttribute="leading" secondItem="ZsQ-ZK-5L4" secondAttribute="leadingMargin" constant="10" id="Lgj-fR-l0v"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="BkN-ED-2GD" secondAttribute="trailing" constant="10" id="cAQ-vp-4Lg"/>
+                            <constraint firstItem="BkN-ED-2GD" firstAttribute="top" secondItem="sKU-AR-WQj" secondAttribute="bottom" constant="20" id="i46-hf-ett"/>
+                            <constraint firstItem="0U7-kc-d2r" firstAttribute="centerX" secondItem="ZsQ-ZK-5L4" secondAttribute="centerX" id="lIy-ZV-UDS"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="dashboardView" destination="BkN-ED-2GD" id="EPf-1c-Eet"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="sUH-x6-xOW" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="60" y="288"/>
+        </scene>
+    </scenes>
+</document>
