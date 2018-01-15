@@ -29,7 +29,7 @@ class SMTimeElapseIndicator: SMBaseView {
             guard isMovable != oldValue else {
                 return
             }
-            refreshTimer.isPaused = !isMovable
+            setupTimer()
         }
     }
     
@@ -39,19 +39,51 @@ class SMTimeElapseIndicator: SMBaseView {
     /// 0-1
     var updateCurrentPosition: (() -> (CGFloat))?
     
-    /// 0-1
+    /// The position user touched.
     var indicatorDragged: ((CGFloat) -> ())?
     
-    private lazy var refreshTimer: CADisplayLink = {
-        let timer = CADisplayLink(target: self, selector: #selector(refreshIndicator))
-        DispatchQueue.main.async {
-            timer.add(to: RunLoop.current, forMode: .UITrackingRunLoopMode)
+    /// Movable indicator convenience initialization
+    ///
+    /// - Parameters:
+    ///   - updateCurrentPosition: get position 60 times per second.
+    ///   - indicatorDragged: the block will be invoked when indicator be dragged.
+    convenience init(updateCurrentPosition: (() -> (CGFloat))?, indicatorDragged: ((CGFloat) -> ())?) {
+        self.init(frame: CGRect.zero)
+        self.isMovable = true
+        self.updateCurrentPosition = updateCurrentPosition
+        self.indicatorDragged = indicatorDragged
+    }
+    
+    /// Unmovable indicator convenience initialization.
+    ///
+    /// - Parameter currentPosition: indicator display position.
+    convenience init(currentPosition: CGFloat) {
+        self.init(frame: CGRect.zero)
+        self.isMovable = false
+        self.currentPosition = currentPosition
+    }
+    
+    private var refreshTimer: CADisplayLink?
+    private func setupTimer() {
+        if isMovable && refreshTimer == nil {
+            refreshTimer = CADisplayLink(target: self, selector: #selector(refreshIndicator))
+            DispatchQueue.main.async {
+                self.refreshTimer?.add(to: RunLoop.current, forMode: .commonModes)
+                self.needRemoveTimer = false
+            }
         }
-        return timer
-    }()
+        refreshTimer?.isPaused = !isMovable
+    }
     
     private lazy var path = CGMutablePath()
     @objc private func refreshIndicator() {
+        guard needRemoveTimer == false else {
+            refreshTimer?.isPaused = true
+            refreshTimer?.invalidate()
+            refreshTimer?.remove(from: RunLoop.current, forMode: .commonModes)
+            needRemoveTimer = false
+            return
+        }
         let tempPath = CGMutablePath()
         var currentPosition = self.currentPosition
         if isMovable {
@@ -72,15 +104,25 @@ class SMTimeElapseIndicator: SMBaseView {
     }
     
     deinit {
-        refreshTimer.isPaused = true
-        refreshTimer.invalidate()
-        refreshTimer.remove(from: RunLoop.current, forMode: .defaultRunLoopMode)
+
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
         backgroundColor = UIColor.clear
         refreshIndicator()
+    }
+    
+    private var needRemoveTimer = false
+    override func removeFromSuperview() {
+        super.removeFromSuperview()
+        needRemoveTimer = true
+        refreshTimer?.isPaused = false
+    }
+    
+    override func willMove(toSuperview newSuperview: UIView?) {
+        super.willMove(toSuperview: newSuperview)
+        setupTimer()
     }
     
     override func draw(_ rect: CGRect) {
@@ -103,7 +145,7 @@ class SMEditSoundView: SMBaseView {
 
 class SMAxisView: SMBaseView {
     var color = UIColor(red: 180/255, green: 180/255, blue: 180/255, alpha: 1).cgColor
-    var lineWidth: CGFloat = 1
+    var lineWidth: CGFloat = 0.8
     
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -123,8 +165,6 @@ class SMAxisView: SMBaseView {
         ctx.drawPath(using: .stroke)
     }
 }
-
-
 
 class SMSoundDashboardView: SMBaseView {
     struct Component: OptionSet {
@@ -172,37 +212,44 @@ class SMSoundDashboardView: SMBaseView {
         
         var constraints = [NSLayoutConstraint]()
         var timeViewHeight: CGFloat = 0
+        for view in subviews {
+            view.removeFromSuperview()
+        }
         
         if components.contains(.Time) {
             timeViewHeight = self.timeViewHeight
-            if subviews.contains(timeView) == false {
-                addSubview(timeView)
-            }
+            addSubview(timeView)
             let c = getConstraints(top: 0, bottom: self.bounds.height - timeViewHeight, view: timeView)
             constraints.append(contentsOf: c)
         }
         
         if components.contains(.Axis) {
-            if subviews.contains(axisView) == false {
-                addSubview(axisView)
-            }
+            addSubview(axisView)
             let c = getConstraints(top: timeViewHeight, bottom: 0, view: axisView)
             constraints.append(contentsOf: c)
         }
         
         if components.contains(.Waveform) {
-            if subviews.contains(waveformView) == false {
-                addSubview(waveformView)
-            }
+            addSubview(waveformView)
             let c = getConstraints(top: timeViewHeight, bottom: 0, view: waveformView)
             constraints.append(contentsOf: c)
         }
         
+        if components.contains(.Flag) {
+            addSubview(flagView)
+            let c = getConstraints(top: timeViewHeight, bottom: 0, view: flagView)
+            constraints.append(contentsOf: c)
+        }
+        
         if components.contains(.Indicator) {
-            if subviews.contains(indicatorView) == false {
-                addSubview(indicatorView)
-            }
+            addSubview(indicatorView)
             let c = getConstraints(top: timeViewHeight, bottom: 0, view: indicatorView)
+            constraints.append(contentsOf: c)
+        }
+        
+        if components.contains(.Edit) {
+            addSubview(editView)
+            let c = getConstraints(top: timeViewHeight, bottom: 0, view: editView)
             constraints.append(contentsOf: c)
         }
         

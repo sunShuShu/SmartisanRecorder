@@ -7,13 +7,32 @@
 //
 
 import Foundation
+import UIKit
 
 class SMDashboardViewTestViewController: SMBaseViewController {
     @IBOutlet weak var dashboardView: SMSoundDashboardView!
     
-    @IBAction func refreshViewAction(_ sender: Any) {
+    private let timer = SMAudioTimer()
+    @IBAction func staticIndicatorAction(_ sender: Any) {
         dashboardView.showComponents([.Axis, .Waveform, .Time, .Flag, .Indicator])
-        view.setNeedsLayout()
-        
+        dashboardView.indicatorView = SMTimeElapseIndicator()
     }
+    
+    @IBAction func dynamicIncatorAction(_ sender: Any) {
+        dashboardView.showComponents([.Axis, .Waveform, .Time, .Flag, .Indicator])
+        timer.stop()
+        timer.start()
+        dashboardView.indicatorView = SMTimeElapseIndicator(updateCurrentPosition: {
+            [weak self] in
+            if let strongSelf = self {
+                return CGFloat(strongSelf.timer.duration / 10)
+            } else {
+                return 0
+            }
+            }, indicatorDragged: { (position) in
+                SMLog("\(position)")
+        })
+        view.setNeedsLayout()
+    }
+    
 }

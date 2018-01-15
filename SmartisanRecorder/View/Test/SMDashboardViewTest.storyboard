@@ -31,24 +31,35 @@
                                 </constraints>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0U7-kc-d2r">
-                                <rect key="frame" x="147" y="409" width="80" height="40"/>
+                                <rect key="frame" x="26" y="329" width="104" height="40"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="X91-nx-AOb"/>
-                                    <constraint firstAttribute="width" constant="80" id="yyX-aq-LKQ"/>
                                 </constraints>
-                                <state key="normal" title="Refresh"/>
+                                <state key="normal" title="Static Indicator"/>
                                 <connections>
-                                    <action selector="refreshViewAction:" destination="TDy-lr-E87" eventType="touchUpInside" id="J3a-OK-rxC"/>
+                                    <action selector="staticIndicatorAction:" destination="TDy-lr-E87" eventType="touchUpInside" id="0Z2-n5-jSc"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oVY-Tn-c9f">
+                                <rect key="frame" x="26" y="377" width="124" height="40"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="jHR-Gp-rha"/>
+                                </constraints>
+                                <state key="normal" title="Dynamic Indicator"/>
+                                <connections>
+                                    <action selector="dynamicIncatorAction:" destination="TDy-lr-E87" eventType="touchUpInside" id="aYG-bD-aku"/>
                                 </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="0U7-kc-d2r" firstAttribute="top" secondItem="BkN-ED-2GD" secondAttribute="bottom" constant="100" id="DBm-2f-f3N"/>
+                            <constraint firstItem="oVY-Tn-c9f" firstAttribute="leading" secondItem="BkN-ED-2GD" secondAttribute="leading" id="6tY-jZ-AK1"/>
+                            <constraint firstItem="0U7-kc-d2r" firstAttribute="top" secondItem="BkN-ED-2GD" secondAttribute="bottom" constant="20" id="DBm-2f-f3N"/>
                             <constraint firstItem="BkN-ED-2GD" firstAttribute="leading" secondItem="ZsQ-ZK-5L4" secondAttribute="leadingMargin" constant="10" id="Lgj-fR-l0v"/>
                             <constraint firstAttribute="trailingMargin" secondItem="BkN-ED-2GD" secondAttribute="trailing" constant="10" id="cAQ-vp-4Lg"/>
+                            <constraint firstItem="0U7-kc-d2r" firstAttribute="leading" secondItem="BkN-ED-2GD" secondAttribute="leading" id="djy-nD-ohK"/>
                             <constraint firstItem="BkN-ED-2GD" firstAttribute="top" secondItem="sKU-AR-WQj" secondAttribute="bottom" constant="20" id="i46-hf-ett"/>
-                            <constraint firstItem="0U7-kc-d2r" firstAttribute="centerX" secondItem="ZsQ-ZK-5L4" secondAttribute="centerX" id="lIy-ZV-UDS"/>
+                            <constraint firstItem="oVY-Tn-c9f" firstAttribute="top" secondItem="0U7-kc-d2r" secondAttribute="bottom" constant="8" id="jT1-qr-YYW"/>
                         </constraints>
                     </view>
                     <connections>
