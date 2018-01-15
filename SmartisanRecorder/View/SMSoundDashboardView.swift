@@ -10,7 +10,14 @@ import Foundation
 import UIKit
 
 class SMTimeScaleView: SMBaseView {
+    var widthPerSecond: CGFloat = 50
+    var lineWidth: CGFloat = 0.7
+    var lineColor: CGColor = UIColor(red: 183/255, green: 183/255, blue: 183/255, alpha: 1).cgColor
+    var timeFormat: String = "HH:mm:SS"
     
+    func setCurrentTime(_ currentTime: CGFloat) {
+        //TODO: 
+    }
 }
 
 class SMFlagView: SMBaseView {
@@ -101,10 +108,6 @@ class SMTimeElapseIndicator: SMBaseView {
         tempPath.addLine(to: CGPoint(x: redLineX, y: endY))
         path = tempPath
         setNeedsDisplay()
-    }
-    
-    deinit {
-
     }
     
     override func layoutSubviews() {

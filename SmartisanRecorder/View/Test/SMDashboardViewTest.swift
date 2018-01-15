@@ -35,4 +35,14 @@ class SMDashboardViewTestViewController: SMBaseViewController {
         view.setNeedsLayout()
     }
     
+    @IBAction func timeAction(_ sender: UIButton) {
+        sender.isSelected = !sender.isSelected
+        if sender.isSelected {
+            
+        }
+    }
+    
+    @IBAction func flagAction(_ sender: UIButton) {
+    }
+    
 }

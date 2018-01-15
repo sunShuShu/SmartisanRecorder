@@ -10,6 +10,16 @@ import Foundation
 import UIKit
 import CoreGraphics
 
+protocol WaveformRenderDelegate: class {
+    
+    /// You can do the custum render work when waveform will be rended. currentTime and displayRange are not going to be non-optional.
+    ///
+    /// - Parameters:
+    ///   - currentTime: current time
+    ///   - displayRange: waveform display range
+    func waveformWillRender(currentTime: CGFloat?, displayRange: (start: CGFloat, end: CGFloat)?);
+}
+
 class SMWaveformView: SMBaseView {
     static let maxPowerLevel = CGFloat(UInt8.max)
     
@@ -42,6 +52,8 @@ class SMWaveformView: SMBaseView {
     func refreshView() {
         renderTimerFireOnce = true
     }
+    
+    weak var renderDelegate: WaveformRenderDelegate?
     
     //MARK:- Display Location
     private lazy var renderQueue = DispatchQueue(label: "com.sunshushu.WaveformRenderQueue", qos: .userInteractive)
@@ -142,6 +154,7 @@ class SMWaveformView: SMBaseView {
     private var path = CGMutablePath()
     @objc private func render() {
         measure.start()
+        
         //Stop and remove render timer in render queue.
         guard renderTimerNeedRemoved == false else {
             renderTimer.isPaused = true
@@ -173,6 +186,13 @@ class SMWaveformView: SMBaseView {
                 return
             }
             currentTime = block!()
+            if let delegate = renderDelegate {
+                delegate.waveformWillRender(currentTime: currentTime, displayRange: nil)
+            }
+        } else {
+            if let delegate = renderDelegate {
+                delegate.waveformWillRender(currentTime: nil, displayRange: displayTimeRange)
+            }
         }
 
         objc_sync_enter(self)

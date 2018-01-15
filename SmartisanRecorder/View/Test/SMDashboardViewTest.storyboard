@@ -50,16 +50,40 @@
                                     <action selector="dynamicIncatorAction:" destination="TDy-lr-E87" eventType="touchUpInside" id="aYG-bD-aku"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PUP-51-VMA">
+                                <rect key="frame" x="315" y="329" width="34" height="40"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="kHD-Uv-1tt"/>
+                                </constraints>
+                                <state key="normal" title="Time"/>
+                                <connections>
+                                    <action selector="timeAction:" destination="TDy-lr-E87" eventType="touchUpInside" id="AVh-UG-71T"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dLh-H2-CGG">
+                                <rect key="frame" x="319" y="377" width="30" height="40"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="Spo-V7-rTw"/>
+                                </constraints>
+                                <state key="normal" title="Flag"/>
+                                <connections>
+                                    <action selector="flagAction:" destination="TDy-lr-E87" eventType="touchUpInside" id="evw-VV-Vwc"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
+                            <constraint firstItem="PUP-51-VMA" firstAttribute="centerY" secondItem="0U7-kc-d2r" secondAttribute="centerY" id="22c-L8-UHl"/>
+                            <constraint firstItem="PUP-51-VMA" firstAttribute="trailing" secondItem="BkN-ED-2GD" secondAttribute="trailing" id="5NU-a1-t7n"/>
                             <constraint firstItem="oVY-Tn-c9f" firstAttribute="leading" secondItem="BkN-ED-2GD" secondAttribute="leading" id="6tY-jZ-AK1"/>
                             <constraint firstItem="0U7-kc-d2r" firstAttribute="top" secondItem="BkN-ED-2GD" secondAttribute="bottom" constant="20" id="DBm-2f-f3N"/>
+                            <constraint firstItem="dLh-H2-CGG" firstAttribute="trailing" secondItem="BkN-ED-2GD" secondAttribute="trailing" id="Df3-Ff-RdC"/>
                             <constraint firstItem="BkN-ED-2GD" firstAttribute="leading" secondItem="ZsQ-ZK-5L4" secondAttribute="leadingMargin" constant="10" id="Lgj-fR-l0v"/>
                             <constraint firstAttribute="trailingMargin" secondItem="BkN-ED-2GD" secondAttribute="trailing" constant="10" id="cAQ-vp-4Lg"/>
                             <constraint firstItem="0U7-kc-d2r" firstAttribute="leading" secondItem="BkN-ED-2GD" secondAttribute="leading" id="djy-nD-ohK"/>
                             <constraint firstItem="BkN-ED-2GD" firstAttribute="top" secondItem="sKU-AR-WQj" secondAttribute="bottom" constant="20" id="i46-hf-ett"/>
                             <constraint firstItem="oVY-Tn-c9f" firstAttribute="top" secondItem="0U7-kc-d2r" secondAttribute="bottom" constant="8" id="jT1-qr-YYW"/>
+                            <constraint firstItem="dLh-H2-CGG" firstAttribute="centerY" secondItem="oVY-Tn-c9f" secondAttribute="centerY" id="xam-LF-BUm"/>
                         </constraints>
                     </view>
                     <connections>
