@@ -26,3 +26,9 @@ class SMBaseView: UIView {
         SMLog("\(type(of: self)) RELEASE!")
     }
 }
+
+extension UIColor {
+    convenience init(rgb256WithR: UInt8, g: UInt8, b: UInt8, alpha: CGFloat) {
+        self.init(red: CGFloat(rgb256WithR) / 255, green: CGFloat(g) / 255, blue: CGFloat(b) / 255, alpha: alpha)
+    }
+}

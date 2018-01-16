@@ -19,7 +19,8 @@ class SMTimeScaleView: SMBaseView {
     }
     var lineWidth: CGFloat = 0.5
     var middleScaleHight: CGFloat = 1
-    var color: CGColor = UIColor(red: 193/255, green: 193/255, blue: 193/255, alpha: 1).cgColor
+    var lineColor: CGColor = UIColor(rgb256WithR: 183, g: 183, b: 183, alpha: 1).cgColor
+    var timeColor: UIColor = UIColor(rgb256WithR: 130, g: 130, b: 130, alpha: 1)
     var timeFormat: String = "HH:mm:SS"
     var timeStyle: NSMutableParagraphStyle = {
         let style = NSMutableParagraphStyle()
@@ -34,7 +35,7 @@ class SMTimeScaleView: SMBaseView {
     private var bottomLineEnd = CGPoint.zero
     private var shortScaleLineStartY: CGFloat = 0
     private var shortScaleLineEndY: CGFloat = 0
-    private var timeRect = CGRect.zero
+    private var timeSize = CGSize.zero
     private var timeFont = UIFont.systemFont(ofSize: 8)
     private var timeAttributes: [NSAttributedStringKey:Any]?
     
@@ -49,19 +50,27 @@ class SMTimeScaleView: SMBaseView {
         bottomLineEnd = CGPoint(x: width, y: height - halfLineWidth)
         shortScaleLineStartY = height - lineWidth
         shortScaleLineEndY = shortScaleLineStartY - middleScaleHight
-        timeRect = CGRect(x: 0, y: 0, width: widthPerSecond, height: height - middleScaleHight * 2)
-        timeFont = UIFont.systemFont(ofSize: timeRect.height * 4 / 7)
-        timeAttributes = [NSAttributedStringKey.font:timeFont, NSAttributedStringKey.foregroundColor:color, NSAttributedStringKey.paragraphStyle:timeStyle]
+        timeSize = CGSize(width: widthPerSecond, height: height - middleScaleHight * 2)
+        timeFont = UIFont.systemFont(ofSize: timeSize.height * 0.7)
+        timeAttributes = [NSAttributedStringKey.font:timeFont, NSAttributedStringKey.foregroundColor:timeColor, NSAttributedStringKey.paragraphStyle:timeStyle]
+        
+        self.clipsToBounds = false
     }
     
     private let renderQueue = DispatchQueue(label: "com.sunshushu.TimeScaleRender", qos: .userInteractive)
     private var timeIndicatorOffset: CGFloat = 0
     private lazy var path = CGMutablePath()
+    private lazy var timeLabelInfo = [(String, CGRect)]()
+    
     func setCurrentTime(_ currentTime: CGFloat) {
-        let tempPath = CGMutablePath()
         renderQueue.async {
             [weak self] in
             if let strongSelf = self {
+                strongSelf.measure.start()
+                
+                let tempPath = CGMutablePath()
+                var tempTimeLabelInfo = [(String, CGRect)]()
+                
                 tempPath.move(to: strongSelf.bottomLineStart)
                 tempPath.addLine(to: strongSelf.bottomLineEnd)
                 
@@ -82,15 +91,23 @@ class SMTimeScaleView: SMBaseView {
                         
                         //time label
                         let timeString = "00:00:00"
-                        (timeString as NSString).draw(in: strongSelf.timeRect, withAttributes: strongSelf.timeAttributes)
+                        let rect = CGRect(origin: CGPoint(x: x, y: 0), size: strongSelf.timeSize)
+                        tempTimeLabelInfo.append((timeString, rect))
                     }
                 }
                 DispatchQueue.main.async {
                     strongSelf.path = tempPath
+                    strongSelf.timeLabelInfo = tempTimeLabelInfo
                     strongSelf.setNeedsDisplay()
                 }
+                
+                strongSelf.measure.end()
             }
         }
+    }
+    
+    deinit {
+        measure.getReport()
     }
 
     override func draw(_ rect: CGRect) {
@@ -99,9 +116,11 @@ class SMTimeScaleView: SMBaseView {
         guard contex != nil else {
             return
         }
-        
+        for (string, rect) in timeLabelInfo {
+            (string as NSString).draw(in: rect, withAttributes: timeAttributes)
+        }
         contex!.addPath(path)
-        contex!.setStrokeColor(color)
+        contex!.setStrokeColor(lineColor)
         contex!.setLineWidth(lineWidth)
         contex!.drawPath(using: .stroke)
     }
@@ -114,7 +133,7 @@ class SMFlagView: SMBaseView {
 class SMTimeElapseIndicator: SMBaseView {
     
     /// Default is red.
-    var color: CGColor = UIColor(red: 240/255, green: 9/255, blue: 21/255, alpha: 1).cgColor
+    var color: CGColor = UIColor(rgb256WithR: 240, g: 9, b: 21, alpha: 1).cgColor
     
     var lineWidth: CGFloat = 1
     
@@ -225,7 +244,7 @@ class SMEditSoundView: SMBaseView {
 }
 
 class SMAxisView: SMBaseView {
-    var color = UIColor(red: 180/255, green: 180/255, blue: 180/255, alpha: 1).cgColor
+    var color = UIColor(rgb256WithR: 180, g: 180, b: 180, alpha: 1).cgColor
     var lineWidth: CGFloat = 0.8
     
     override func layoutSubviews() {
@@ -262,7 +281,7 @@ class SMSoundDashboardView: SMBaseView {
         static let Flag = Component(rawValue: 1 << 5)
     }
     
-    var timeViewHeight: CGFloat = 15
+    var timeViewHeight: CGFloat = 16
     
     private(set) lazy var axisView = SMAxisView()
     private(set) lazy var waveformView = SMWaveformView()

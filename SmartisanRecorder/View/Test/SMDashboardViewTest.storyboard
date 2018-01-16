@@ -25,7 +25,7 @@
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BkN-ED-2GD" customClass="SMSoundDashboardView" customModule="SmartisanRecorder" customModuleProvider="target">
                                 <rect key="frame" x="26" y="40" width="323" height="269"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="BkN-ED-2GD" secondAttribute="height" multiplier="1.2:1" id="B1s-mb-KgV"/>
                                 </constraints>
