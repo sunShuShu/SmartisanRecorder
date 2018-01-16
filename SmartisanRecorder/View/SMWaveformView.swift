@@ -27,10 +27,8 @@ class SMWaveformView: SMBaseView {
     var lineWidth: CGFloat = 1 {
         didSet {
             guard lineWidth > 0 else {
-                lineWidth = oldValue
                 assert(false, "Line width <= 0!")
             }
-            lineCount = self.bounds.width / lineWidth
         }
     }
     
@@ -45,7 +43,7 @@ class SMWaveformView: SMBaseView {
                     assert(false, "updatePlayedTime is not set!")
                 }
             }
-            renderTimer.isPaused = !isDynamic
+            renderTimer?.isPaused = !isDynamic
         }
     }
     
@@ -56,7 +54,7 @@ class SMWaveformView: SMBaseView {
     weak var renderDelegate: WaveformRenderDelegate?
     
     //MARK:- Display Location
-    private lazy var renderQueue = DispatchQueue(label: "com.sunshushu.WaveformRenderQueue", qos: .userInteractive)
+    private lazy var renderQueue = DispatchQueue(label: "com.sunshushu.WaveformRender", qos: .userInteractive)
 
     /// The block need to return current played time. Block execution time can NOT exceed 1/60 second. The shorter the block executes, the better, and don't make time-consuming operations inside.
     var updatePlayedTime: (() -> (CGFloat))?
@@ -105,48 +103,45 @@ class SMWaveformView: SMBaseView {
     }
     
     //MARK:-
+    override func willMove(toSuperview newSuperview: UIView?) {
+        super.willMove(toSuperview: newSuperview)
+        if renderTimer == nil {
+            renderTimer = CADisplayLink(target: self, selector: #selector(render))
+            renderQueue.async {
+                [weak self] in
+                self?.renderTimer?.add(to: RunLoop.current, forMode: .defaultRunLoopMode)
+                RunLoop.current.run()
+            }
+        }
+    }
+    
     override func removeFromSuperview() {
         super.removeFromSuperview()
         measure.getReport()
         
         //Only remove render timer in render queue, the timer must be fire.
-        renderTimer.isPaused = false
+        renderTimer?.isPaused = false
         renderTimerNeedRemoved = true
     }
     
-    private var width: CGFloat = 0
-    private var height: CGFloat = 0
-    private var lineCount: CGFloat = 0 {
-        didSet {
-            halfLineCount = lineCount / 2
-        }
-    }
+    private var lineCount: CGFloat = 0
     private var halfLineCount: CGFloat = 0
     private var lineHeightFactor: CGFloat = 0
     override func layoutSubviews() {
         super.layoutSubviews()
         backgroundColor = UIColor.clear
-        width = self.bounds.size.width
-        height = self.bounds.size.height
         lineCount = width / lineWidth
+        halfLineCount = lineCount / 2
         lineHeightFactor = height / SMWaveformView.maxPowerLevel
     }
     
     //MARK:-
-    private lazy var renderTimer: CADisplayLink = {
-        let timer = CADisplayLink(target: self, selector: #selector(render))
-        renderQueue.async {
-            [weak self] in
-            timer.add(to: RunLoop.current, forMode: .defaultRunLoopMode)
-            RunLoop.current.run()
-        }
-        return timer
-    }()
+    private var renderTimer: CADisplayLink?
     private var renderTimerNeedRemoved = false
     private var renderTimerFireOnce = false {
         didSet {
             if renderTimerFireOnce {
-                renderTimer.isPaused = false
+                renderTimer?.isPaused = false
             }
         }
     }
@@ -157,14 +152,14 @@ class SMWaveformView: SMBaseView {
         
         //Stop and remove render timer in render queue.
         guard renderTimerNeedRemoved == false else {
-            renderTimer.isPaused = true
-            renderTimer.invalidate()
-            renderTimer.remove(from: RunLoop.current, forMode: .defaultRunLoopMode)
+            renderTimer?.isPaused = true
+            renderTimer?.invalidate()
+            renderTimer?.remove(from: RunLoop.current, forMode: .defaultRunLoopMode)
             return
         }
         
         if renderTimerFireOnce {
-            renderTimer.isPaused = true
+            renderTimer?.isPaused = true
             renderTimerFireOnce = false
         }
         
@@ -276,5 +271,24 @@ class SMWaveformView: SMBaseView {
         contex!.setStrokeColor(lineColor)
         contex!.setLineWidth(lineWidth)
         contex!.drawPath(using: .stroke)
+    }
+}
+
+extension SMWaveformView {
+    func setRecordParameters(updatePlayedTime: @escaping (() -> (CGFloat)), dataCountPerSecond: CGFloat = 50) {
+        self.updatePlayedTime = updatePlayedTime
+        self.dataCountPerSecond = dataCountPerSecond
+    }
+    
+    func setPlayParameters(updatePlayedTime: @escaping (() -> (CGFloat)), audioDuration: CGFloat, powerLevelArray: [UInt8]) {
+        self.updatePlayedTime = updatePlayedTime
+        self.audioDuration = audioDuration
+        self.setPowerLevelArray(powerLevelArray)
+    }
+    
+    func setScalableParameters(displayTimeRange: (start: CGFloat, end: CGFloat), audioDuration: CGFloat, powerLevelArray: [UInt8]) {
+        self.displayTimeRange = displayTimeRange
+        self.audioDuration = audioDuration
+        self.setPowerLevelArray(powerLevelArray)
     }
 }

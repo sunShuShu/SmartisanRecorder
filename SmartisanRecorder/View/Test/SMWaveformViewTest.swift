@@ -121,7 +121,11 @@ class SMWaveformViewTestViewController: SMBaseViewController {
             timer.start()
             waveformView.updatePlayedTime = {
                 [weak self] in
-                return CGFloat(self!.timer.duration)
+                if let strongSelf = self {
+                    return CGFloat(strongSelf.timer.duration)
+                } else {
+                    return 0
+                }
             }
             waveformView.audioDuration = CGFloat(audioDuration)
         } else {

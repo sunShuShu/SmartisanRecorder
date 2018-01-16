@@ -10,13 +10,100 @@ import Foundation
 import UIKit
 
 class SMTimeScaleView: SMBaseView {
-    var widthPerSecond: CGFloat = 50
-    var lineWidth: CGFloat = 0.7
-    var lineColor: CGColor = UIColor(red: 183/255, green: 183/255, blue: 183/255, alpha: 1).cgColor
+    var widthPerSecond: CGFloat = 50 {
+        didSet {
+            if widthPerSecond <= 0 {
+                assert(false, "widthPerSecond can not be less than or equle 0!")
+            }
+        }
+    }
+    var lineWidth: CGFloat = 0.5
+    var middleScaleHight: CGFloat = 1
+    var color: CGColor = UIColor(red: 193/255, green: 193/255, blue: 193/255, alpha: 1).cgColor
     var timeFormat: String = "HH:mm:SS"
+    var timeStyle: NSMutableParagraphStyle = {
+        let style = NSMutableParagraphStyle()
+        style.alignment = NSTextAlignment.center
+        return style
+    }()
     
+    private var halfLineWidth: CGFloat = 0
+    private var halfWidthPerSecond:CGFloat = 0
+    private var labelCount = 0
+    private var bottomLineStart = CGPoint.zero
+    private var bottomLineEnd = CGPoint.zero
+    private var shortScaleLineStartY: CGFloat = 0
+    private var shortScaleLineEndY: CGFloat = 0
+    private var timeRect = CGRect.zero
+    private var timeFont = UIFont.systemFont(ofSize: 8)
+    private var timeAttributes: [NSAttributedStringKey:Any]?
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        self.backgroundColor = UIColor.clear
+        halfLineWidth = lineWidth / 2
+        timeIndicatorOffset = width / widthPerSecond / 2
+        halfWidthPerSecond = widthPerSecond / 2
+        labelCount = Int(width / widthPerSecond + 1)
+        bottomLineStart = CGPoint(x: 0, y: height - halfLineWidth)
+        bottomLineEnd = CGPoint(x: width, y: height - halfLineWidth)
+        shortScaleLineStartY = height - lineWidth
+        shortScaleLineEndY = shortScaleLineStartY - middleScaleHight
+        timeRect = CGRect(x: 0, y: 0, width: widthPerSecond, height: height - middleScaleHight * 2)
+        timeFont = UIFont.systemFont(ofSize: timeRect.height * 4 / 7)
+        timeAttributes = [NSAttributedStringKey.font:timeFont, NSAttributedStringKey.foregroundColor:color, NSAttributedStringKey.paragraphStyle:timeStyle]
+    }
+    
+    private let renderQueue = DispatchQueue(label: "com.sunshushu.TimeScaleRender", qos: .userInteractive)
+    private var timeIndicatorOffset: CGFloat = 0
+    private lazy var path = CGMutablePath()
     func setCurrentTime(_ currentTime: CGFloat) {
-        //TODO: 
+        let tempPath = CGMutablePath()
+        renderQueue.async {
+            [weak self] in
+            if let strongSelf = self {
+                tempPath.move(to: strongSelf.bottomLineStart)
+                tempPath.addLine(to: strongSelf.bottomLineEnd)
+                
+                let startTime = currentTime - strongSelf.timeIndicatorOffset
+                let labelOffset = startTime.truncatingRemainder(dividingBy: 1) * strongSelf.widthPerSecond
+                for index in 0..<strongSelf.labelCount {
+                    let currentLabel = index + Int(startTime)
+                    if currentLabel < 0 {
+                        continue
+                    } else {
+                        // line
+                        let x = CGFloat(index) * strongSelf.widthPerSecond - labelOffset
+                        tempPath.move(to: CGPoint(x: x, y: 0))
+                        tempPath.addLine(to: CGPoint(x: x, y: strongSelf.height))
+                        let shortScaleLineX = x + strongSelf.halfWidthPerSecond
+                        tempPath.move(to: CGPoint(x: shortScaleLineX, y: strongSelf.shortScaleLineStartY))
+                        tempPath.addLine(to: CGPoint(x: shortScaleLineX, y: strongSelf.shortScaleLineEndY))
+                        
+                        //time label
+                        let timeString = "00:00:00"
+                        (timeString as NSString).draw(in: strongSelf.timeRect, withAttributes: strongSelf.timeAttributes)
+                    }
+                }
+                DispatchQueue.main.async {
+                    strongSelf.path = tempPath
+                    strongSelf.setNeedsDisplay()
+                }
+            }
+        }
+    }
+
+    override func draw(_ rect: CGRect) {
+        super.draw(rect)
+        let contex = UIGraphicsGetCurrentContext()
+        guard contex != nil else {
+            return
+        }
+        
+        contex!.addPath(path)
+        contex!.setStrokeColor(color)
+        contex!.setLineWidth(lineWidth)
+        contex!.drawPath(using: .stroke)
     }
 }
 
@@ -48,27 +135,6 @@ class SMTimeElapseIndicator: SMBaseView {
     
     /// The position user touched.
     var indicatorDragged: ((CGFloat) -> ())?
-    
-    /// Movable indicator convenience initialization
-    ///
-    /// - Parameters:
-    ///   - updateCurrentPosition: get position 60 times per second.
-    ///   - indicatorDragged: the block will be invoked when indicator be dragged.
-    convenience init(updateCurrentPosition: (() -> (CGFloat))?, indicatorDragged: ((CGFloat) -> ())?) {
-        self.init(frame: CGRect.zero)
-        self.isMovable = true
-        self.updateCurrentPosition = updateCurrentPosition
-        self.indicatorDragged = indicatorDragged
-    }
-    
-    /// Unmovable indicator convenience initialization.
-    ///
-    /// - Parameter currentPosition: indicator display position.
-    convenience init(currentPosition: CGFloat) {
-        self.init(frame: CGRect.zero)
-        self.isMovable = false
-        self.currentPosition = currentPosition
-    }
     
     private var refreshTimer: CADisplayLink?
     private func setupTimer() {
@@ -130,7 +196,6 @@ class SMTimeElapseIndicator: SMBaseView {
     
     override func draw(_ rect: CGRect) {
         super.draw(rect)
-        backgroundColor = UIColor.clear
         let contex = UIGraphicsGetCurrentContext()
         guard contex != nil else {
             return
@@ -139,6 +204,19 @@ class SMTimeElapseIndicator: SMBaseView {
         contex!.setStrokeColor(color)
         contex!.setLineWidth(lineWidth)
         contex!.drawPath(using: .stroke)
+    }
+}
+
+extension SMTimeElapseIndicator {
+    func setMovableParameter(updateCurrentPosition: (() -> (CGFloat))?, indicatorDragged: ((CGFloat) -> ())?) {
+        self.isMovable = true
+        self.updateCurrentPosition = updateCurrentPosition
+        self.indicatorDragged = indicatorDragged
+    }
+    
+    func setUnmovableParameter(currentPosition: CGFloat) {
+        self.isMovable = false
+        self.currentPosition = currentPosition
     }
 }
 
@@ -153,19 +231,23 @@ class SMAxisView: SMBaseView {
     override func layoutSubviews() {
         super.layoutSubviews()
         backgroundColor = UIColor.clear
-        layer.setNeedsDisplay()
+        setNeedsDisplay()
     }
     
-    override func draw(_ layer: CALayer, in ctx: CGContext) {
-        super.draw(layer, in: ctx)
+    override func draw(_ rect: CGRect) {
+        super.draw(rect)
+        let contex = UIGraphicsGetCurrentContext()
+        guard contex != nil else {
+            return
+        }
         let path = CGMutablePath()
         let halfHeight = self.bounds.height / 2
         path.move(to: CGPoint(x: 0, y: halfHeight))
         path.addLine(to: CGPoint(x: self.bounds.width, y: halfHeight))
-        ctx.addPath(path)
-        ctx.setStrokeColor(color)
-        ctx.setLineWidth(lineWidth)
-        ctx.drawPath(using: .stroke)
+        contex!.addPath(path)
+        contex!.setStrokeColor(color)
+        contex!.setLineWidth(lineWidth)
+        contex!.drawPath(using: .stroke)
     }
 }
 
@@ -182,12 +264,12 @@ class SMSoundDashboardView: SMBaseView {
     
     var timeViewHeight: CGFloat = 15
     
-    lazy var axisView = SMAxisView()
-    lazy var waveformView = SMWaveformView()
-    lazy var indicatorView = SMTimeElapseIndicator()
-    lazy var timeView = SMTimeScaleView()
-    lazy var editView = SMEditSoundView()
-    lazy var flagView = SMFlagView()
+    private(set) lazy var axisView = SMAxisView()
+    private(set) lazy var waveformView = SMWaveformView()
+    private(set) lazy var indicatorView = SMTimeElapseIndicator()
+    private(set) lazy var timeView = SMTimeScaleView()
+    private(set) lazy var editView = SMEditSoundView()
+    private(set) lazy var flagView = SMFlagView()
     private var components = Component(rawValue: 0)
     
     func showComponents(_ components: Component) {
@@ -215,47 +297,69 @@ class SMSoundDashboardView: SMBaseView {
         
         var constraints = [NSLayoutConstraint]()
         var timeViewHeight: CGFloat = 0
-        for view in subviews {
-            view.removeFromSuperview()
-        }
         
         if components.contains(.Time) {
             timeViewHeight = self.timeViewHeight
-            addSubview(timeView)
+            if subviews.contains(timeView) == false {
+                addSubview(timeView)
+            }
             let c = getConstraints(top: 0, bottom: self.bounds.height - timeViewHeight, view: timeView)
             constraints.append(contentsOf: c)
         }
         
         if components.contains(.Axis) {
-            addSubview(axisView)
+            if subviews.contains(axisView) == false {
+                addSubview(axisView)
+            }
             let c = getConstraints(top: timeViewHeight, bottom: 0, view: axisView)
             constraints.append(contentsOf: c)
         }
         
         if components.contains(.Waveform) {
-            addSubview(waveformView)
+            if subviews.contains(waveformView) == false {
+                addSubview(waveformView)
+            }
             let c = getConstraints(top: timeViewHeight, bottom: 0, view: waveformView)
             constraints.append(contentsOf: c)
         }
         
         if components.contains(.Flag) {
-            addSubview(flagView)
+            if subviews.contains(flagView) == false {
+                addSubview(flagView)
+            }
             let c = getConstraints(top: timeViewHeight, bottom: 0, view: flagView)
             constraints.append(contentsOf: c)
         }
         
         if components.contains(.Indicator) {
-            addSubview(indicatorView)
+            if subviews.contains(indicatorView) == false {
+                addSubview(indicatorView)
+            }
             let c = getConstraints(top: timeViewHeight, bottom: 0, view: indicatorView)
             constraints.append(contentsOf: c)
         }
         
         if components.contains(.Edit) {
-            addSubview(editView)
+            if subviews.contains(editView) == false {
+                addSubview(editView)
+            }
             let c = getConstraints(top: timeViewHeight, bottom: 0, view: editView)
             constraints.append(contentsOf: c)
         }
         
         self.addConstraints(constraints)
+    }
+}
+
+extension SMSoundDashboardView: WaveformRenderDelegate {
+    func waveformWillRender(currentTime: CGFloat?, displayRange: (start: CGFloat, end: CGFloat)?) {
+        if components.contains(.Time) && currentTime != nil {
+            timeView.setCurrentTime(currentTime!)
+        }
+    }
+    
+    func setRecordParameters() {
+        self.waveformView.renderDelegate = self
+        self.showComponents([.Axis, .Waveform, .Time, .Indicator, .Flag])
     }
 }

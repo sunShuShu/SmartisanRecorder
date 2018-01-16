@@ -12,33 +12,64 @@ import UIKit
 class SMDashboardViewTestViewController: SMBaseViewController {
     @IBOutlet weak var dashboardView: SMSoundDashboardView!
     
-    private let timer = SMAudioTimer()
+    deinit {
+        refreshLevelTimer?.cancel()
+    }
+    
+    private var timer = SMAudioTimer()
     @IBAction func staticIndicatorAction(_ sender: Any) {
         dashboardView.showComponents([.Axis, .Waveform, .Time, .Flag, .Indicator])
-        dashboardView.indicatorView = SMTimeElapseIndicator()
     }
     
     @IBAction func dynamicIncatorAction(_ sender: Any) {
         dashboardView.showComponents([.Axis, .Waveform, .Time, .Flag, .Indicator])
         timer.stop()
         timer.start()
-        dashboardView.indicatorView = SMTimeElapseIndicator(updateCurrentPosition: {
+        dashboardView.indicatorView.setMovableParameter(updateCurrentPosition: {
             [weak self] in
             if let strongSelf = self {
                 return CGFloat(strongSelf.timer.duration / 10)
             } else {
                 return 0
             }
-            }, indicatorDragged: { (position) in
-                SMLog("\(position)")
+        }, indicatorDragged: { (position) in
+            SMLog("\(position)")
         })
         view.setNeedsLayout()
     }
     
+    private var refreshLevelTimer: DispatchSourceTimer?
+    private var levelArray = [UInt8]()
     @IBAction func timeAction(_ sender: UIButton) {
         sender.isSelected = !sender.isSelected
         if sender.isSelected {
+            if refreshLevelTimer == nil {
+                refreshLevelTimer = DispatchSource.makeTimerSource(flags: [], queue: DispatchQueue.global(qos: .userInteractive))
+                refreshLevelTimer?.setEventHandler {
+                    [weak self] in
+                    if let strongSelf = self {
+                        strongSelf.dashboardView.waveformView.addPowerLevel(UInt8(arc4random() % 255))
+                    }
+                }
+                refreshLevelTimer?.resume()
+            }
             
+            dashboardView.setRecordParameters()
+            dashboardView.waveformView.setRecordParameters(updatePlayedTime: {
+                [weak self] in
+                if let strongSelf = self {
+                    return CGFloat(strongSelf.timer.duration)
+                } else {
+                    return 0
+                }
+            })
+            timer.start()
+            refreshLevelTimer?.schedule(deadline: .now(), repeating: 1/50.0)
+            dashboardView.waveformView.isDynamic = true
+        } else {
+            refreshLevelTimer?.schedule(deadline: .distantFuture)
+            timer.stop()
+            dashboardView.waveformView.setPowerLevelArray([UInt8]())
         }
     }
     
