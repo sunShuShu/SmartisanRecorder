@@ -32,7 +32,7 @@ class SMMeasure {
         return time
     }
     
-    @discardableResult func getReport() -> TimeReport {
+    @discardableResult func getReport(from object: AnyObject) -> TimeReport {
         guard timeArray.count > 0 else {
             return (0,0,0,0)
         }
@@ -51,7 +51,7 @@ class SMMeasure {
         let standardDeviation = sqrt(deviation / Double(timeArray.count))
         let report = (minTime, maxTime, averageTime, standardDeviation)
         
-        let log = String(format: "\n\n------------------------------- Measure Report -------------------------------\n min: %.3f ms, max: %.3f ms, average: %.3f ms, standard deviation: %.3f ms\n", minTime * 1000, maxTime * 1000, averageTime * 1000, standardDeviation * 1000)
+        let log = String(format: "\n\(object):\n------------------------------- Measure Report -------------------------------\n min: %.3f ms, max: %.3f ms, average: %.3f ms, standard deviation: %.3f ms\n", minTime * 1000, maxTime * 1000, averageTime * 1000, standardDeviation * 1000)
         SMLog(log)
         return report
     }

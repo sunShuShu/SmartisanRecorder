@@ -21,7 +21,6 @@ class SMTimeScaleView: SMBaseView {
     var middleScaleHight: CGFloat = 1
     var lineColor: CGColor = UIColor(rgb256WithR: 183, g: 183, b: 183, alpha: 1).cgColor
     var timeColor: UIColor = UIColor(rgb256WithR: 130, g: 130, b: 130, alpha: 1)
-    var timeFormat: String = "HH:mm:SS"
     var timeStyle: NSMutableParagraphStyle = {
         let style = NSMutableParagraphStyle()
         style.alignment = NSTextAlignment.center
@@ -79,8 +78,8 @@ class SMTimeScaleView: SMBaseView {
                 let startTime = currentTime - strongSelf.timeIndicatorOffset
                 let labelOffset = startTime.truncatingRemainder(dividingBy: 1) * strongSelf.widthPerSecond
                 for index in 0..<strongSelf.labelCount {
-                    let currentLabel = index + Int(startTime)
-                    if currentLabel < 0 {
+                    let currentLabelTime = index + Int(startTime)
+                    if currentLabelTime < 0 {
                         continue
                     } else {
                         // line
@@ -92,7 +91,7 @@ class SMTimeScaleView: SMBaseView {
                         tempPath.addLine(to: CGPoint(x: shortScaleLineX, y: strongSelf.shortScaleLineEndY))
                         
                         //time label
-                        let timeString = "00:00:00"
+                        let timeString = CGFloat(currentLabelTime).getTimeString(isNeedHour: true, isNeedMs: false)
                         tempTimeLabelInfo.append((timeString, x))
                     }
                 }
@@ -108,7 +107,7 @@ class SMTimeScaleView: SMBaseView {
     }
     
     deinit {
-        measure.getReport()
+        measure.getReport(from: self)
     }
 
     override func draw(_ rect: CGRect) {

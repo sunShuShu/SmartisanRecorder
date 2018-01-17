@@ -33,7 +33,7 @@ class SMWaveformView: SMBaseView {
     }
     
     /// line color
-    var lineColor: CGColor = UIColor.black.cgColor
+    var lineColor: CGColor = UIColor(rgb256WithR: 160, g: 160, b: 160, alpha: 1).cgColor
     
     /// The waveform view has two kind of way to update display. If isDynamic is true, the updatePlayedTime will be call when it's time to render screen. If isDymanic is false, waveform view will be render when the updateDisplayRange changed.
     var isDynamic = false {
@@ -117,7 +117,7 @@ class SMWaveformView: SMBaseView {
     
     override func removeFromSuperview() {
         super.removeFromSuperview()
-        measure.getReport()
+        measure.getReport(from: self)
         
         //Only remove render timer in render queue, the timer must be fire.
         renderTimer?.isPaused = false
