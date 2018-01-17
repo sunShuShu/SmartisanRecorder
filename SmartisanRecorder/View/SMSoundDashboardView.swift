@@ -62,6 +62,7 @@ class SMTimeScaleView: SMBaseView {
     private var timeIndicatorOffset: CGFloat = 0
     private lazy var path = CGMutablePath()
     private lazy var timeLabelInfo = [(str: String, x: CGFloat)]()
+    private var timeCache = SMCache<Int, String>(minCount: 10, maxCount: 50)
     
     func setCurrentTime(_ currentTime: CGFloat) {
         renderQueue.async {
@@ -91,8 +92,12 @@ class SMTimeScaleView: SMBaseView {
                         tempPath.addLine(to: CGPoint(x: shortScaleLineX, y: strongSelf.shortScaleLineEndY))
                         
                         //time label
-                        let timeString = CGFloat(currentLabelTime).getTimeString(isNeedHour: true, isNeedMs: false)
-                        tempTimeLabelInfo.append((timeString, x))
+                        var timeString = strongSelf.timeCache[currentLabelTime]
+                        if timeString == nil {
+                            timeString = CGFloat(currentLabelTime).getTimeString(isNeedHour: true, isNeedMs: false)
+                            strongSelf.timeCache[currentLabelTime] = timeString
+                        }
+                        tempTimeLabelInfo.append((timeString!, x))
                     }
                 }
                 DispatchQueue.main.async {

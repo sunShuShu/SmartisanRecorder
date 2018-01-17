@@ -56,3 +56,52 @@ class SMMeasure {
         return report
     }
 }
+
+class SMCache<Key: Hashable, Element: Hashable> {
+    private let minCount: Int
+    private let maxCount: Int
+    private lazy var cache = [Key: Element]()
+    private lazy var cache2 = [Key: Element]()
+    
+    init(minCount: Int, maxCount: Int) {
+        if minCount > maxCount {
+            assert(false, "Fail! minCount > maxCount!")
+        }
+        self.minCount = minCount
+        self.maxCount = maxCount
+    }
+    
+    subscript(key: Key) -> Element? {
+        set {
+            assert(newValue != nil, "The value added to SMCache can NOT be nil!")
+            add(newValue!, key: key)
+        }
+        get {
+            return get(key)
+        }
+    }
+    
+    func add(_ value: Element, key: Key) {
+        if cache.count >= maxCount {
+            if cache2.count >= minCount {
+                cache = cache2
+                cache2 = [Key: Element]()
+                cache.updateValue(value, forKey: key)
+            } else {
+                cache2.updateValue(value, forKey: key)
+            }
+        } else {
+            cache.updateValue(value, forKey: key)
+        }
+    }
+    
+    func get(_ key: Key) -> Element? {
+        if let value = cache2[key] {
+            return value
+        }
+        if let value = cache[key] {
+            return value
+        }
+        return nil
+    }
+}
