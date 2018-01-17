@@ -35,8 +35,7 @@ class SMTimeScaleView: SMBaseView {
     private var bottomLineEnd = CGPoint.zero
     private var shortScaleLineStartY: CGFloat = 0
     private var shortScaleLineEndY: CGFloat = 0
-    private var timeSize = CGSize.zero
-    private var timeFont = UIFont.systemFont(ofSize: 8)
+    private var timeRect = CGRect.zero
     private var timeAttributes: [NSAttributedStringKey:Any]?
     
     override func layoutSubviews() {
@@ -50,17 +49,20 @@ class SMTimeScaleView: SMBaseView {
         bottomLineEnd = CGPoint(x: width, y: height - halfLineWidth)
         shortScaleLineStartY = height - lineWidth
         shortScaleLineEndY = shortScaleLineStartY - middleScaleHight
-        timeSize = CGSize(width: widthPerSecond, height: height - middleScaleHight * 2)
-        timeFont = UIFont.systemFont(ofSize: timeSize.height * 0.7)
+        let maxTimeHeight = height - middleScaleHight * 2
+        let fontSize = maxTimeHeight * 0.77
+        let timeFont = UIFont(name: "Helvetica", size: fontSize) ?? UIFont.systemFont(ofSize: fontSize)
         timeAttributes = [NSAttributedStringKey.font:timeFont, NSAttributedStringKey.foregroundColor:timeColor, NSAttributedStringKey.paragraphStyle:timeStyle]
-        
-        self.clipsToBounds = false
+        let stringSize = ("0" as NSString).size(withAttributes: timeAttributes)
+        timeRect.origin.y = (maxTimeHeight - stringSize.height) / 2
+        timeRect.size.height = stringSize.height
+        timeRect.size.width = widthPerSecond
     }
     
     private let renderQueue = DispatchQueue(label: "com.sunshushu.TimeScaleRender", qos: .userInteractive)
     private var timeIndicatorOffset: CGFloat = 0
     private lazy var path = CGMutablePath()
-    private lazy var timeLabelInfo = [(String, CGRect)]()
+    private lazy var timeLabelInfo = [(str: String, x: CGFloat)]()
     
     func setCurrentTime(_ currentTime: CGFloat) {
         renderQueue.async {
@@ -69,7 +71,7 @@ class SMTimeScaleView: SMBaseView {
                 strongSelf.measure.start()
                 
                 let tempPath = CGMutablePath()
-                var tempTimeLabelInfo = [(String, CGRect)]()
+                var tempTimeLabelInfo = [(String, CGFloat)]()
                 
                 tempPath.move(to: strongSelf.bottomLineStart)
                 tempPath.addLine(to: strongSelf.bottomLineEnd)
@@ -91,8 +93,7 @@ class SMTimeScaleView: SMBaseView {
                         
                         //time label
                         let timeString = "00:00:00"
-                        let rect = CGRect(origin: CGPoint(x: x, y: 0), size: strongSelf.timeSize)
-                        tempTimeLabelInfo.append((timeString, rect))
+                        tempTimeLabelInfo.append((timeString, x))
                     }
                 }
                 DispatchQueue.main.async {
@@ -116,8 +117,9 @@ class SMTimeScaleView: SMBaseView {
         guard contex != nil else {
             return
         }
-        for (string, rect) in timeLabelInfo {
-            (string as NSString).draw(in: rect, withAttributes: timeAttributes)
+        for (string, x) in timeLabelInfo {
+            timeRect.origin.x = x
+            string.draw(in: timeRect, withAttributes: timeAttributes)
         }
         contex!.addPath(path)
         contex!.setStrokeColor(lineColor)
