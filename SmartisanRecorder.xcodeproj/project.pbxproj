@@ -43,6 +43,11 @@
 		25BD78721E8138F400871BBE /* 低.wav in Resources */ = {isa = PBXBuildFile; fileRef = 25BD78711E8138F400871BBE /* 低.wav */; };
 		25C4E45F1E6E935D00A2DFD0 /* SMExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C4E45E1E6E935D00A2DFD0 /* SMExtension.swift */; };
 		25E28DDF1E6F9E8A0008E066 /* SMWaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25E28DDE1E6F9E8A0008E066 /* SMWaveformView.swift */; };
+		25EFF14320103F2C00D9ECCB /* SMTimeScaleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25EFF14220103F2C00D9ECCB /* SMTimeScaleView.swift */; };
+		25EFF14520103F7F00D9ECCB /* SMTimeElapseIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25EFF14420103F7F00D9ECCB /* SMTimeElapseIndicatorView.swift */; };
+		25EFF1472010406500D9ECCB /* SMAxisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25EFF1462010406500D9ECCB /* SMAxisView.swift */; };
+		25EFF149201040A300D9ECCB /* SMFlagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25EFF148201040A300D9ECCB /* SMFlagView.swift */; };
+		25EFF14B201040BA00D9ECCB /* SMEditSoundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25EFF14A201040BA00D9ECCB /* SMEditSoundView.swift */; };
 		25F5C65C1FE90D5000FB60BF /* SMFileInfoStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25F5C65B1FE90D5000FB60BF /* SMFileInfoStorage.swift */; };
 		25F5C65E1FE92C1A00FB60BF /* SMAudioInfoStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25F5C65D1FE92C1A00FB60BF /* SMAudioInfoStorage.swift */; };
 		299BF95C1E71B5B50054F95D /* Calling_007_10086.wav in Resources */ = {isa = PBXBuildFile; fileRef = 299BF95B1E71B5B50054F95D /* Calling_007_10086.wav */; };
@@ -103,6 +108,11 @@
 		25C4E45E1E6E935D00A2DFD0 /* SMExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMExtension.swift; sourceTree = "<group>"; };
 		25CCF6BC1E6440EF00C8424A /* SmartisanRecorder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SmartisanRecorder.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		25E28DDE1E6F9E8A0008E066 /* SMWaveformView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMWaveformView.swift; sourceTree = "<group>"; };
+		25EFF14220103F2C00D9ECCB /* SMTimeScaleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMTimeScaleView.swift; sourceTree = "<group>"; };
+		25EFF14420103F7F00D9ECCB /* SMTimeElapseIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMTimeElapseIndicatorView.swift; sourceTree = "<group>"; };
+		25EFF1462010406500D9ECCB /* SMAxisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMAxisView.swift; sourceTree = "<group>"; };
+		25EFF148201040A300D9ECCB /* SMFlagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMFlagView.swift; sourceTree = "<group>"; };
+		25EFF14A201040BA00D9ECCB /* SMEditSoundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMEditSoundView.swift; sourceTree = "<group>"; };
 		25F5C65B1FE90D5000FB60BF /* SMFileInfoStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMFileInfoStorage.swift; sourceTree = "<group>"; };
 		25F5C65D1FE92C1A00FB60BF /* SMAudioInfoStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMAudioInfoStorage.swift; sourceTree = "<group>"; };
 		299BF95B1E71B5B50054F95D /* Calling_007_10086.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Calling_007_10086.wav; sourceTree = "<group>"; };
@@ -186,6 +196,11 @@
 				251113B71FFF609C00200E2A /* Test */,
 				251113B11FFE005D00200E2A /* SMBaseView.swift */,
 				25E28DDE1E6F9E8A0008E066 /* SMWaveformView.swift */,
+				25EFF14220103F2C00D9ECCB /* SMTimeScaleView.swift */,
+				25EFF14420103F7F00D9ECCB /* SMTimeElapseIndicatorView.swift */,
+				25EFF1462010406500D9ECCB /* SMAxisView.swift */,
+				25EFF148201040A300D9ECCB /* SMFlagView.swift */,
+				25EFF14A201040BA00D9ECCB /* SMEditSoundView.swift */,
 				2533D796200778450096A271 /* SMSoundDashboardView.swift */,
 			);
 			path = View;
@@ -545,8 +560,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				25EFF1472010406500D9ECCB /* SMAxisView.swift in Sources */,
+				25EFF14320103F2C00D9ECCB /* SMTimeScaleView.swift in Sources */,
 				253648331E6EBDCA00476E12 /* SMAudioTools.swift in Sources */,
 				25556C591ECC1C0100E41B77 /* SMWaveHeaderTool.swift in Sources */,
+				25EFF14520103F7F00D9ECCB /* SMTimeElapseIndicatorView.swift in Sources */,
+				25EFF14B201040BA00D9ECCB /* SMEditSoundView.swift in Sources */,
 				253EB9501E6E857A00E9849E /* AppDelegate.swift in Sources */,
 				256DC9CC1F4FF90000403C54 /* SMBaseViewController.swift in Sources */,
 				253648231E6EA9B500476E12 /* SMMainPageViewController.swift in Sources */,
@@ -558,6 +577,7 @@
 				25F5C65E1FE92C1A00FB60BF /* SMAudioInfoStorage.swift in Sources */,
 				2536482E1E6EAFD200476E12 /* SMRecorder.swift in Sources */,
 				2557FAFB200C562E00EC5383 /* SMDashboardViewTest.swift in Sources */,
+				25EFF149201040A300D9ECCB /* SMFlagView.swift in Sources */,
 				25C4E45F1E6E935D00A2DFD0 /* SMExtension.swift in Sources */,
 				255FF2571E70FB1600D4ECBD /* SMAudioFileSampler.swift in Sources */,
 				2593C8981FBAC0D70062A2AE /* SMStorage.mm in Sources */,

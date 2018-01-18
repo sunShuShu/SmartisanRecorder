@@ -28,6 +28,7 @@ class SMWaveformView: SMBaseView {
         didSet {
             guard lineWidth > 0 else {
                 assert(false, "Line width <= 0!")
+                lineWidth = oldValue
             }
         }
     }
