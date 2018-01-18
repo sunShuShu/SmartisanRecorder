@@ -38,22 +38,6 @@ class SMSoundDashboardView: SMBaseView {
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        func getConstraints(top: CGFloat, bottom: CGFloat, view: UIView) -> [NSLayoutConstraint] {
-            view.translatesAutoresizingMaskIntoConstraints = false
-            let vflH = "H:|[view]|"
-            let vflV = "V:|-top-[view]-bottom-|"
-            let metrics = ["top": top, "bottom": bottom]
-            let viewBind = ["view" : view]
-            let options = NSLayoutFormatOptions(rawValue: 0)
-            let h = NSLayoutConstraint.constraints(withVisualFormat: vflH, options: options, metrics: nil, views: viewBind)
-            let v = NSLayoutConstraint.constraints(withVisualFormat: vflV, options: options, metrics: metrics, views: viewBind)
-            var constraints = [NSLayoutConstraint]()
-            constraints.append(contentsOf: h)
-            constraints.append(contentsOf: v)
-            return constraints
-        }
-        
-        var constraints = [NSLayoutConstraint]()
         var timeViewHeight: CGFloat = 0
         
         if components.contains(.Time) {
@@ -61,51 +45,43 @@ class SMSoundDashboardView: SMBaseView {
             if subviews.contains(timeView) == false {
                 addSubview(timeView)
             }
-            let c = getConstraints(top: 0, bottom: self.bounds.height - timeViewHeight, view: timeView)
-            constraints.append(contentsOf: c)
+            UIView.autoLayout(timeView, bottom: self.bounds.height - timeViewHeight)
         }
         
         if components.contains(.Axis) {
             if subviews.contains(axisView) == false {
                 addSubview(axisView)
             }
-            let c = getConstraints(top: timeViewHeight, bottom: 0, view: axisView)
-            constraints.append(contentsOf: c)
+            UIView.autoLayout(axisView, top: timeViewHeight)
         }
         
         if components.contains(.Waveform) {
             if subviews.contains(waveformView) == false {
                 addSubview(waveformView)
             }
-            let c = getConstraints(top: timeViewHeight, bottom: 0, view: waveformView)
-            constraints.append(contentsOf: c)
+            UIView.autoLayout(waveformView, top: timeViewHeight)
         }
         
         if components.contains(.Flag) {
             if subviews.contains(flagView) == false {
                 addSubview(flagView)
             }
-            let c = getConstraints(top: timeViewHeight, bottom: 0, view: flagView)
-            constraints.append(contentsOf: c)
+            UIView.autoLayout(flagView, top: timeViewHeight)
         }
         
         if components.contains(.Indicator) {
             if subviews.contains(indicatorView) == false {
                 addSubview(indicatorView)
             }
-            let c = getConstraints(top: timeViewHeight, bottom: 0, view: indicatorView)
-            constraints.append(contentsOf: c)
+            UIView.autoLayout(indicatorView, top: timeViewHeight)
         }
         
         if components.contains(.Edit) {
             if subviews.contains(editView) == false {
                 addSubview(editView)
             }
-            let c = getConstraints(top: timeViewHeight, bottom: 0, view: editView)
-            constraints.append(contentsOf: c)
+            UIView.autoLayout(editView, top: timeViewHeight)
         }
-        
-        self.addConstraints(constraints)
     }
 }
 

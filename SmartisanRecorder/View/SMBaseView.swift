@@ -25,6 +25,37 @@ class SMBaseView: UIView {
     deinit {
         SMLog("\(type(of: self)) RELEASE!")
     }
+    
+}
+
+extension UIView {
+    static func autoLayout(_ view: UIView, top: CGFloat = 0, bottom: CGFloat = 0, left: CGFloat = 0, right: CGFloat = 0) {
+        guard view.superview != nil else {
+            assert(false, "(\(view)) has no super view!")
+            return
+        }
+        view.translatesAutoresizingMaskIntoConstraints = false
+        let vflH = "H:|-left-[view]-right-|"
+        let vflV = "V:|-top-[view]-bottom-|"
+        let metrics = ["top": top, "bottom": bottom, "left": left, "right": right]
+        let viewBind = ["view": view]
+        view.superview?.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: vflH, options: [], metrics: metrics, views: viewBind))
+        view.superview?.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: vflV, options: [], metrics: metrics, views: viewBind))
+    }
+    
+    static func autoLayout(_ view: UIView, top: CGFloat = 0, left: CGFloat = 0, width: CGFloat, height: CGFloat) {
+        guard view.superview != nil else {
+            assert(false, "(\(view)) has no super view!")
+            return
+        }
+        view.translatesAutoresizingMaskIntoConstraints = false
+        let vflH = "H:|-left-[view(width)]"
+        let vflV = "V:|-top-[view(height)]"
+        let metrics = ["top": top, "left": left, "width": width, "height": height]
+        let viewBind = ["view": view]
+        view.superview?.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: vflH, options: [], metrics: metrics, views: viewBind))
+        view.superview?.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: vflV, options: [], metrics: metrics, views: viewBind))
+    }
 }
 
 extension UIColor {
@@ -33,7 +64,7 @@ extension UIColor {
     }
 }
 
-extension CGFloat {
+extension SMTime {
     func getTimeString(isNeedHour: Bool, isNeedMs: Bool) -> String {
         var leftTime = Int(self)
         var string = ""

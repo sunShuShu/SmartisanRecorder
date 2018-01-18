@@ -28,6 +28,7 @@ class SMTimeScaleView: SMBaseView {
         return style
     }()
     
+    //MARK:-
     private var halfLineWidth: CGFloat = 0
     private var halfWidthPerSecond:CGFloat = 0
     private var labelCount = 0
@@ -38,6 +39,7 @@ class SMTimeScaleView: SMBaseView {
     private var timeRect = CGRect.zero
     private var timeAttributes: [NSAttributedStringKey:Any]?
     
+    //MARK:-
     override func layoutSubviews() {
         super.layoutSubviews()
         self.backgroundColor = UIColor.clear
@@ -65,7 +67,7 @@ class SMTimeScaleView: SMBaseView {
     private lazy var timeLabelInfo = [(str: String, x: CGFloat)]()
     private var timeCache = SMCache<Int, String>(minCount: 10, maxCount: 50)
     
-    func setCurrentTime(_ currentTime: CGFloat) {
+    func setCurrentTime(_ currentTime: SMTime) {
         renderQueue.async {
             [weak self] in
             if let strongSelf = self {
@@ -95,7 +97,7 @@ class SMTimeScaleView: SMBaseView {
                         //time label
                         var timeString = strongSelf.timeCache[currentLabelTime]
                         if timeString == nil {
-                            timeString = CGFloat(currentLabelTime).getTimeString(isNeedHour: true, isNeedMs: false)
+                            timeString = SMTime(currentLabelTime).getTimeString(isNeedHour: true, isNeedMs: false)
                             strongSelf.timeCache[currentLabelTime] = timeString
                         }
                         tempTimeLabelInfo.append((timeString!, x))

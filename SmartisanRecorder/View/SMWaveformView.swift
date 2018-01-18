@@ -10,14 +10,16 @@ import Foundation
 import UIKit
 import CoreGraphics
 
+typealias SMTime = CGFloat
+
 protocol WaveformRenderDelegate: class {
     
-    /// You can do the custum render work when waveform will be rended. currentTime and displayRange are not going to be non-optional.
+    /// You can do the custum render work when waveform will be rended. currentTime and displayRange are not going to be non-optional. Don't make time-consuming operations inside!
     ///
     /// - Parameters:
     ///   - currentTime: current time
     ///   - displayRange: waveform display range
-    func waveformWillRender(currentTime: CGFloat?, displayRange: (start: CGFloat, end: CGFloat)?);
+    func waveformWillRender(currentTime: SMTime?, displayRange: (start: SMTime, end: SMTime)?);
 }
 
 class SMWaveformView: SMBaseView {
@@ -58,8 +60,8 @@ class SMWaveformView: SMBaseView {
     private lazy var renderQueue = DispatchQueue(label: "com.sunshushu.WaveformRender", qos: .userInteractive)
 
     /// The block need to return current played time. Block execution time can NOT exceed 1/60 second. The shorter the block executes, the better, and don't make time-consuming operations inside.
-    var updatePlayedTime: (() -> (CGFloat))?
-    var displayTimeRange: (start: CGFloat, end: CGFloat)? {
+    var updatePlayedTime: (() -> (SMTime))?
+    var displayTimeRange: (start: SMTime, end: SMTime)? {
         didSet {
             guard displayTimeRange != nil &&
                 displayTimeRange!.start < displayTimeRange!.end else {
@@ -71,7 +73,7 @@ class SMWaveformView: SMBaseView {
     
     //MARK:- Audio Duration
     /// The property should be set if autio length is fixed.
-    var audioDuration: CGFloat = 0
+    var audioDuration: SMTime = 0
     /// This property is required if the audio length is not fixed when rendering, such as a real-time recording. If this property is set, the length of the audio will be automatically calculated using the power level data count, and the audioDuration value will be ignored.
     var dataCountPerSecond: CGFloat?
     private var powerLevelDataCount:Int = 0
@@ -175,7 +177,7 @@ class SMWaveformView: SMBaseView {
         
         //Get current played time
         let isDynamic = self.isDynamic
-        var currentTime: CGFloat = 0
+        var currentTime: SMTime = 0
         if isDynamic {
             let block = updatePlayedTime
             guard block != nil else {
@@ -202,7 +204,7 @@ class SMWaveformView: SMBaseView {
         //Get duration
         var audioDuration = self.audioDuration
         if let cps = dataCountPerSecond {
-            audioDuration = CGFloat(powerLevelDataCount) / cps
+            audioDuration = SMTime(powerLevelDataCount) / cps
         }
         guard audioDuration > 0 else {
             return
@@ -276,18 +278,18 @@ class SMWaveformView: SMBaseView {
 }
 
 extension SMWaveformView {
-    func setRecordParameters(updatePlayedTime: @escaping (() -> (CGFloat)), dataCountPerSecond: CGFloat = 50) {
+    func setRecordParameters(updatePlayedTime: @escaping (() -> (SMTime)), dataCountPerSecond: CGFloat = 50) {
         self.updatePlayedTime = updatePlayedTime
         self.dataCountPerSecond = dataCountPerSecond
     }
     
-    func setPlayParameters(updatePlayedTime: @escaping (() -> (CGFloat)), audioDuration: CGFloat, powerLevelArray: [UInt8]) {
+    func setPlayParameters(updatePlayedTime: @escaping (() -> (SMTime)), audioDuration: SMTime, powerLevelArray: [UInt8]) {
         self.updatePlayedTime = updatePlayedTime
         self.audioDuration = audioDuration
         self.setPowerLevelArray(powerLevelArray)
     }
     
-    func setScalableParameters(displayTimeRange: (start: CGFloat, end: CGFloat), audioDuration: CGFloat, powerLevelArray: [UInt8]) {
+    func setScalableParameters(displayTimeRange: (start: SMTime, end: SMTime), audioDuration: SMTime, powerLevelArray: [UInt8]) {
         self.displayTimeRange = displayTimeRange
         self.audioDuration = audioDuration
         self.setPowerLevelArray(powerLevelArray)

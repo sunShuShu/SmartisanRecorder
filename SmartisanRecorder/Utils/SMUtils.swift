@@ -73,8 +73,9 @@ class SMCache<Key: Hashable, Element: Hashable> {
     
     subscript(key: Key) -> Element? {
         set {
-            assert(newValue != nil, "The value added to SMCache can NOT be nil!")
-            add(newValue!, key: key)
+            if let value = newValue {
+                add(value, key: key)
+            }
         }
         get {
             return get(key)

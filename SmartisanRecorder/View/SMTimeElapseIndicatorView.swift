@@ -31,9 +31,10 @@ class SMTimeElapseIndicator: SMBaseView {
     /// 0-1
     var updateCurrentPosition: (() -> (CGFloat))?
     
-    /// The position user touched.
+    /// The position user touched. 0-1.
     var indicatorDragged: ((CGFloat) -> ())?
     
+    //MARK:-
     private var refreshTimer: CADisplayLink?
     private func setupTimer() {
         if isMovable && refreshTimer == nil {
@@ -72,6 +73,24 @@ class SMTimeElapseIndicator: SMBaseView {
         tempPath.addLine(to: CGPoint(x: redLineX, y: endY))
         path = tempPath
         setNeedsDisplay()
+    }
+    
+    //MARK:-
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
+        touchesHandle(touches)
+    }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        touchesHandle(touches)
+    }
+    
+    private func touchesHandle(_ touches: Set<UITouch>) {
+        if let draggedBlock = indicatorDragged {
+            if let locationX = touches.first?.location(in: self).x {
+                draggedBlock(locationX / width)
+            }
+        }
     }
     
     override func layoutSubviews() {
