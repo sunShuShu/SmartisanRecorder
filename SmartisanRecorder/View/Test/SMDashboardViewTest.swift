@@ -25,15 +25,15 @@ class SMDashboardViewTestViewController: SMBaseViewController {
         dashboardView.showComponents([.Axis, .Waveform, .Time, .Flag, .Indicator])
         timer.stop()
         timer.start()
-        dashboardView.indicatorView.setMovableParameter(updateCurrentPosition: {
+        dashboardView.indicatorView.setMovableLineParameter(updateCurrentPosition: {
             [weak self] in
             if let strongSelf = self {
                 return CGFloat(strongSelf.timer.duration / 10)
             } else {
                 return 0
             }
-        }, indicatorDragged: { (position) in
-            SMLog("\(position)")
+        }, indicatorDragged: { (position, isEnd) in
+            SMLog("\(position)---\(isEnd)")
         })
         view.setNeedsLayout()
     }
@@ -74,6 +74,17 @@ class SMDashboardViewTestViewController: SMBaseViewController {
     }
     
     @IBAction func flagAction(_ sender: UIButton) {
+        sender.isSelected = !sender.isSelected
+        if sender.isSelected {
+            dashboardView.indicatorView.setUnmovableAddButtonParameter(buttonActionBlock: { (type) in
+                SMLog("\(type) Action")
+            })
+            dashboardView.setRecordParameters()
+            dashboardView.indicatorView.indicatorDragged = {
+                (position, isEnd) -> () in
+                SMLog("\(position)---\(isEnd)")
+            }
+        }
     }
     
 }
