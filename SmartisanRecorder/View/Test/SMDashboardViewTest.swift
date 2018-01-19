@@ -66,6 +66,12 @@ class SMDashboardViewTestViewController: SMBaseViewController {
             timer.start()
             refreshLevelTimer?.schedule(deadline: .now(), repeating: 1/50.0)
             dashboardView.waveformView.isDynamic = true
+            
+            var times = [SMTime]()
+            for index in 1..<100 {
+                times.append(CGFloat(index) - 0.1)
+            }
+            dashboardView.flagView.setFlagsTimeArray(times)
         } else {
             refreshLevelTimer?.schedule(deadline: .distantFuture)
             timer.stop()
@@ -76,7 +82,7 @@ class SMDashboardViewTestViewController: SMBaseViewController {
     @IBAction func flagAction(_ sender: UIButton) {
         sender.isSelected = !sender.isSelected
         if sender.isSelected {
-            dashboardView.indicatorView.setUnmovableAddButtonParameter(buttonActionBlock: { (type) in
+            dashboardView.indicatorView.setUnmovableMinusButtonParameter(buttonActionBlock: { (type) in
                 SMLog("\(type) Action")
             })
             dashboardView.setRecordParameters()

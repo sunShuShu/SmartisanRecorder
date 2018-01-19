@@ -90,6 +90,14 @@ extension SMSoundDashboardView: WaveformRenderDelegate {
         if components.contains(.Time) && currentTime != nil {
             timeView.setCurrentTime(currentTime!)
         }
+        
+        if components.contains(.Flag) {
+            if currentTime != nil {
+                flagView.setCurrentTime(currentTime!)
+            } else if displayRange != nil {
+                //TODO: 
+            }
+        }
     }
     
     func setRecordParameters() {
