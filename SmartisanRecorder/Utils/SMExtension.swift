@@ -51,47 +51,32 @@ extension UInt32 {
 }
 
 extension Array where Element: Comparable {
-    func binarySearch(from: Element, to: Element) ->(startIndex: Int, endIndex: Int)? {
-        guard from <= to else {
+    func binarySearch(from: Element, to: Element) -> CountableClosedRange<Int>? {
+        guard count > 0 && from <= to else {
+            return nil
+        }
+        if to < self.first! || from > self.last! {
             return nil
         }
         
         var fromIndex = 0
-        var toIndex = 0
-        
-        var left = 0
-        var right = count - 1
-        while (left < right) {
-            let mid = (left + right) / 2
-            let value = self[mid]
-            if (value < from) {
-                left = mid + 1
-            } else if (value > from) {
-                right = mid - 1
+        for (index, value) in self.enumerated() {
+            if value <= from {
+                fromIndex = index
             } else {
-                left = mid
+                break
             }
         }
-        fromIndex = left
         
-        right = count - 1
-        while (left < right) {
-            let mid = (left + right) / 2
-            let value = self[mid]
-            if (value < to) {
-                left = mid + 1
-            } else if (value > to) {
-                right = mid - 1
+        var toIndex = fromIndex
+        for index in fromIndex..<self.count - 1 {
+            if self[index] < to {
+                toIndex = index
             } else {
-                right = mid
+                break
             }
         }
-        toIndex = right
         
-        if fromIndex < toIndex || (fromIndex == toIndex && from <= self[fromIndex] && self[toIndex] <= to) {
-            return (fromIndex, toIndex)
-        } else {
-            return nil
-        }
+        return fromIndex...toIndex
     }
 }

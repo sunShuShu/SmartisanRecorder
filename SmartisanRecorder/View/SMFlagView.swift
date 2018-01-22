@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 
 class SMFlagView: SMBaseView {
+    static let maxFlagsCount = 99
     
     var widthPerSecond: CGFloat = 50 {
         didSet {
@@ -29,6 +30,7 @@ class SMFlagView: SMBaseView {
     
     private var timeIndicatorOffset: SMTime = 0
     private lazy var flagRect = CGRect(x: 0, y: 0, width: 15.33, height: height)
+    private let renderQueue = DispatchQueue(label: "com.sunshushu.WaveformRender", qos: .userInteractive)
     override func layoutSubviews() {
         super.layoutSubviews()
     }
@@ -37,59 +39,73 @@ class SMFlagView: SMBaseView {
         measure.getReport(from: self)
     }
     
-    private let renderQueue = DispatchQueue(label: "com.sunshushu.FlagRender", qos: .userInteractive)
+    private var cacheDataTimeRange: ClosedRange<CGFloat> = 0...0
+    private var cacheDataIndexRange: CountableClosedRange<Int>?
+    private var displayingImages = [Int: UIImage]()
     func setCurrentTime(_ currentTime: SMTime) {
         guard flagsTimeArray.count > 0 else {
             return
         }
         
         renderQueue.async {
-            [weak self] in
-            if let strongSelf = self {
-                strongSelf.measure.start()
-                
-                let displayTimeLength = strongSelf.width / strongSelf.widthPerSecond
-                let startTime = currentTime - displayTimeLength / 2
-                let endTime = startTime + displayTimeLength
-                
-                var needMoveViews = [UIView: CGRect]()
-                var needAddViews = [UIView]()
-                
-                if let range = strongSelf.flagsTimeArray.binarySearch(from: startTime, to: endTime) {
-                    for index in range.startIndex...range.endIndex {
-                        let flagTime = strongSelf.flagsTimeArray[index]
-                        let x = (flagTime - startTime) * strongSelf.widthPerSecond
-                        var rect = strongSelf.flagRect
-                        rect.origin.x = x
-                        if let subView = strongSelf.viewWithTag(index + 1) {
-                            //Move the flag view if the flag is exist
-                            needMoveViews.updateValue(rect, forKey: subView)
-                        } else {
-                            //Add the new flag view
-                            let imageView = UIImageView(image: #imageLiteral(resourceName: "main_flag.9").stretchableImage(withLeftCapWidth: 0, topCapHeight: 50))
-                            imageView.tag = index + 1
-                            imageView.frame = rect
-                            needAddViews.append(imageView)
-                        }
-                    }
-                } else {
-                    return
+            self.measure.start()
+            
+            let displayTimeLength = self.width / self.widthPerSecond
+            let startTime = currentTime - displayTimeLength / 2
+            let endTime = startTime + displayTimeLength
+            
+            let dataRange: CountableClosedRange<Int>?
+            if self.cacheDataTimeRange.contains(startTime) && self.cacheDataTimeRange.contains(endTime) {
+                dataRange = self.cacheDataIndexRange
+            } else {
+                //Additional cache 3 seconds data.
+                dataRange = self.flagsTimeArray.binarySearch(from: startTime, to: endTime + 3)
+                self.cacheDataTimeRange = startTime...endTime + 3
+                self.cacheDataIndexRange = dataRange
+            }
+            
+            //Remove flag views.
+            var needRemovedViewsTag = [Int]()
+            for (index, _) in self.displayingImages {
+                if dataRange == nil || dataRange!.contains(index) == false {
+                    needRemovedViewsTag.append(index)
+                    self.displayingImages.removeValue(forKey: index)
                 }
-                
-                DispatchQueue.main.async {
-                    for view in strongSelf.subviews {
-                        if needMoveViews.keys.contains(view) == false {
-                            view.removeFromSuperview()
-                        }
-                    }
-                    for view in needAddViews {
-                        strongSelf.addSubview(view)
-                    }
-                    for (view, frame) in needMoveViews {
-                        view.frame = frame
+            }
+            
+            var needMoveViews = [Int: CGRect]()
+            var needAddViews = [Int: (UIImage, CGRect)]()
+            if let range = dataRange {
+                for index in range {
+                    let flagTime = self.flagsTimeArray[index]
+                    let x = (flagTime - startTime) * self.widthPerSecond
+                    var rect = self.flagRect
+                    rect.origin.x = x
+                    
+                    if self.displayingImages[index] != nil {
+                        needMoveViews.updateValue(rect, forKey: index)
+                    } else {
+                        let image = #imageLiteral(resourceName: "main_flag.9").stretchableImage(withLeftCapWidth: 0, topCapHeight: 50)
+                        self.displayingImages.updateValue(image, forKey: index)
+                        needAddViews.updateValue((image, rect), forKey: index)
                     }
                 }
-                strongSelf.measure.end()
+            }
+            self.measure.end()
+            
+            DispatchQueue.main.sync {
+                for tag in needRemovedViewsTag {
+                    self.viewWithTag(tag + 1)?.removeFromSuperview()
+                }
+                for (index, rect) in needMoveViews {
+                    self.viewWithTag(index + 1)?.frame = rect
+                }
+                for (index, (image, rect)) in needAddViews {
+                    let imageView = UIImageView(image: image)
+                    imageView.tag = index + 1
+                    imageView.frame = rect
+                    self.addSubview(imageView)
+                }
             }
         }
     }
