@@ -33,6 +33,10 @@ class SMFlagView: SMBaseView {
         super.layoutSubviews()
     }
     
+    deinit {
+        measure.getReport(from: self)
+    }
+    
     private let renderQueue = DispatchQueue(label: "com.sunshushu.FlagRender", qos: .userInteractive)
     func setCurrentTime(_ currentTime: SMTime) {
         guard flagsTimeArray.count > 0 else {
@@ -54,7 +58,7 @@ class SMFlagView: SMBaseView {
                 if let range = strongSelf.flagsTimeArray.binarySearch(from: startTime, to: endTime) {
                     for index in range.startIndex...range.endIndex {
                         let flagTime = strongSelf.flagsTimeArray[index]
-                        let x = flagTime - startTime
+                        let x = (flagTime - startTime) * strongSelf.widthPerSecond
                         var rect = strongSelf.flagRect
                         rect.origin.x = x
                         if let subView = strongSelf.viewWithTag(index + 1) {
