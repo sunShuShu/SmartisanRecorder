@@ -98,6 +98,7 @@ class SMTimeScaleView: SMBaseView {
                         var timeString = strongSelf.timeCache[currentLabelTime]
                         if timeString == nil {
                             timeString = SMTime(currentLabelTime).getTimeString(isNeedHour: true, isNeedMs: false)
+                            //TODO: Move the cache to SMTime
                             strongSelf.timeCache[currentLabelTime] = timeString
                         }
                         tempTimeLabelInfo.append((timeString!, x))

@@ -74,7 +74,7 @@ class SMFlagView: SMBaseView {
             }
             
             var needMoveViews = [Int: CGRect]()
-            var needAddViews = [Int: (UIImage, CGRect)]()
+            var needAddViews = [Int: (UIImage, CGRect, CALayer)]() //(UIImage: flag, CGRect: flag rect, CALayer: flag number)
             if let range = dataRange {
                 for index in range {
                     let flagTime = self.flagsTimeArray[index]
@@ -85,9 +85,18 @@ class SMFlagView: SMBaseView {
                     if self.displayingImages[index] != nil {
                         needMoveViews.updateValue(rect, forKey: index)
                     } else {
-                        let image = #imageLiteral(resourceName: "main_flag.9").stretchableImage(withLeftCapWidth: 0, topCapHeight: 50)
+                        let numImageName = String(format: "flag_num_%02d", index + 1)
+                        let numImageLayer = CALayer()
+                        if let image = UIImage(named: numImageName)?.cgImage {
+                            numImageLayer.contents = image
+                            numImageLayer.frame = CGRect(x: 0, y: 0, width: 15.33, height: 13.33)
+                        } else {
+                            continue
+                        }
+                        
+                        let image = UIImage(named: "main_flag.9")!.stretchableImage(withLeftCapWidth: 0, topCapHeight: 25)
                         self.displayingImages.updateValue(image, forKey: index)
-                        needAddViews.updateValue((image, rect), forKey: index)
+                        needAddViews.updateValue((image, rect, numImageLayer), forKey: index)
                     }
                 }
             }
@@ -100,8 +109,9 @@ class SMFlagView: SMBaseView {
                 for (index, rect) in needMoveViews {
                     self.viewWithTag(index + 1)?.frame = rect
                 }
-                for (index, (image, rect)) in needAddViews {
+                for (index, (image, rect, numLayer)) in needAddViews {
                     let imageView = UIImageView(image: image)
+                    imageView.layer.addSublayer(numLayer)
                     imageView.tag = index + 1
                     imageView.frame = rect
                     self.addSubview(imageView)
