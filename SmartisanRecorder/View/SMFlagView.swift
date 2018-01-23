@@ -33,11 +33,17 @@ class SMFlagView: SMBaseView {
     private let renderQueue = DispatchQueue(label: "com.sunshushu.WaveformRender", qos: .userInteractive)
     override func layoutSubviews() {
         super.layoutSubviews()
+        halfDisplayTime = displayTimeLength / 2
+        displayTimeLength = width / widthPerSecond
     }
     
     deinit {
         measure.getReport(from: self)
     }
+    
+    //MARK:-
+    private var halfDisplayTime: CGFloat = 0
+    private var displayTimeLength: CGFloat = 0
     
     private var cacheDataTimeRange: ClosedRange<CGFloat> = 0...0
     private var cacheDataIndexRange: CountableClosedRange<Int>?
@@ -50,31 +56,33 @@ class SMFlagView: SMBaseView {
         renderQueue.async {
             self.measure.start()
             
-            let displayTimeLength = self.width / self.widthPerSecond
-            let startTime = currentTime - displayTimeLength / 2
-            let endTime = startTime + displayTimeLength
-            
+            let startTime = currentTime - self.halfDisplayTime
+            let endTime = startTime + self.displayTimeLength
             let dataRange: CountableClosedRange<Int>?
             if self.cacheDataTimeRange.contains(startTime) && self.cacheDataTimeRange.contains(endTime) {
                 dataRange = self.cacheDataIndexRange
             } else {
                 //Additional cache 3 seconds data.
-                dataRange = self.flagsTimeArray.binarySearch(from: startTime, to: endTime + 3)
-                self.cacheDataTimeRange = startTime...endTime + 3
+                let cacheEndTime = endTime + 3
+                dataRange = self.flagsTimeArray.binarySearch(from: startTime, to: cacheEndTime)
+                self.cacheDataTimeRange = startTime...cacheEndTime
                 self.cacheDataIndexRange = dataRange
             }
             
             //Remove flag views.
-            var needRemovedViewsTag = [Int]()
+            var needRemovedViewsTag: [Int]?
             for (index, _) in self.displayingImages {
                 if dataRange == nil || dataRange!.contains(index) == false {
-                    needRemovedViewsTag.append(index)
+                    if needRemovedViewsTag == nil {
+                        needRemovedViewsTag = [Int]()
+                    }
+                    needRemovedViewsTag!.append(index)
                     self.displayingImages.removeValue(forKey: index)
                 }
             }
             
             var needMoveViews = [Int: CGRect]()
-            var needAddViews = [Int: (UIImage, CGRect, CALayer)]() //(UIImage: flag, CGRect: flag rect, CALayer: flag number)
+            var needAddViews: [Int: (UIImage, CGRect, CALayer)]? //(UIImage: flag, CGRect: flag rect, CALayer: flag number)
             if let range = dataRange {
                 for index in range {
                     let flagTime = self.flagsTimeArray[index]
@@ -96,25 +104,32 @@ class SMFlagView: SMBaseView {
                         
                         let image = UIImage(named: "main_flag.9")!.stretchableImage(withLeftCapWidth: 0, topCapHeight: 25)
                         self.displayingImages.updateValue(image, forKey: index)
-                        needAddViews.updateValue((image, rect, numImageLayer), forKey: index)
+                        if needAddViews == nil {
+                            needAddViews = [Int: (UIImage, CGRect, CALayer)]()
+                        }
+                        needAddViews!.updateValue((image, rect, numImageLayer), forKey: index)
                     }
                 }
             }
             self.measure.end()
             
             DispatchQueue.main.sync {
-                for tag in needRemovedViewsTag {
-                    self.viewWithTag(tag + 1)?.removeFromSuperview()
+                if let removeViews = needRemovedViewsTag {
+                    for tag in removeViews {
+                        self.viewWithTag(tag + 1)?.removeFromSuperview()
+                    }
                 }
                 for (index, rect) in needMoveViews {
                     self.viewWithTag(index + 1)?.frame = rect
                 }
-                for (index, (image, rect, numLayer)) in needAddViews {
-                    let imageView = UIImageView(image: image)
-                    imageView.layer.addSublayer(numLayer)
-                    imageView.tag = index + 1
-                    imageView.frame = rect
-                    self.addSubview(imageView)
+                if let addViews = needAddViews {
+                    for (index, (image, rect, numLayer)) in addViews {
+                        let imageView = UIImageView(image: image)
+                        imageView.layer.addSublayer(numLayer)
+                        imageView.tag = index + 1
+                        imageView.frame = rect
+                        self.addSubview(imageView)
+                    }
                 }
             }
         }
