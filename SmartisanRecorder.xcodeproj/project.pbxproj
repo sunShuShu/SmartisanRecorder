@@ -36,6 +36,7 @@
 		256DC9CC1F4FF90000403C54 /* SMBaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 256DC9CB1F4FF90000403C54 /* SMBaseViewController.swift */; };
 		256DC9CF1F5037F600403C54 /* RecorderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 256DC9CE1F5037F600403C54 /* RecorderTests.swift */; };
 		257CF5741ED2F64700007D23 /* SMResample.swift in Sources */ = {isa = PBXBuildFile; fileRef = 257CF5731ED2F64700007D23 /* SMResample.swift */; };
+		25868C882017554300E94A8E /* SMScrollRenderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25868C872017554300E94A8E /* SMScrollRenderView.swift */; };
 		2593C8981FBAC0D70062A2AE /* SMStorage.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2593C8971FBAC0D70062A2AE /* SMStorage.mm */; };
 		2593C89A1FBAC3230062A2AE /* StorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2593C8991FBAC3230062A2AE /* StorageTests.swift */; };
 		2593C89D1FBAD4AD0062A2AE /* SMFileStorageModel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2593C89C1FBAD4AD0062A2AE /* SMFileStorageModel.mm */; };
@@ -98,6 +99,7 @@
 		256DC9CB1F4FF90000403C54 /* SMBaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMBaseViewController.swift; sourceTree = "<group>"; };
 		256DC9CE1F5037F600403C54 /* RecorderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecorderTests.swift; sourceTree = "<group>"; };
 		257CF5731ED2F64700007D23 /* SMResample.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMResample.swift; sourceTree = "<group>"; };
+		25868C872017554300E94A8E /* SMScrollRenderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMScrollRenderView.swift; sourceTree = "<group>"; };
 		2593C8961FBAC0D60062A2AE /* SMStorage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SMStorage.h; sourceTree = "<group>"; };
 		2593C8971FBAC0D70062A2AE /* SMStorage.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = SMStorage.mm; sourceTree = "<group>"; };
 		2593C8991FBAC3230062A2AE /* StorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageTests.swift; sourceTree = "<group>"; };
@@ -195,6 +197,7 @@
 			children = (
 				251113B71FFF609C00200E2A /* Test */,
 				251113B11FFE005D00200E2A /* SMBaseView.swift */,
+				25868C872017554300E94A8E /* SMScrollRenderView.swift */,
 				25E28DDE1E6F9E8A0008E066 /* SMWaveformView.swift */,
 				25EFF14220103F2C00D9ECCB /* SMTimeScaleView.swift */,
 				25EFF14420103F7F00D9ECCB /* SMTimeElapseIndicatorView.swift */,
@@ -575,6 +578,7 @@
 				251113B21FFE005D00200E2A /* SMBaseView.swift in Sources */,
 				257CF5741ED2F64700007D23 /* SMResample.swift in Sources */,
 				25F5C65E1FE92C1A00FB60BF /* SMAudioInfoStorage.swift in Sources */,
+				25868C882017554300E94A8E /* SMScrollRenderView.swift in Sources */,
 				2536482E1E6EAFD200476E12 /* SMRecorder.swift in Sources */,
 				2557FAFB200C562E00EC5383 /* SMDashboardViewTest.swift in Sources */,
 				25EFF149201040A300D9ECCB /* SMFlagView.swift in Sources */,
