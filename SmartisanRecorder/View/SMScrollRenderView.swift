@@ -16,7 +16,7 @@ protocol ScrollRenderDelegate: class {
     /// - Parameters:
     ///   - range: rander range
     ///   - context: to draw in the context
-    func renderView(in range: ClosedRange<CGFloat>, context: CGContext)
+    func renderView(_ view: UIView, in range: ClosedRange<CGFloat>)
     
     /// For recording mode.
     ///
@@ -24,7 +24,9 @@ protocol ScrollRenderDelegate: class {
     ///   - offset: offset of scroll render view center
     ///   - contextX: x position of drawing line in context
     ///   - context: to draw in the context
-    func renderALineOfWaveform(in offset: CGFloat, contextX: CGFloat, context: CGContext)
+    func renderALineOfWaveform(in view: UIView, offset: CGFloat, lineX: CGFloat)
+    
+    func drawToScrollRenderView(in context: CGContext)
 }
 
 class SMScrollRenderView: SMBaseView {
@@ -35,6 +37,7 @@ class SMScrollRenderView: SMBaseView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
+        SMLog("\(self) \n layoutSubviews...")
         var rect = self.bounds
         firstLayer.frame = rect
         rect.origin.x = width
@@ -48,24 +51,25 @@ class SMScrollRenderView: SMBaseView {
     private lazy var firstLayer = UIView()
     private lazy var secondLayer = UIView()
     
-    private var toRenderRange: ClosedRange<CGFloat>? = nil // For playing audio file
-    private var toRenderOffset: CGFloat? = nil // For recording mode
-    private var toRenderContextX: CGFloat? = nil
+//    private var toRenderRange: ClosedRange<CGFloat>? = nil // For playing audio file
+//    private var toRenderOffset: CGFloat? = nil // For recording mode
+//    private var toRenderContextX: CGFloat? = nil
     
     func setOffset(_ offset: CGFloat) {
         let width = self.width
         var firstLayerX: CGFloat = 0
         var renderLayer: UIView? = nil
+        var toRenderRange: ClosedRange<CGFloat>? = nil // For playing audio file
         
         let renderedMidPosition = renderedPosition + width
         let endOffset = offset + width;
-        if (offset <= renderedMidPosition && renderedMidPosition <= endOffset) {
+        if offset <= renderedMidPosition && renderedMidPosition <= endOffset {
             //Just move the rendered waveform if the display range in the rendered range.
             SMLog("Just move the waveform.");
             firstLayerX = renderedPosition - offset
         } else {
             let renderedEndPositon = renderedMidPosition + width
-            if (offset <= renderedEndPositon && renderedEndPositon <= endOffset) {
+            if offset <= renderedEndPositon && renderedEndPositon <= endOffset {
                 //Move the rendered view and switch the layers. render the secondLayer.
                 SMLog("Move waveform + switch layers + render the secondLayer.");
                 swap(&firstLayer, &secondLayer)
@@ -85,42 +89,43 @@ class SMScrollRenderView: SMBaseView {
         
         let secondLayerX = firstLayerX + width
         
-        if (isRecordingMode) {
+        if isRecordingMode {
             //TODO: 优化计算常量
+            //render when set a new offset
             let halfWidth = width / 2
-            toRenderOffset = offset + halfWidth
-            if (secondLayerX >= halfWidth) {
+            let toRenderLineX: CGFloat
+            let toRenderOffset = offset + halfWidth
+            if secondLayerX >= halfWidth {
                 renderLayer = firstLayer
-                toRenderContextX = firstLayerX + halfWidth
+                toRenderLineX = firstLayerX + halfWidth
             } else {
                 renderLayer = secondLayer
-                toRenderContextX = halfWidth - secondLayerX
+                toRenderLineX = halfWidth - secondLayerX
+            }
+            
+            if let renderDelegate = self.renderDelegate {
+                renderDelegate.renderALineOfWaveform(in: renderLayer!, offset: toRenderOffset, lineX: toRenderLineX)
+            }
+        } else if let tempLayer = renderLayer {
+            //render when needed
+            if let renderDelegate = self.renderDelegate {
+                renderDelegate.renderView(tempLayer, in: toRenderRange!)
             }
         }
         
+        // Move the layers
         DispatchQueue.main.async {
             self.firstLayer.frame.origin.x = firstLayerX
             self.secondLayer.frame.origin.x = secondLayerX
-            if let drawLayer = renderLayer {
-                drawLayer.setNeedsDisplay()
-                renderLayer = nil
-            }
         }
     }
     
     override func draw(_ rect: CGRect) {
-        SMLog("Render...draw")
-        //TODO: 是否每次移动view都会调用此方法，如果是则判断是否需要渲染，如果不是则可以直接渲染
-        if let renderDelegate = self.renderDelegate {
-            if let contex = UIGraphicsGetCurrentContext() {
-                if let location = toRenderOffset {
-                    renderDelegate.renderALineOfWaveform(in: location, contextX: toRenderContextX!, context: contex)
-                    toRenderOffset = nil
-                }
-                if let range = toRenderRange {
-                    renderDelegate.renderView(in: range, context: contex)
-                    toRenderRange = nil
-                }
+        SMLog("ScrollRenderView...draw")
+        super.draw(rect)
+        if let contex = UIGraphicsGetCurrentContext() {
+            if let renderDelegate = self.renderDelegate {
+                renderDelegate.drawToScrollRenderView(in: contex)
             }
         }
     }
@@ -128,6 +133,6 @@ class SMScrollRenderView: SMBaseView {
 
 extension SMScrollRenderView {
 //    setIsRecordMode<T: ScrollRenderDelegate>(_ mode: Bool, renderDelegate: T) {
-//    
+//
 //    }
 }
