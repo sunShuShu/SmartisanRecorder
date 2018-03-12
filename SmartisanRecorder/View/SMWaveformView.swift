@@ -22,7 +22,7 @@ protocol WaveformRenderDelegate: class {
     func waveformWillRender(currentTime: SMTime?, displayRange: (start: SMTime, end: SMTime)?);
 }
 
-class SMWaveformView: SMBaseView, ScrollRenderDelegate {
+class SMWaveformView: SMBaseView, SMLayerDelegate {
     static let maxPowerLevel = CGFloat(UInt8.max)
     
     /// line width(point) e.g. 1 point = 2 pixels in iPhone7, 1 point = 3 pixels in plus series
@@ -51,8 +51,14 @@ class SMWaveformView: SMBaseView, ScrollRenderDelegate {
     }
     
     
-    /// Do NOT change the value after loaded the view! default = (true, false).
-    var scrollOptimizeSettings: (isEnable: Bool, isRecordingMode: Bool) = (true, false)
+    /// Do NOT change the value after loaded the view! default = (false, false).
+    var scrollOptimizeSettings: (isEnable: Bool, isRecordingMode: Bool) = (false, false) {
+        didSet {
+            DispatchQueue.main.async {
+                self.setNeedsLayout()
+            }
+        }
+    }
     
     func refreshView() {
         renderTimerFireOnce = true
@@ -143,12 +149,14 @@ class SMWaveformView: SMBaseView, ScrollRenderDelegate {
         halfLineCount = lineCount / 2
         lineHeightFactor = height / SMWaveformView.maxPowerLevel
         if scrollRenderView == nil && scrollOptimizeSettings.isEnable {
-            scrollRenderView = SMScrollRenderView()
-            scrollRenderView!.renderDelegate = self
+            scrollRenderView = SMScrollRenderView(delegate: self)
             scrollRenderView!.frame = self.frame
             scrollRenderView?.isRecordingMode = scrollOptimizeSettings.isRecordingMode
             addSubview(scrollRenderView!)
             UIView.autoLayout(scrollRenderView!)
+        } else if let view = scrollRenderView, scrollOptimizeSettings.isEnable == false {
+            view.removeFromSuperview()
+            scrollRenderView = nil
         }
     }
     
@@ -164,7 +172,7 @@ class SMWaveformView: SMBaseView, ScrollRenderDelegate {
     }
     
     private var path = CGMutablePath()
-    private var currentScrollCanvas: UIView? = nil
+    private var currentScrollCanvas: CALayer? = nil
     @objc private func render() {
         measure.start()
         
@@ -183,15 +191,16 @@ class SMWaveformView: SMBaseView, ScrollRenderDelegate {
         
         //The view is refreshed regardless of whether the rendered data is successful or not.
         var tempPath = CGMutablePath()
-        var scrollCanvas: UIView? = nil
+        var scrollCanvas: CALayer? = nil
         defer {
             if scrollCanvas != nil || scrollOptimizeSettings.isEnable == false {
                 DispatchQueue.main.async {
                     self.path = tempPath
                     if self.scrollOptimizeSettings.isEnable == false {
                         self.setNeedsDisplay()
-                    } else if let canvas = scrollCanvas {
-                        canvas.setNeedsDisplay()
+                    } else {
+                        scrollCanvas?.setNeedsDisplay()
+                        scrollCanvas = nil
                     }
                 }
             }
@@ -328,9 +337,8 @@ class SMWaveformView: SMBaseView, ScrollRenderDelegate {
     }
     
     //MARK:- ScrollRender Delegate
-    //TODO: 和静态视图的渲染和到一个方法里
-    func drawToScrollRenderView(in context: CGContext) {
-        drawToContext(context)
+    func drawSMLayer(in ctx: CGContext) {
+        drawToContext(ctx)
     }
 }
 
@@ -347,7 +355,7 @@ extension SMWaveformView {
         self.updatePlayedTime = updatePlayedTime
         self.audioDuration = audioDuration
         self.setPowerLevelArray(powerLevelArray)
-        self.scrollOptimizeSettings = (isEnable: true, isRecordingMode: false)
+        self.scrollOptimizeSettings = (isEnable: false, isRecordingMode: false)
     }
     
     /// No invoking after the view is added to the super view!

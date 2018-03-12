@@ -12,6 +12,7 @@
 		251113B41FFE068A00200E2A /* SMUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 251113B31FFE068A00200E2A /* SMUtils.swift */; };
 		251113B61FFF5FFE00200E2A /* SMWaveformViewTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 251113B51FFF5FFE00200E2A /* SMWaveformViewTest.swift */; };
 		251113BB1FFF612200200E2A /* SMWaveformViewTest.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 251113BA1FFF612200200E2A /* SMWaveformViewTest.storyboard */; };
+		251ADBC420566D070054E705 /* SMLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 251ADBC320566D070054E705 /* SMLayer.swift */; };
 		252991931F51068E00EBBE69 /* SMUserUsageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 252991921F51068E00EBBE69 /* SMUserUsageInfo.swift */; };
 		252AE9181E6E88AC005FED98 /* SMLocalize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 252AE9171E6E88AC005FED98 /* SMLocalize.swift */; };
 		2533D797200778450096A271 /* SMSoundDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2533D796200778450096A271 /* SMSoundDashboardView.swift */; };
@@ -72,6 +73,7 @@
 		251113B31FFE068A00200E2A /* SMUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMUtils.swift; sourceTree = "<group>"; };
 		251113B51FFF5FFE00200E2A /* SMWaveformViewTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMWaveformViewTest.swift; sourceTree = "<group>"; };
 		251113BA1FFF612200200E2A /* SMWaveformViewTest.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = SMWaveformViewTest.storyboard; sourceTree = "<group>"; };
+		251ADBC320566D070054E705 /* SMLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMLayer.swift; sourceTree = "<group>"; };
 		252991921F51068E00EBBE69 /* SMUserUsageInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMUserUsageInfo.swift; sourceTree = "<group>"; };
 		252AE9171E6E88AC005FED98 /* SMLocalize.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMLocalize.swift; sourceTree = "<group>"; };
 		2533D796200778450096A271 /* SMSoundDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMSoundDashboardView.swift; sourceTree = "<group>"; };
@@ -197,6 +199,7 @@
 			children = (
 				251113B71FFF609C00200E2A /* Test */,
 				251113B11FFE005D00200E2A /* SMBaseView.swift */,
+				251ADBC320566D070054E705 /* SMLayer.swift */,
 				25868C872017554300E94A8E /* SMScrollRenderView.swift */,
 				25E28DDE1E6F9E8A0008E066 /* SMWaveformView.swift */,
 				25EFF14220103F2C00D9ECCB /* SMTimeScaleView.swift */,
@@ -585,6 +588,7 @@
 				25C4E45F1E6E935D00A2DFD0 /* SMExtension.swift in Sources */,
 				255FF2571E70FB1600D4ECBD /* SMAudioFileSampler.swift in Sources */,
 				2593C8981FBAC0D70062A2AE /* SMStorage.mm in Sources */,
+				251ADBC420566D070054E705 /* SMLayer.swift in Sources */,
 				2533D797200778450096A271 /* SMSoundDashboardView.swift in Sources */,
 				252991931F51068E00EBBE69 /* SMUserUsageInfo.swift in Sources */,
 				251113B61FFF5FFE00200E2A /* SMWaveformViewTest.swift in Sources */,

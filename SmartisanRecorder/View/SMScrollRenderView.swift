@@ -9,16 +9,23 @@
 import Foundation
 import UIKit
 
-protocol ScrollRenderDelegate: class {
-    func drawToScrollRenderView(in context: CGContext)
-}
-
-typealias ScrollRenderInfo = (canvas: UIView, offset: CGFloat, lineX:  CGFloat?)
+typealias ScrollRenderInfo = (canvas: CALayer, offset: CGFloat, lineX:  CGFloat?)
 
 class SMScrollRenderView: SMBaseView {
-    weak var renderDelegate: ScrollRenderDelegate?
 
     var isRecordingMode = false
+    private weak var renderDelegate: SMLayerDelegate?
+
+    init(delegate: SMLayerDelegate) {
+        renderDelegate = delegate
+        firstLayer = SMLayer(delegate: delegate)
+        secondLayer = SMLayer(delegate: delegate)
+        super.init(frame: CGRect.zero)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -28,35 +35,30 @@ class SMScrollRenderView: SMBaseView {
         rect.origin.x = width
         secondLayer.frame = rect
         self.backgroundColor = superview?.backgroundColor
-        firstLayer.backgroundColor = UIColor.red
-        secondLayer.backgroundColor = UIColor.green
+        if layer.sublayers?.contains(firstLayer) == false {
+            self.layer.addSublayer(firstLayer)
+        }
+        if layer.sublayers?.contains(firstLayer) == false {
+            self.layer.addSublayer(secondLayer)
+        }
+        
+        firstLayer.backgroundColor = UIColor.red.cgColor
+        secondLayer.backgroundColor = UIColor.green.cgColor
     }
     
     private var renderedPosition: CGFloat = 0
-    private lazy var firstLayer: UIView = {
-        return self.addNewView()
-    }()
-    private lazy var secondLayer: UIView = {
-        return self.addNewView()
-    }()
-    
-    private func addNewView() -> UIView {
-        let newView = UIView()
-        newView.translatesAutoresizingMaskIntoConstraints = true
-        self.addSubview(newView)
-        return newView
-    }
+    private var firstLayer: SMLayer
+    private var secondLayer: SMLayer
     
     func setOffset(_ offset: CGFloat) -> ScrollRenderInfo? {
         let width = self.width
         var firstLayerX: CGFloat = 0
-        var renderLayer: UIView? = nil
+        var renderLayer: CALayer? = nil
         
         let renderedMidPosition = renderedPosition + width
         let endOffset = offset + width;
         if offset <= renderedMidPosition && renderedMidPosition <= endOffset {
             //Just move the rendered waveform if the display range in the rendered range.
-            SMLog("Just move the waveform.");
             firstLayerX = renderedPosition - offset
         } else {
             let renderedEndPositon = renderedMidPosition + width
@@ -105,23 +107,6 @@ class SMScrollRenderView: SMBaseView {
             return nil
         }
     }
-    
-    override func draw(_ layer: CALayer, in ctx: CGContext) {
-        SMLog("ScrollRenderView...draw")
-        super.draw(layer, in: ctx)
-        if let renderDelegate = self.renderDelegate {
-            renderDelegate.drawToScrollRenderView(in: ctx)
-        }
-    }
-//    override func draw(_ rect: CGRect) {
-//        SMLog("ScrollRenderView...draw")
-//        super.draw(rect)
-//        if let contex = UIGraphicsGetCurrentContext() {
-//            if let renderDelegate = self.renderDelegate {
-//                renderDelegate.drawToScrollRenderView(in: contex)
-//            }
-//        }
-//    }
 }
 
 extension SMScrollRenderView {

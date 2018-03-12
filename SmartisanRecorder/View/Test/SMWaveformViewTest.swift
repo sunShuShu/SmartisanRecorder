@@ -97,7 +97,7 @@ class SMWaveformViewTestViewController: SMBaseViewController {
             updatePowerLevelTimer?.schedule(wallDeadline: .distantFuture)
             timer.pause()
         }
-        
+        waveformView.scrollOptimizeSettings = (true, true)
         waveformView?.isDynamic = sender.isSelected
     }
     
@@ -131,6 +131,7 @@ class SMWaveformViewTestViewController: SMBaseViewController {
         } else {
             self.timer.pause()
         }
+        waveformView.scrollOptimizeSettings = (true, false)
         waveformView.isDynamic = sender.isSelected
     }
     
@@ -162,6 +163,7 @@ class SMWaveformViewTestViewController: SMBaseViewController {
         let start = CGFloat(arc4random() % 10000) / 100
         let end = CGFloat(arc4random() % 10000) / 100
         waveformView?.displayTimeRange = (min(start, end), max(start, end))
+        
     }
     
     @IBAction func compressionAction(_ sender: Any) {
