@@ -14,10 +14,8 @@ typealias ScrollRenderInfo = (canvas: CALayer, offset: CGFloat, lineX:  CGFloat?
 class SMScrollRenderView: SMBaseView {
 
     var isRecordingMode = false
-    private weak var renderDelegate: SMLayerDelegate?
 
     init(delegate: SMLayerDelegate) {
-        renderDelegate = delegate
         firstLayer = SMLayer(delegate: delegate)
         secondLayer = SMLayer(delegate: delegate)
         super.init(frame: CGRect.zero)
@@ -35,11 +33,11 @@ class SMScrollRenderView: SMBaseView {
         rect.origin.x = width
         secondLayer.frame = rect
         self.backgroundColor = superview?.backgroundColor
-        if layer.sublayers?.contains(firstLayer) == false {
-            self.layer.addSublayer(firstLayer)
+        if layer.sublayers?.contains(firstLayer) != true {
+            layer.addSublayer(firstLayer)
         }
-        if layer.sublayers?.contains(firstLayer) == false {
-            self.layer.addSublayer(secondLayer)
+        if layer.sublayers?.contains(secondLayer) != true {
+            layer.addSublayer(secondLayer)
         }
         
         firstLayer.backgroundColor = UIColor.red.cgColor
