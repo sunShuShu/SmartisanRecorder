@@ -9,29 +9,25 @@
 import Foundation
 import UIKit
 
-protocol SMLayerDelegate: class {
-    func drawSMLayer(in ctx: CGContext)
+protocol RenderViewDelegate: class {
+    func drawRenderView(in ctx: CGContext)
 }
 
-class SMLayer: CALayer, CALayerDelegate {
-    weak var smLayerDelegate: SMLayerDelegate?
+class SMRenderView: UIView {
+    weak var renderDelegate: RenderViewDelegate?
     
-    init(delegate: SMLayerDelegate?) {
-        super.init()
-        self.smLayerDelegate = delegate
-        self.delegate = self
+    init(delegate: RenderViewDelegate?) {
+        super.init(frame: CGRect.zero)
+        self.renderDelegate = delegate
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func draw(_ layer: CALayer, in ctx: CGContext) {
-        smLayerDelegate?.drawSMLayer(in: ctx)
-    }
-    
-    func action(for layer: CALayer, forKey event: String) -> CAAction? {
-        // No animation!
-        return NSNull()
+    override func draw(_ rect: CGRect) {
+        if let context = UIGraphicsGetCurrentContext() {
+            renderDelegate?.drawRenderView(in: context)
+        }
     }
 }

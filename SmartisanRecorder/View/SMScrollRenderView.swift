@@ -9,15 +9,14 @@
 import Foundation
 import UIKit
 
-//typealias ScrollRenderInfo = (canvas: CALayer, canvasOffset: CGFloat, lineX:  CGFloat?)
-typealias CanvasInfo = (canvas: CALayer, canvasOffset: CGFloat)
-typealias CanvasPosition = (canvas: CALayer, positionX: CGFloat)
+typealias CanvasInfo = (canvas: UIView, canvasOffset: CGFloat)
+typealias CanvasPosition = (canvas: UIView, positionX: CGFloat)
 
 class SMScrollRenderView: SMBaseView {
 
-    init(delegate: SMLayerDelegate) {
-        firstLayer = SMLayer(delegate: delegate)
-        secondLayer = SMLayer(delegate: delegate)
+    init(delegate: RenderViewDelegate) {
+        firstLayer = SMRenderView(delegate: delegate)
+        secondLayer = SMRenderView(delegate: delegate)
         super.init(frame: CGRect.zero)
     }
     
@@ -32,17 +31,19 @@ class SMScrollRenderView: SMBaseView {
         rect.origin.x = width
         secondLayer.frame = rect
         self.backgroundColor = superview?.backgroundColor
-        if layer.sublayers?.contains(firstLayer) != true {
-            layer.addSublayer(firstLayer)
+        if subviews.contains(firstLayer) != true {
+            firstLayer.backgroundColor = backgroundColor
+            addSubview(firstLayer)
         }
-        if layer.sublayers?.contains(secondLayer) != true {
-            layer.addSublayer(secondLayer)
+        if subviews.contains(secondLayer) != true {
+            secondLayer.backgroundColor = backgroundColor
+            addSubview(secondLayer)
         }
     }
     
     private var firstLayerOffset: CGFloat = 0
-    private var firstLayer: SMLayer
-    private var secondLayer: SMLayer
+    private var firstLayer: UIView
+    private var secondLayer: UIView
     private var isFirstLayerRendered = false
     private var isSecondLayerRendered = false
     
