@@ -9,11 +9,10 @@
 import Foundation
 import UIKit
 
-typealias ScrollRenderInfo = (canvas: CALayer, offset: CGFloat, lineX:  CGFloat?)
+//typealias ScrollRenderInfo = (canvas: CALayer, canvasOffset: CGFloat, lineX:  CGFloat?)
+typealias CanvasInfo = (canvas: CALayer, canvasOffset: CGFloat)
 
 class SMScrollRenderView: SMBaseView {
-
-    var isRecordingMode = false
 
     init(delegate: SMLayerDelegate) {
         firstLayer = SMLayer(delegate: delegate)
@@ -44,67 +43,63 @@ class SMScrollRenderView: SMBaseView {
         secondLayer.backgroundColor = UIColor.green.cgColor
     }
     
-    private var renderedPosition: CGFloat = 0
+    private var firstLayerOffset: CGFloat = 0
     private var firstLayer: SMLayer
     private var secondLayer: SMLayer
+    private var isFirstLayerRendered = false
+    private var isSecondLayerRendered = false
     
-    func setOffset(_ offset: CGFloat) -> ScrollRenderInfo? {
+    func setOffset(_ offset: CGFloat) -> CanvasInfo? {
         let width = self.width
-        var firstLayerX: CGFloat = 0
-        var renderLayer: CALayer? = nil
-        
-        let renderedMidPosition = renderedPosition + width
+        let firstLayerEndOffset = firstLayerOffset + width
         let endOffset = offset + width;
-        if offset <= renderedMidPosition && renderedMidPosition <= endOffset {
-            //Just move the rendered waveform if the display range in the rendered range.
-            firstLayerX = renderedPosition - offset
+        
+        var firstLayerX: CGFloat = 0
+        
+        defer {
+            // Move the layers
+            let secondLayerX = firstLayerX + width
+            DispatchQueue.main.async {
+                self.firstLayer.frame.origin.x = firstLayerX
+                self.secondLayer.frame.origin.x = secondLayerX
+            }
+        }
+        
+        if offset < firstLayerEndOffset && firstLayerEndOffset < endOffset &&
+            isFirstLayerRendered {
+            firstLayerX = firstLayerOffset - offset
+            if isSecondLayerRendered {
+                //Just move the rendered waveform if the display range in the rendered range.
+                return nil
+            } else {
+                isSecondLayerRendered = true
+                return (canvas: secondLayer, canvasOffset: firstLayerOffset + width)
+            }
         } else {
-            let renderedEndPositon = renderedMidPosition + width
-            if offset <= renderedEndPositon && renderedEndPositon <= endOffset {
+            let renderedEndPositon = firstLayerEndOffset + width
+            if offset <= renderedEndPositon && renderedEndPositon <= endOffset &&
+                isFirstLayerRendered {
                 //Move the rendered view and switch the layers. render the secondLayer.
                 SMLog("Move waveform + switch layers + render the secondLayer.");
                 swap(&firstLayer, &secondLayer)
-                renderedPosition += width
-                renderLayer = secondLayer
-                firstLayerX = renderedPosition - offset
+                firstLayerOffset += width
+                firstLayerX = firstLayerOffset - offset
+                return (canvas: secondLayer, canvasOffset: firstLayerOffset + width)
             } else {
-                //Render two the layers and reset the layers position.
-                SMLog("Render the layers + reset the layers position.")
-                renderedPosition = offset
-                renderLayer = firstLayer
+                //Render the first layer and reset the layers position.
+                SMLog("Render the first layer + reset the layers position.")
+                firstLayerOffset = offset
                 firstLayerX = 0
+                isFirstLayerRendered = true
+                isSecondLayerRendered = false
+                return (canvas: firstLayer, canvasOffset: offset)
             }
-        }
-        
-        let secondLayerX = firstLayerX + width
-        DispatchQueue.main.async {
-            // Move the layers
-            self.firstLayer.frame.origin.x = firstLayerX
-            self.secondLayer.frame.origin.x = secondLayerX
-        }
-        
-        if isRecordingMode {
-            //TODO: 优化计算常量
-            //render when set a new offset
-            let halfWidth = width / 2
-            let toRenderLineX: CGFloat
-            let toRenderOffset = offset + halfWidth
-            if secondLayerX >= halfWidth {
-                renderLayer = firstLayer
-                toRenderLineX = firstLayerX + halfWidth
-            } else {
-                renderLayer = secondLayer
-                toRenderLineX = halfWidth - secondLayerX
-            }
-            return (canvas: renderLayer!, offset: toRenderOffset, lineX: toRenderLineX)
-        } else if let tempLayer = renderLayer {
-            //render when needed
-            return (canvas: tempLayer, offset: renderedPosition, lineX: nil)
-        } else {
-            //no need to render
-            return nil
         }
     }
+    
+//    func getCanvasInfo(with offset: CGFloat) -> CanvasInfo {
+//
+//    }
 }
 
 extension SMScrollRenderView {

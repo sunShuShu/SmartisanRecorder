@@ -51,7 +51,7 @@ class SMWaveformView: SMBaseView, SMLayerDelegate {
     }
     
     
-    /// Do NOT change the value after loaded the view! default = (false, false).
+    /// default = (false, false).
     var scrollOptimizeSettings: (isEnable: Bool, isRecordingMode: Bool) = (false, false) {
         didSet {
             DispatchQueue.main.async {
@@ -151,7 +151,6 @@ class SMWaveformView: SMBaseView, SMLayerDelegate {
         if scrollRenderView == nil && scrollOptimizeSettings.isEnable {
             scrollRenderView = SMScrollRenderView(delegate: self)
             scrollRenderView!.frame = self.frame
-            scrollRenderView?.isRecordingMode = scrollOptimizeSettings.isRecordingMode
             addSubview(scrollRenderView!)
             UIView.autoLayout(scrollRenderView!)
         } else if let view = scrollRenderView, scrollOptimizeSettings.isEnable == false {
@@ -253,13 +252,13 @@ class SMWaveformView: SMBaseView, SMLayerDelegate {
             if let view = scrollRenderView, scrollOptimizeSettings.isEnable {
                 let scrollViewOffset = startDataLocation * lineWidth
                 if let renderInfo = view.setOffset(scrollViewOffset) {
-                    startDataLocation = renderInfo.offset / lineWidth
+                    startDataLocation = renderInfo.canvasOffset / lineWidth
                     scrollCanvas = renderInfo.canvas
                     if scrollOptimizeSettings.isRecordingMode {
-                        scrollOptimizelineX = renderInfo.lineX
+//                        scrollOptimizelineX = renderInfo.lineX
                         lineCount = 1
                         if self.currentScrollCanvas == scrollCanvas {
-                            tempPath =  self.path // Use old path to add one line
+                            tempPath = self.path // Use old path to add one line
                         } else {
                             self.currentScrollCanvas = scrollCanvas
                         }
@@ -343,22 +342,19 @@ class SMWaveformView: SMBaseView, SMLayerDelegate {
 }
 
 extension SMWaveformView {
-    /// No invoking after the view is added to the super view!
     func setRecordParameters(updatePlayedTime: @escaping (() -> (SMTime)), dataCountPerSecond: CGFloat = 50) {
         self.updatePlayedTime = updatePlayedTime
         self.dataCountPerSecond = dataCountPerSecond
         self.scrollOptimizeSettings = (isEnable: true, isRecordingMode: true)
     }
     
-    /// No invoking after the view is added to the super view!
     func setPlayParameters(updatePlayedTime: @escaping (() -> (SMTime)), audioDuration: SMTime, powerLevelArray: [UInt8]) {
         self.updatePlayedTime = updatePlayedTime
         self.audioDuration = audioDuration
         self.setPowerLevelArray(powerLevelArray)
-        self.scrollOptimizeSettings = (isEnable: false, isRecordingMode: false)
+        self.scrollOptimizeSettings = (isEnable: true, isRecordingMode: false)
     }
     
-    /// No invoking after the view is added to the super view!
     func setScalableParameters(displayTimeRange: (start: SMTime, end: SMTime), audioDuration: SMTime, powerLevelArray: [UInt8]) {
         self.displayTimeRange = displayTimeRange
         self.audioDuration = audioDuration
