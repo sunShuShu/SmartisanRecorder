@@ -243,32 +243,41 @@ class SMWaveformView: SMBaseView, SMLayerDelegate {
         var startDataLocation: CGFloat
         let scalingFactor: CGFloat
         let dataAndTimeFactor = CGFloat(powerLevelDataCount) / audioDuration
-        var lineCount = self.lineCount
+        var lineCount = self.lineCount // The number of lines to render
         var scrollOptimizelineX: CGFloat? = nil
         
         if isDynamic {
             let currentDataLocation = currentTime * dataAndTimeFactor
             startDataLocation = currentDataLocation - halfLineCount
+            scalingFactor = 1
+
+            // Scroll render optimize
             if let view = scrollRenderView, scrollOptimizeSettings.isEnable {
                 let scrollViewOffset = startDataLocation * lineWidth
-                if let renderInfo = view.setOffset(scrollViewOffset) {
-                    startDataLocation = renderInfo.canvasOffset / lineWidth
+                let renderInfo = view.setOffset(scrollViewOffset)
+                if renderInfo != nil && scrollOptimizeSettings.isRecordingMode == false {
+                    // Render a view at a time.
+                    startDataLocation = renderInfo!.canvasOffset / lineWidth
+                    scrollCanvas = renderInfo!.canvas
+                }
+                
+                if scrollOptimizeSettings.isRecordingMode {
+                    // Render a line at a time.
+                    startDataLocation = currentDataLocation
+                    let renderInfo = view.getCanvasPosition(with: scrollViewOffset)
+                    scrollOptimizelineX = renderInfo.positionX + halfLineCount
                     scrollCanvas = renderInfo.canvas
-                    if scrollOptimizeSettings.isRecordingMode {
-//                        scrollOptimizelineX = renderInfo.lineX
-                        lineCount = 1
-                        if self.currentScrollCanvas == scrollCanvas {
-                            tempPath = self.path // Use old path to add one line
-                        } else {
-                            self.currentScrollCanvas = scrollCanvas
-                        }
+                    lineCount = 1
+                    if self.currentScrollCanvas == scrollCanvas {
+                        tempPath = self.path // Use old path to add one line
+                    } else {
+                        self.currentScrollCanvas = scrollCanvas
                     }
                 } else {
                     // No need to render
                     return
                 }
             }
-            scalingFactor = 1
         } else {
             let range = displayTimeRange
             guard range != nil else {
@@ -290,7 +299,7 @@ class SMWaveformView: SMBaseView, SMLayerDelegate {
             startDataIndex -= missDataCount
         }
         
-        for lineIndex in 0 ..< Int(lineCount) + 2 {
+        for lineIndex in 0 ..< Int(lineCount) {
             var currentDataIndex = startDataIndex
             if scalingFactor != 1 {
                 currentDataIndex += Int(CGFloat(lineIndex) * scalingFactor)
@@ -298,17 +307,17 @@ class SMWaveformView: SMBaseView, SMLayerDelegate {
                 currentDataIndex += lineIndex
             }
             
+            SMLog("index: \(currentDataIndex), array: \(powerLevelArray?.count)")
             if currentDataIndex < 0 || currentDataIndex >= powerLevelArray!.count {
                 continue
             } else {
                 var x = (CGFloat(lineIndex) - displayLocationOffset)
                 if let lineX = scrollOptimizelineX {
                     x = lineX
-                } else if lineWidth > 1 {
+                } else if lineWidth > 1.01 {
                     x *= lineWidth
                 }
                 
-                //Add one line to path
                 let level = powerLevelArray![currentDataIndex]
                 let lineHeight = CGFloat(level) * lineHeightFactor
                 let startY = (height - lineHeight) / 2

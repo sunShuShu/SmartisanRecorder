@@ -11,6 +11,7 @@ import UIKit
 
 //typealias ScrollRenderInfo = (canvas: CALayer, canvasOffset: CGFloat, lineX:  CGFloat?)
 typealias CanvasInfo = (canvas: CALayer, canvasOffset: CGFloat)
+typealias CanvasPosition = (canvas: CALayer, positionX: CGFloat)
 
 class SMScrollRenderView: SMBaseView {
 
@@ -26,7 +27,6 @@ class SMScrollRenderView: SMBaseView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        SMLog("\(self) \n layoutSubviews...")
         var rect = self.bounds
         firstLayer.frame = rect
         rect.origin.x = width
@@ -38,9 +38,6 @@ class SMScrollRenderView: SMBaseView {
         if layer.sublayers?.contains(secondLayer) != true {
             layer.addSublayer(secondLayer)
         }
-        
-        firstLayer.backgroundColor = UIColor.red.cgColor
-        secondLayer.backgroundColor = UIColor.green.cgColor
     }
     
     private var firstLayerOffset: CGFloat = 0
@@ -97,13 +94,12 @@ class SMScrollRenderView: SMBaseView {
         }
     }
     
-//    func getCanvasInfo(with offset: CGFloat) -> CanvasInfo {
-//
-//    }
-}
-
-extension SMScrollRenderView {
-//    setIsRecordMode<T: ScrollRenderDelegate>(_ mode: Bool, renderDelegate: T) {
-//
-//    }
+    func getCanvasPosition(with offset: CGFloat) -> CanvasPosition {
+        let positionX = offset - firstLayerOffset
+        if positionX > width {
+            return (canvas: secondLayer, positionX: positionX - width)
+        } else {
+            return (canvas: firstLayer, positionX: positionX)
+        }
+    }
 }
