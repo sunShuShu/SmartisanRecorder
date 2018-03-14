@@ -141,18 +141,26 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
     private var lineCount: CGFloat = 0
     private var halfLineCount: CGFloat = 0
     private var lineHeightFactor: CGFloat = 0
+    private var halfWidth: CGFloat = 0
+    private var halfLineWidth: CGFloat = 0
     private var scrollRenderView: SMScrollRenderView?
     override func layoutSubviews() {
         super.layoutSubviews()
-        backgroundColor = UIColor.clear
+        backgroundColor = UIColor.white
+        halfWidth = width / 2
         lineCount = width / lineWidth
         halfLineCount = lineCount / 2
+        halfLineWidth = lineWidth / 2
         lineHeightFactor = height / SMWaveformView.maxPowerLevel
         if scrollRenderView == nil && scrollOptimizeSettings.isEnable {
             scrollRenderView = SMScrollRenderView(delegate: self)
-            scrollRenderView!.frame = self.frame
             addSubview(scrollRenderView!)
-            UIView.autoLayout(scrollRenderView!)
+            
+            if scrollOptimizeSettings.isRecordingMode {
+                UIView.autoLayout(scrollRenderView!, width: width / 2, height: height)
+            } else {
+                UIView.autoLayout(scrollRenderView!)
+            }
         } else if let view = scrollRenderView, scrollOptimizeSettings.isEnable == false {
             view.removeFromSuperview()
             scrollRenderView = nil
@@ -171,8 +179,8 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
     }
     
     private var path = CGMutablePath()
-    private var currentScrollCanvas: UIView? = nil
     private var lastRenderedDataIndex = -1
+    
     @objc private func render() {
         measure.start()
         
@@ -181,6 +189,7 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
             renderTimer?.isPaused = true
             renderTimer?.invalidate()
             renderTimer?.remove(from: RunLoop.current, forMode: .defaultRunLoopMode)
+            renderTimerNeedRemoved = false
             return
         }
         
@@ -189,17 +198,18 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
             renderTimerFireOnce = false
         }
         
-        //The view is refreshed regardless of whether the rendered data is successful or not.
         var tempPath = CGMutablePath()
-        var scrollCanvas: UIView? = nil
+        var scrollCanvas: UIView? = nil // It will be set if scroll optimize is enable and need to render.
+        var scrollOptimizelineX: Int? = nil
         defer {
+            // If there is a problem with the rendering process, the view will still be drawn, and the contents of the view will be cleared.
             if scrollCanvas != nil || scrollOptimizeSettings.isEnable == false {
                 DispatchQueue.main.async {
                     self.path = tempPath
                     if self.scrollOptimizeSettings.isEnable == false {
                         self.setNeedsDisplay()
-                    } else {
-                        scrollCanvas?.setNeedsDisplay()
+                    } else if let x = scrollOptimizelineX {
+                        scrollCanvas?.setNeedsDisplay(CGRect(x: CGFloat(x) - self.halfLineWidth, y: 0, width: self.lineWidth, height: self.height))
                         scrollCanvas = nil
                     }
                 }
@@ -210,11 +220,11 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
         let isDynamic = self.isDynamic
         var currentTime: SMTime = 0
         if isDynamic {
-            let block = updatePlayedTime
-            guard block != nil else {
+            if let block = updatePlayedTime {
+                currentTime = block()
+            } else {
                 return
             }
-            currentTime = block!()
             if let delegate = renderDelegate {
                 delegate.waveformWillRender(currentTime: currentTime, displayRange: nil)
             }
@@ -241,51 +251,49 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
             return
         }
         
-        var startDataLocation: CGFloat
+        // Calculate the important parameters needed for rendering.
         let scalingFactor: CGFloat
         let dataAndTimeFactor = CGFloat(powerLevelDataCount) / audioDuration
         var lineCount = self.lineCount // The number of lines to render
-        var scrollOptimizelineX: Int? = nil
-        
+        var startDataLocation: CGFloat
+        var startDataIndex: Int = 0
         if isDynamic {
             let currentDataLocation = currentTime * dataAndTimeFactor
             startDataLocation = currentDataLocation - halfLineCount
-            scalingFactor = 1
 
             // Scroll render optimize
             if let view = scrollRenderView, scrollOptimizeSettings.isEnable {
                 let scrollViewOffset = startDataLocation * lineWidth
-                let renderInfo = view.setOffset(scrollViewOffset)
-                if scrollOptimizeSettings.isRecordingMode == false && renderInfo != nil {
-                    // Render a view at a time.
-                    startDataLocation = renderInfo!.canvasOffset / lineWidth
-                    scrollCanvas = renderInfo!.canvas
+                if let renderInfo = view.setOffset(scrollViewOffset) {
+                    if scrollOptimizeSettings.isRecordingMode {
+                        // Clear the old render view
+                        renderInfo.canvas.setNeedsClear()
+                    } else {
+                        // Render a entire view.
+                        startDataIndex = Int(renderInfo.canvasOffset / lineWidth)
+                        scrollCanvas = renderInfo.canvas
+                    }
                 }
                 
                 if scrollOptimizeSettings.isRecordingMode {
-                    // Render a line at a time.
-                    startDataLocation = CGFloat(powerLevelDataCount - 1)
-                    let renderInfo = view.getCanvasPosition(with: scrollViewOffset + width / 2)
+                    // Render a line.
+                    startDataIndex = powerLevelDataCount - 1 // Always render the last data.
+                    let renderInfo = view.getCanvasPosition(with: scrollViewOffset + halfWidth)
                     scrollOptimizelineX = Int(renderInfo.positionX)
-                    if scrollOptimizelineX != lastRenderedDataIndex {
-                        lastRenderedDataIndex = scrollOptimizelineX!
-                    } else {
-                        scrollCanvas = nil
-                        return
-                    }
+//                    if scrollOptimizelineX != lastRenderedDataIndex {
+//                        lastRenderedDataIndex = scrollOptimizelineX!
+//                    } else {
+//                        scrollCanvas = nil // This line has been drawn.
+//                        return
+//                    }
                     scrollCanvas = renderInfo.canvas
                     lineCount = 1
-
-                    if self.currentScrollCanvas == scrollCanvas {
-                        tempPath = self.path // Use old path to add one line
-                    } else {
-                        self.currentScrollCanvas = scrollCanvas
-                    }
-                } else {
+                } else if scrollCanvas == nil {
                     // No need to render
                     return
                 }
             }
+            scalingFactor = 1
         } else {
             let range = displayTimeRange
             guard range != nil else {
@@ -295,19 +303,22 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
             let endDataLocation = range!.end * dataAndTimeFactor
             scalingFactor = (endDataLocation - startDataLocation) / lineCount
         }
-
-        // Calculate startDataIndex and displayLocationOffset
-        var startDataIndex = Int(startDataLocation)
+        
+        // In order to ensure the smoothness of view sliding without optimization.
         var displayLocationOffset: CGFloat = 0
         if scrollOptimizeSettings.isEnable == false {
+            startDataIndex = Int(startDataLocation)
             displayLocationOffset = startDataLocation - CGFloat(startDataIndex)
         }
+        
+        // Optimize the memory peak when adding waveform data dynamically.
         let missDataCount = powerLevelDataCount - powerLevelArray!.count
         if missDataCount > 0 {
             startDataIndex -= missDataCount
         }
         
-        for lineIndex in 0 ..< Int(lineCount) {
+        // Calculate the position of the line(s).
+        for lineIndex in 0 ..< Int(lineCount) + 2 {
             var currentDataIndex = startDataIndex
             if scalingFactor != 1 {
                 currentDataIndex += Int(CGFloat(lineIndex) * scalingFactor)
@@ -315,23 +326,21 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
                 currentDataIndex += lineIndex
             }
             
-//            SMLog("index: \(currentDataIndex), count: \(powerLevelArray!.count)")
             if currentDataIndex < 0 || currentDataIndex >= powerLevelArray!.count {
                 continue
             } else {
-                var x: CGFloat = 0
+                var x: CGFloat
                 if let lineX = scrollOptimizelineX {
                     x = CGFloat(lineX)
-                } else if scrollOptimizeSettings.isEnable == false {
-                    x = (CGFloat(lineIndex) - displayLocationOffset)
-                } else {
+                } else if scrollOptimizeSettings.isEnable {
                     x = CGFloat(lineIndex)
+                } else {
+                    x = CGFloat(lineIndex) - displayLocationOffset
                 }
                     
-                if lineWidth > 1.01 {
+                if lineWidth != 1 {
                     x *= lineWidth
                 }
-//                SMLog("\(x)")
 
                 let level = powerLevelArray![currentDataIndex]
                 let lineHeight = CGFloat(level) * lineHeightFactor
@@ -348,12 +357,11 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
     private func drawToContext(_ context: CGContext) {
         context.addPath(self.path)
         context.setStrokeColor(self.lineColor)
-        context.setLineWidth(self.lineWidth)
-        context.drawPath(using: .stroke)
+        context.setLineWidth(self.lineWidth + 0.01)
+        context.strokePath()
     }
     
     override func draw(_ rect: CGRect) {
-        super.draw(rect)
         if let context = UIGraphicsGetCurrentContext() {
             drawToContext(context)
         }

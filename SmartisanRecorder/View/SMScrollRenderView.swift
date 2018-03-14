@@ -9,8 +9,8 @@
 import Foundation
 import UIKit
 
-typealias CanvasInfo = (canvas: UIView, canvasOffset: CGFloat)
-typealias CanvasPosition = (canvas: UIView, positionX: CGFloat)
+typealias CanvasInfo = (canvas: SMRenderView, canvasOffset: CGFloat)
+typealias CanvasPosition = (canvas: SMRenderView, positionX: CGFloat)
 
 class SMScrollRenderView: SMBaseView {
 
@@ -42,8 +42,8 @@ class SMScrollRenderView: SMBaseView {
     }
     
     private var firstLayerOffset: CGFloat = 0
-    private var firstLayer: UIView
-    private var secondLayer: UIView
+    private var firstLayer: SMRenderView
+    private var secondLayer: SMRenderView
     private var isFirstLayerRendered = false
     private var isSecondLayerRendered = false
     

@@ -152,7 +152,7 @@ class SMRecorder: NSObject, AVAudioRecorderDelegate {
                 do {
                     try FileManager.default.moveItem(atPath: defaultFilePath, toPath: finalFilePath)
                 } catch {
-                    print(error)
+                    SMLog("FileManager move item fail!", error: error as NSError, level: .high)
                     assert(false)
                     saveCompletionBlock?(false)
                 }

@@ -22,7 +22,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //TODO: Modify and hide the test APIKey of Fabric.
         
         //Config Crashlytics
+        #if !DEBUG
         Fabric.with([Crashlytics.self])
+        #endif
         
         //Config audio session category
         let session = AVAudioSession.sharedInstance()
@@ -35,7 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             try session.setCategory(AVAudioSessionCategoryPlayAndRecord, with: options)
             try session.setActive(true)
         } catch {
-            print(error)
+            SMLog("Set AVAudioSession fail!", error: error as NSError, level: .high)
         }
         
         return true

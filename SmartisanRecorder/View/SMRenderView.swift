@@ -13,8 +13,16 @@ protocol RenderViewDelegate: class {
     func drawRenderView(in ctx: CGContext)
 }
 
-class SMRenderView: UIView {
-    weak var renderDelegate: RenderViewDelegate?
+class SMRenderView: SMBaseView {
+    private var needsClear = false
+    func setNeedsClear() {
+        DispatchQueue.main.async {
+            self.needsClear = true
+            self.setNeedsDisplay()
+        }
+    }
+    
+    private weak var renderDelegate: RenderViewDelegate?
     
     init(delegate: RenderViewDelegate?) {
         super.init(frame: CGRect.zero)
@@ -27,6 +35,11 @@ class SMRenderView: UIView {
     
     override func draw(_ rect: CGRect) {
         if let context = UIGraphicsGetCurrentContext() {
+            if needsClear {
+                SMLog("SMRenderView: clear()")
+                needsClear = false
+                return
+            }
             renderDelegate?.drawRenderView(in: context)
         }
     }
