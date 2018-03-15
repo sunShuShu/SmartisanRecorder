@@ -42,10 +42,12 @@ class SMScrollRenderView: SMBaseView {
         self.backgroundColor = superview?.backgroundColor ?? UIColor.clear
         if subviews.contains(firstLayer) != true {
             firstLayer.backgroundColor = UIColor.clear
+            firstLayer.backgroundColor = UIColor.red
             addSubview(firstLayer)
         }
         if subviews.contains(secondLayer) != true {
             secondLayer.backgroundColor = UIColor.clear
+            secondLayer.backgroundColor = UIColor.green
             addSubview(secondLayer)
         }
     }
@@ -72,35 +74,47 @@ class SMScrollRenderView: SMBaseView {
             }
         }
         
-        if offset < firstLayerEndOffset && firstLayerEndOffset < endOffset &&
-            isFirstLayerRendered {
+        @inline(__always) func resetPositionRenderFirstLayer() -> CanvasInfo {
+            //Render the first layer and reset the layers position.
+            SMLog("Render the first layer + reset the layers position.")
+            firstLayerOffset = offset
+            firstLayerX = 0
+            isFirstLayerRendered = true
+            isSecondLayerRendered = false
+            return (canvas: firstLayer, canvasOffset: offset)
+        }
+        
+        @inline(__always) func renderSecondLayer() -> CanvasInfo {
+            SMLog("Render the secondLayer.");
+            isSecondLayerRendered = true
+            return (canvas: secondLayer, canvasOffset: firstLayerOffset + width)
+        }
+        
+        @inline(__always) func switchLayers() -> CanvasInfo {
+            SMLog("Switch layers.");
+            swap(&firstLayer, &secondLayer)
+            firstLayerOffset += width
             firstLayerX = firstLayerOffset - offset
-            if isSecondLayerRendered {
-                //Just move the rendered waveform if the display range in the rendered range.
-                return nil
+            return renderSecondLayer()
+        }
+        
+        if isFirstLayerRendered == false {
+            return resetPositionRenderFirstLayer()
+        }
+        
+        if offset < firstLayerEndOffset && firstLayerEndOffset < endOffset {
+            firstLayerX = firstLayerOffset - offset
+            if isSecondLayerRendered == false {
+                return renderSecondLayer()
             } else {
-                SMLog("Render the secondLayer.");
-                isSecondLayerRendered = true
-                return (canvas: secondLayer, canvasOffset: firstLayerOffset + width)
+                return nil // Just move the layers.
             }
         } else {
             let renderedEndPositon = firstLayerEndOffset + width
-            if offset <= renderedEndPositon && renderedEndPositon <= endOffset &&
-                isFirstLayerRendered {
-                //Move the rendered view and switch the layers. render the secondLayer.
-                SMLog("Move waveform + switch layers + render the secondLayer.");
-                swap(&firstLayer, &secondLayer)
-                firstLayerOffset += width
-                firstLayerX = firstLayerOffset - offset
-                return (canvas: secondLayer, canvasOffset: firstLayerOffset + width)
+            if offset < renderedEndPositon && renderedEndPositon < endOffset {
+                return switchLayers()
             } else {
-                //Render the first layer and reset the layers position.
-                SMLog("Render the first layer + reset the layers position.")
-                firstLayerOffset = offset
-                firstLayerX = 0
-                isFirstLayerRendered = true
-                isSecondLayerRendered = false
-                return (canvas: firstLayer, canvasOffset: offset)
+                return resetPositionRenderFirstLayer()
             }
         }
     }
