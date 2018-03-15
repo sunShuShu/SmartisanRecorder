@@ -154,7 +154,11 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
         halfLineWidth = lineWidth / 2
         lineHeightFactor = height / SMWaveformView.maxPowerLevel
         if scrollRenderView == nil && scrollOptimizeSettings.isEnable {
-            scrollRenderView = SMScrollRenderView(delegate: self, maxElementWidth: 2 * lineWidth)
+            var maxElementWidth: CGFloat = 0
+            if scrollOptimizeSettings.isRecordingMode {
+                maxElementWidth = 2 * lineWidth + 2
+            }
+            scrollRenderView = SMScrollRenderView(delegate: self, maxElementWidth: maxElementWidth)
             addSubview(scrollRenderView!)
             
             if scrollOptimizeSettings.isRecordingMode {
@@ -200,23 +204,23 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
         }
         
         var tempPath = CGMutablePath()
-        var scrollCanvas: UIView? // It won't be nil if the scroll optimize is enable and need to render entire view.
+        var scrollCanvas: SMRenderView? // It won't be nil if the scroll optimize is enable and need to render entire view.
         var scrollCanvasesArray: [CanvasPosition]? // It won't be nil if the scroll optimize is enable and need to render recording line(s).
+        
         defer {
-            // If there is a problem with the rendering process, the view will still be drawn, and the contents of the view will be cleared.
             DispatchQueue.main.async {
-                self.path = tempPath
-                if let canvases = scrollCanvasesArray {
+                if let canvas = scrollCanvas {
+                    // Save the tempPath to canvas, prevent the "self.path" from being overwritten.
+                    canvas.path = tempPath
+                    canvas.setNeedsDisplay()
+                } else if let canvases = scrollCanvasesArray {
                     for info in canvases {
                         let rect = CGRect(x: CGFloat(Int(info.positionX)) - self.halfLineWidth - 0.15, y: 0, width: self.lineWidth + 1, height: self.height)
+                        info.canvas.path = tempPath
                         info.canvas.setNeedsDisplay(rect)
                     }
-                    return
-                } else {
-                    scrollCanvas?.setNeedsDisplay()
-                }
-                
-                if self.scrollOptimizeSettings.isEnable == false {
+                } else if self.scrollOptimizeSettings.isEnable == false {
+                    self.path = tempPath
                     self.setNeedsDisplay()
                 }
             }
@@ -278,7 +282,6 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
                 if lineWidth != 1 {
                     x *= lineWidth
                 }
-                
                 addALineToTempPath(dataIndex: arbitraryDataIndex, x: x)
             }
         }
@@ -318,12 +321,13 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
                     // No need to render
                     return
                 }
+                amendStartDataIndex()
             } else {
+                amendStartDataIndex()
                 calculateSmoothSlidingParameter()
             }
             
             // Draw all the lines
-            amendStartDataIndex()
             for lineIndex in 0 ..< Int(lineCount) + 1 {
                 let currentDataIndex = startDataIndex + lineIndex
                 addALineToTempPath(arbitraryDataIndex: currentDataIndex, lineIndex: lineIndex)
@@ -350,8 +354,7 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
         }
     }
     
-    private func drawToContext(_ context: CGContext) {
-        context.addPath(self.path)
+    private func setAppearanceToContext(_ context: CGContext) {
         context.setStrokeColor(self.lineColor)
         context.setLineWidth(self.lineWidth + 0.3)
         context.strokePath()
@@ -359,16 +362,17 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
     
     override func draw(_ rect: CGRect) {
         if let context = UIGraphicsGetCurrentContext() {
-            drawToContext(context)
+            context.addPath(self.path)
+            setAppearanceToContext(context)
         }
     }
     
-    //MARK:- ScrollRender Delegate
     func drawRenderView(in ctx: CGContext) {
-        drawToContext(ctx)
+        setAppearanceToContext(ctx)
     }
 }
 
+//MARK:- 
 extension SMWaveformView {
     func setRecordParameters(updatePlayedTime: @escaping (() -> (SMTime)), dataCountPerSecond: CGFloat = 50) {
         self.updatePlayedTime = updatePlayedTime

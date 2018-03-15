@@ -102,6 +102,7 @@ class SMFlagView: SMBaseView {
                             continue
                         }
                         
+                        //TODO: 把UIImage存储下来，避免每个flag都创建对象
                         let image = UIImage(named: "main_flag.9")!.stretchableImage(withLeftCapWidth: 0, topCapHeight: 25)
                         self.displayingImages.updateValue(image, forKey: index)
                         if needAddViews == nil {

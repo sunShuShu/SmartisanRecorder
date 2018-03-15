@@ -10,6 +10,10 @@ import Foundation
 import UIKit
 
 protocol RenderViewDelegate: class {
+    
+    /// If the “path” parameter has been set, there is no need to set path to the CGContext in this function.
+    ///
+    /// - Parameter ctx: <#ctx description#>
     func drawRenderView(in ctx: CGContext)
 }
 
@@ -33,12 +37,19 @@ class SMRenderView: SMBaseView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    
+    /// The path will be set to CGContext of the SMRenderView. 
+    var path: CGPath?
+    
     override func draw(_ rect: CGRect) {
         if let context = UIGraphicsGetCurrentContext() {
             if needsClear {
                 SMLog("SMRenderView: clear()")
                 needsClear = false
                 return
+            }
+            if let path = self.path {
+                context.addPath(path)
             }
             renderDelegate?.drawRenderView(in: context)
         }
