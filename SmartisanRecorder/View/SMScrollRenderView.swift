@@ -14,7 +14,15 @@ typealias CanvasPosition = (canvas: SMRenderView, positionX: CGFloat)
 
 class SMScrollRenderView: SMBaseView {
 
-    init(delegate: RenderViewDelegate) {
+    private let maxElementWidth: CGFloat
+    
+    /// Init. Don't create object with other init function.
+    ///
+    /// - Parameters:
+    ///   - delegate: Render delegate, it will be invoked when the view need to be draw.
+    ///   - maxElementWidth: If the parameter set to zero, the elements that are rendered to the canvas may be cut off.
+    init(delegate: RenderViewDelegate, maxElementWidth: CGFloat) {
+        self.maxElementWidth = maxElementWidth
         firstLayer = SMRenderView(delegate: delegate)
         secondLayer = SMRenderView(delegate: delegate)
         super.init(frame: CGRect.zero)
@@ -27,16 +35,17 @@ class SMScrollRenderView: SMBaseView {
     override func layoutSubviews() {
         super.layoutSubviews()
         var rect = self.bounds
+        rect.size.width += maxElementWidth
         firstLayer.frame = rect
         rect.origin.x = width
         secondLayer.frame = rect
-        self.backgroundColor = superview?.backgroundColor
+        self.backgroundColor = superview?.backgroundColor ?? UIColor.clear
         if subviews.contains(firstLayer) != true {
-            firstLayer.backgroundColor = backgroundColor
+            firstLayer.backgroundColor = UIColor.clear
             addSubview(firstLayer)
         }
         if subviews.contains(secondLayer) != true {
-            secondLayer.backgroundColor = backgroundColor
+            secondLayer.backgroundColor = UIColor.clear
             addSubview(secondLayer)
         }
     }
@@ -70,6 +79,7 @@ class SMScrollRenderView: SMBaseView {
                 //Just move the rendered waveform if the display range in the rendered range.
                 return nil
             } else {
+                SMLog("Render the secondLayer.");
                 isSecondLayerRendered = true
                 return (canvas: secondLayer, canvasOffset: firstLayerOffset + width)
             }
@@ -95,12 +105,19 @@ class SMScrollRenderView: SMBaseView {
         }
     }
     
-    func getCanvasPosition(with offset: CGFloat) -> CanvasPosition {
+    /// Get the canvas on the “offset” and the position on the canvas.
+    ///
+    /// - Parameter offset: offset
+    /// - Returns: canvas and position
+    func getCanvasPosition(with offset: CGFloat) -> [CanvasPosition] {
+        var canvases = [CanvasPosition]()
         let positionX = offset - firstLayerOffset
         if positionX > width {
-            return (canvas: secondLayer, positionX: positionX - width)
-        } else {
-            return (canvas: firstLayer, positionX: positionX)
+            canvases.append((canvas: secondLayer, positionX: positionX - width))
         }
+        if positionX < width + maxElementWidth {
+            canvases.append((canvas: firstLayer, positionX: positionX))
+        }
+        return canvases
     }
 }
