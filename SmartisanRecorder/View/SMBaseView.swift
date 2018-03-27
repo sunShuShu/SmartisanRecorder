@@ -63,26 +63,3 @@ extension UIColor {
         self.init(red: CGFloat(rgb256WithR) / 255, green: CGFloat(g) / 255, blue: CGFloat(b) / 255, alpha: alpha)
     }
 }
-
-extension SMTime {
-    func getTimeString(isNeedHour: Bool, isNeedMs: Bool) -> String {
-        var leftTime = Int(self)
-        var string = ""
-        if isNeedHour {
-            var hour = 0
-            if leftTime >= 3600 {
-                hour = leftTime / 3600
-                leftTime %= 3600
-            }
-            string += String(format: "%02d:", hour)
-        }
-        let minute = leftTime / 60
-        let second = leftTime % 60
-        string += String(format: "%02d:%02d", minute, second)
-        if isNeedMs {
-            let ms = Int(self * 100) % 100
-            string += String(format: ".%02d:", ms)
-        }
-        return string
-    }
-}

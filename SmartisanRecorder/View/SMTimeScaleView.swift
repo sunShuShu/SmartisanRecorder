@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-class SMTimeScaleView: SMBaseView {
+class SMTimeScaleView: SMBaseView, RenderViewDelegate {
     var widthPerSecond: CGFloat = 50 {
         didSet {
             if widthPerSecond <= 0 {
@@ -40,9 +40,15 @@ class SMTimeScaleView: SMBaseView {
     private var timeAttributes: [NSAttributedStringKey:Any]?
     
     //MARK:-
+    private lazy var scrollRenderView = {
+        return SMScrollRenderView(delegate: self, maxElementWidth: 0);
+    }()
     override func layoutSubviews() {
         super.layoutSubviews()
-        self.backgroundColor = UIColor.clear
+        self.backgroundColor = superview?.backgroundColor ?? UIColor.clear
+        
+        
+        
         halfLineWidth = lineWidth / 2
         timeIndicatorOffset = width / widthPerSecond / 2
         halfWidthPerSecond = widthPerSecond / 2
@@ -61,11 +67,11 @@ class SMTimeScaleView: SMBaseView {
         timeRect.size.width = widthPerSecond
     }
     
+    private let timeTool = SMTimeTool()
     private let renderQueue = DispatchQueue(label: "com.sunshushu.TimeScaleRender", qos: .userInteractive)
     private var timeIndicatorOffset: CGFloat = 0
     private lazy var path = CGMutablePath()
     private lazy var timeLabelInfo = [(str: String, x: CGFloat)]()
-    private var timeCache = SMCache<Int, String>(minCount: 10, maxCount: 50)
     
     func setCurrentTime(_ currentTime: SMTime) {
         renderQueue.async {
@@ -76,10 +82,24 @@ class SMTimeScaleView: SMBaseView {
                 let tempPath = CGMutablePath()
                 var tempTimeLabelInfo = [(String, CGFloat)]()
                 
+                let offset = strongSelf.widthPerSecond * currentTime;
+                let canvasInfo = strongSelf.scrollRenderView.setOffset(offset)
+                if canvasInfo == nil {
+                    // Do not need to render
+                    return
+                }
+                defer {
+                    DispatchQueue.main.async {
+                        strongSelf.path = tempPath
+                        strongSelf.timeLabelInfo = tempTimeLabelInfo
+                        canvasInfo!.canvas.setNeedsDisplay()
+                    }
+                }
+                
                 tempPath.move(to: strongSelf.bottomLineStart)
                 tempPath.addLine(to: strongSelf.bottomLineEnd)
                 
-                let startTime = currentTime - strongSelf.timeIndicatorOffset
+                let startTime = canvasInfo!.canvasOffset / strongSelf.widthPerSecond
                 let labelOffset = startTime.truncatingRemainder(dividingBy: 1) * strongSelf.widthPerSecond
                 for index in 0..<strongSelf.labelCount {
                     let currentLabelTime = index + Int(startTime)
@@ -94,22 +114,11 @@ class SMTimeScaleView: SMBaseView {
                         tempPath.move(to: CGPoint(x: shortScaleLineX, y: strongSelf.shortScaleLineStartY))
                         tempPath.addLine(to: CGPoint(x: shortScaleLineX, y: strongSelf.shortScaleLineEndY))
                         
-                        //time label
-                        var timeString = strongSelf.timeCache[currentLabelTime]
-                        if timeString == nil {
-                            timeString = SMTime(currentLabelTime).getTimeString(isNeedHour: true, isNeedMs: false)
-                            //TODO: Move the cache to SMTime
-                            strongSelf.timeCache[currentLabelTime] = timeString
-                        }
-                        tempTimeLabelInfo.append((timeString!, x))
+                        //time label 
+                        let timeString = strongSelf.timeTool.secondToString(time: currentTime + 0.5, isNeedHour: true, isNeedMs: false)
+                        tempTimeLabelInfo.append((timeString, x))
                     }
                 }
-                DispatchQueue.main.async {
-                    strongSelf.path = tempPath
-                    strongSelf.timeLabelInfo = tempTimeLabelInfo
-                    strongSelf.setNeedsDisplay()
-                }
-                
                 strongSelf.measure.end()
             }
         }
@@ -119,19 +128,30 @@ class SMTimeScaleView: SMBaseView {
         measure.getReport(from: self)
     }
     
-    override func draw(_ rect: CGRect) {
-        super.draw(rect)
-        let contex = UIGraphicsGetCurrentContext()
-        guard contex != nil else {
-            return
-        }
+    func drawRenderView(in ctx: CGContext) {
         for (string, x) in timeLabelInfo {
             timeRect.origin.x = x
             string.draw(in: timeRect, withAttributes: timeAttributes)
         }
-        contex!.addPath(path)
-        contex!.setStrokeColor(lineColor)
-        contex!.setLineWidth(lineWidth)
-        contex!.drawPath(using: .stroke)
+        ctx.addPath(path)
+        ctx.setStrokeColor(lineColor)
+        ctx.setLineWidth(lineWidth)
+        ctx.drawPath(using: .stroke)
     }
+    
+//    override func draw(_ rect: CGRect) {
+//        super.draw(rect)
+//        let contex = UIGraphicsGetCurrentContext()
+//        guard contex != nil else {
+//            return
+//        }
+//        for (string, x) in timeLabelInfo {
+//            timeRect.origin.x = x
+//            string.draw(in: timeRect, withAttributes: timeAttributes)
+//        }
+//        contex!.addPath(path)
+//        contex!.setStrokeColor(lineColor)
+//        contex!.setLineWidth(lineWidth)
+//        contex!.drawPath(using: .stroke)
+//    }
 }

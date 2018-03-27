@@ -42,12 +42,12 @@ class SMScrollRenderView: SMBaseView {
         self.backgroundColor = superview?.backgroundColor ?? UIColor.clear
         if subviews.contains(firstLayer) != true {
             firstLayer.backgroundColor = UIColor.clear
-            firstLayer.backgroundColor = UIColor.red
+//            firstLayer.backgroundColor = UIColor.red
             addSubview(firstLayer)
         }
         if subviews.contains(secondLayer) != true {
             secondLayer.backgroundColor = UIColor.clear
-            secondLayer.backgroundColor = UIColor.green
+//            secondLayer.backgroundColor = UIColor.green
             addSubview(secondLayer)
         }
     }
@@ -76,7 +76,6 @@ class SMScrollRenderView: SMBaseView {
         
         @inline(__always) func resetPositionRenderFirstLayer() -> CanvasInfo {
             //Render the first layer and reset the layers position.
-            SMLog("Render the first layer + reset the layers position.")
             firstLayerOffset = offset
             firstLayerX = 0
             isFirstLayerRendered = true
@@ -85,13 +84,11 @@ class SMScrollRenderView: SMBaseView {
         }
         
         @inline(__always) func renderSecondLayer() -> CanvasInfo {
-            SMLog("Render the secondLayer.");
             isSecondLayerRendered = true
             return (canvas: secondLayer, canvasOffset: firstLayerOffset + width)
         }
         
         @inline(__always) func switchLayers() -> CanvasInfo {
-            SMLog("Switch layers.");
             swap(&firstLayer, &secondLayer)
             firstLayerOffset += width
             firstLayerX = firstLayerOffset - offset

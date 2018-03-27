@@ -26,6 +26,7 @@
 		253EB9461E6E841D00E9849E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 253EB9421E6E841D00E9849E /* Main.storyboard */; };
 		253EB9501E6E857A00E9849E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253EB94E1E6E857A00E9849E /* AppDelegate.swift */; };
 		25556C591ECC1C0100E41B77 /* SMWaveHeaderTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25556C581ECC1C0100E41B77 /* SMWaveHeaderTool.swift */; };
+		255709E82068D5DB0002AA13 /* SMWaveformModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 255709E72068D5DB0002AA13 /* SMWaveformModel.swift */; };
 		2557FAFB200C562E00EC5383 /* SMDashboardViewTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2557FAFA200C562E00EC5383 /* SMDashboardViewTest.swift */; };
 		2557FAFD200C564700EC5383 /* SMDashboardViewTest.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2557FAFC200C564700EC5383 /* SMDashboardViewTest.storyboard */; };
 		255D28A31F55833E00ED6694 /* ToolTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 255D28A21F55833E00ED6694 /* ToolTests.swift */; };
@@ -91,6 +92,7 @@
 		253EB94E1E6E857A00E9849E /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		253EB94F1E6E857A00E9849E /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		25556C581ECC1C0100E41B77 /* SMWaveHeaderTool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMWaveHeaderTool.swift; sourceTree = "<group>"; };
+		255709E72068D5DB0002AA13 /* SMWaveformModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMWaveformModel.swift; sourceTree = "<group>"; };
 		2557FAFA200C562E00EC5383 /* SMDashboardViewTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMDashboardViewTest.swift; sourceTree = "<group>"; };
 		2557FAFC200C564700EC5383 /* SMDashboardViewTest.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = SMDashboardViewTest.storyboard; sourceTree = "<group>"; };
 		255D28A21F55833E00ED6694 /* ToolTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolTests.swift; sourceTree = "<group>"; };
@@ -190,6 +192,7 @@
 			children = (
 				2593C89B1FBAD4AD0062A2AE /* SMFileStorageModel.h */,
 				2593C89C1FBAD4AD0062A2AE /* SMFileStorageModel.mm */,
+				255709E72068D5DB0002AA13 /* SMWaveformModel.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -582,6 +585,7 @@
 				257CF5741ED2F64700007D23 /* SMResample.swift in Sources */,
 				25F5C65E1FE92C1A00FB60BF /* SMAudioInfoStorage.swift in Sources */,
 				25868C882017554300E94A8E /* SMScrollRenderView.swift in Sources */,
+				255709E82068D5DB0002AA13 /* SMWaveformModel.swift in Sources */,
 				2536482E1E6EAFD200476E12 /* SMRecorder.swift in Sources */,
 				2557FAFB200C562E00EC5383 /* SMDashboardViewTest.swift in Sources */,
 				25EFF149201040A300D9ECCB /* SMFlagView.swift in Sources */,
@@ -778,10 +782,11 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = M754JW8837;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				INFOPLIST_FILE = "$(SRCROOT)/SmartisanRecorder/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				OTHER_SWIFT_FLAGS = "-DDEBUG";
+				OTHER_SWIFT_FLAGS = "-DDEBUG -DWaveformLineWidthIsOne";
 				PRODUCT_BUNDLE_IDENTIFIER = com.sunshushu.SmartisanRecorder;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -805,10 +810,11 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = M754JW8837;
+				GCC_OPTIMIZATION_LEVEL = s;
 				INFOPLIST_FILE = "$(SRCROOT)/SmartisanRecorder/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				OTHER_SWIFT_FLAGS = "";
+				OTHER_SWIFT_FLAGS = "-DWaveformLineWidthIsOne";
 				PRODUCT_BUNDLE_IDENTIFIER = com.sunshushu.SmartisanRecorder;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

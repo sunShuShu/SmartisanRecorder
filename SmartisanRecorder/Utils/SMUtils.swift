@@ -57,52 +57,48 @@ class SMMeasure {
     }
 }
 
-class SMCache<Key: Hashable, Element: Hashable> {
-    private let minCount: Int
-    private let maxCount: Int
-    private lazy var cache = [Key: Element]()
-    private lazy var cache2 = [Key: Element]()
+class SMTimeTool {
+    private var lastString: (second: Int, string: String) = (Int.max, "")
     
-    init(minCount: Int, maxCount: Int) {
-        if minCount > maxCount {
-            assert(false, "Fail! minCount > maxCount!")
-        }
-        self.minCount = minCount
-        self.maxCount = maxCount
-    }
-    
-    subscript(key: Key) -> Element? {
-        set {
-            if let value = newValue {
-                add(value, key: key)
+    /// format: (01:)23:45(.59) (hour:)minite:second(.millisecond)
+    ///
+    /// - Parameters:
+    ///   - time: Number of seconds
+    ///   - isNeedHour: include hour
+    ///   - isNeedHour: include millisecond
+    /// - Returns: formatted string
+    @inline(__always) func secondToString(time: SMTime, isNeedHour: Bool, isNeedMs: Bool) -> String {
+        var leftTime = Int(time)
+        var string = ""
+        if lastString.second != leftTime {
+            if isNeedHour {
+                var hour = 0
+                if leftTime >= 3600 {
+                    hour = leftTime / 3600
+                    leftTime %= 3600
+                }
+                string += String(format: "%02d:", hour)
             }
+            
+            let minute = leftTime / 60
+            let second = leftTime % 60
+            string += String(format: "%02d:%02d", minute, second)
+            lastString = (Int(time), string)
         }
-        get {
-            return get(key)
+        
+        if isNeedMs {
+            let ms = Int(time * 100) % 100
+            string += String(format: ".%02d:", ms)
         }
+        return string
     }
     
-    func add(_ value: Element, key: Key) {
-        if cache.count >= maxCount {
-            if cache2.count >= minCount {
-                cache = cache2
-                cache2 = [Key: Element]()
-                cache.updateValue(value, forKey: key)
-            } else {
-                cache2.updateValue(value, forKey: key)
-            }
-        } else {
-            cache.updateValue(value, forKey: key)
-        }
-    }
-    
-    func get(_ key: Key) -> Element? {
-        if let value = cache2[key] {
-            return value
-        }
-        if let value = cache[key] {
-            return value
-        }
-        return nil
+    /// It's like 23:45.59 when time is greater than 1 hour, otherwise like 01:23:45
+    ///
+    /// - Parameter time: second
+    /// - Returns: formatted string
+    func secondToShortString(time: SMTime) -> String {
+        let shouldShowHour = time >= 3600
+        return self.secondToString(time: time, isNeedHour: shouldShowHour, isNeedMs: !shouldShowHour)
     }
 }

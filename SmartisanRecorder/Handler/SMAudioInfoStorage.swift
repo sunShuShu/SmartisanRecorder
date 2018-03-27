@@ -50,11 +50,12 @@ class SMAudioInfoStorage {
         }
     }
     
-    init(audioFileName: String) {
+    init?(audioFileName: String) {
         var audioFileName = audioFileName
         guard audioFileName.isEmpty == false else {
             assert(false)
             SMLog("File name is empty!", level: .high)
+            return nil
         }
         audioFileName.removeLast(SMAudioInfoStorage.recordSuffix.characters.count)
         filePath = SMAudioInfoStorage.fileDir + "/\(audioFileName)"

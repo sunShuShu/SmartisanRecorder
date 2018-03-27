@@ -46,17 +46,17 @@ class SMWaveformViewTestViewController: SMBaseViewController {
     @IBOutlet weak var waveformView: SMWaveformView!
     @IBOutlet weak var shortWaveformView: SMWaveformView!
     
-    private static let dataCountPerSecond: CGFloat = 50
+    private static let dataCountPerSecond: Int = 50
 
-    private var powerLevel: [UInt8] = {
-        var array = [UInt8]()
+    private var powerLevel: NSMutableArray = {
+        var array = NSMutableArray()
         for index in 0..<72 * 3600 * Int(SMWaveformViewTestViewController.dataCountPerSecond) {
-            array.append(UInt8(index % Int(SMWaveformView.maxPowerLevel)))
+            array.add(UInt8(index % Int(SMWaveformView.maxPowerLevel)) as NSValue)
         }
         return array
     }()
     private lazy var audioDuration: TimeInterval = {
-        let duration = CGFloat(self.powerLevel.count) / SMWaveformViewTestViewController.dataCountPerSecond
+        let duration = CGFloat(self.powerLevel.count) / CGFloat(SMWaveformViewTestViewController.dataCountPerSecond)
         return Double(duration)
     }()
     
@@ -67,20 +67,25 @@ class SMWaveformViewTestViewController: SMBaseViewController {
     private var updatePowerLevelTimer: DispatchSourceTimer?
     private lazy var timer = SMAudioTimer()
 
+    private var recorder = SMRecorder()
+    private var levelData = SMWaveformModel()
     @IBAction func recordAction(_ sender: UIButton) {
         sender.isSelected = !sender.isSelected
         if sender.isSelected {
+            recorder.record()
+            waveformView.powerLevelData = levelData
             if updatePowerLevelTimer == nil {
                 updatePowerLevelTimer = DispatchSource.makeTimerSource(flags: [], queue: DispatchQueue.global(qos: .userInteractive))
                 updatePowerLevelTimer?.setEventHandler {
                     [weak self] in
                     if let strongSelf = self {
-                        strongSelf.waveformView?.addPowerLevel(UInt8(arc4random() % UInt32(SMWaveformView.maxPowerLevel)))
+                        var level = UInt8(CGFloat(strongSelf.recorder.powerLevel) * (SMWaveformView.maxPowerLevel - 10))
+                        level += 10
+                        strongSelf.levelData.add(level)
                     }
                 }
                 updatePowerLevelTimer?.resume()
             }
-
             waveformView.updatePlayedTime = {
                 [weak self] in
                 if self != nil {
@@ -106,7 +111,6 @@ class SMWaveformViewTestViewController: SMBaseViewController {
         updatePowerLevelTimer = nil
         isTestingPlay = false
         timer.stop()
-        waveformView.setPowerLevelArray(nil)
         waveformView.updatePlayedTime = nil
         waveformView.isDynamic = false
         waveformView.refreshView()
@@ -114,10 +118,11 @@ class SMWaveformViewTestViewController: SMBaseViewController {
     
     private var isTestingPlay = false
     @IBAction func playAction(_ sender: UIButton) {
-        isTestingPlay = true
         sender.isSelected = !sender.isSelected
-        if sender.isSelected {
-            waveformView.setPowerLevelArray(powerLevel)
+        if sender.isSelected && isTestingPlay == false {
+            isTestingPlay = true
+            waveformView.powerLevelData = SMWaveformModel()
+            waveformView.powerLevelData.set(powerLevel)
             timer.start()
             waveformView.updatePlayedTime = {
                 [weak self] in
@@ -129,7 +134,7 @@ class SMWaveformViewTestViewController: SMBaseViewController {
             }
             waveformView.audioDuration = CGFloat(audioDuration)
         } else {
-            self.timer.pause()
+//            self.timer.pause()
         }
         waveformView.scrollOptimizeSettings = (true, false)
         waveformView.isDynamic = sender.isSelected
@@ -157,7 +162,8 @@ class SMWaveformViewTestViewController: SMBaseViewController {
     
     @IBAction func zoomAction(_ sender: Any) {
         if waveformView.displayTimeRange == nil {
-            waveformView.setPowerLevelArray(self.powerLevel)
+            waveformView.powerLevelData = SMWaveformModel()
+            waveformView.powerLevelData.set(powerLevel)
             waveformView.audioDuration = CGFloat(self.audioDuration)
         }
         let start = CGFloat(arc4random() % 10000) / 100
@@ -168,7 +174,8 @@ class SMWaveformViewTestViewController: SMBaseViewController {
     
     @IBAction func compressionAction(_ sender: Any) {
         if shortWaveformView.displayTimeRange == nil {
-            shortWaveformView.setPowerLevelArray(self.powerLevel)
+            shortWaveformView.powerLevelData = SMWaveformModel()
+            shortWaveformView.powerLevelData.set(self.powerLevel)
             shortWaveformView.audioDuration = CGFloat(self.audioDuration)
         }
         shortWaveformView?.displayTimeRange = (0, CGFloat(audioDuration))

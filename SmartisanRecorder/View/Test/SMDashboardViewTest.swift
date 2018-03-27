@@ -39,7 +39,7 @@ class SMDashboardViewTestViewController: SMBaseViewController {
     }
     
     private var refreshLevelTimer: DispatchSourceTimer?
-    private var levelArray = [UInt8]()
+    private var levelArray = SMWaveformModel()
     @IBAction func timeAction(_ sender: UIButton) {
         sender.isSelected = !sender.isSelected
         if sender.isSelected {
@@ -48,7 +48,7 @@ class SMDashboardViewTestViewController: SMBaseViewController {
                 refreshLevelTimer?.setEventHandler {
                     [weak self] in
                     if let strongSelf = self {
-                        strongSelf.dashboardView.waveformView.addPowerLevel(UInt8(arc4random() % 255))
+                        strongSelf.levelArray.add(UInt8(arc4random() % 255))
                     }
                 }
                 refreshLevelTimer?.resume()
@@ -67,16 +67,16 @@ class SMDashboardViewTestViewController: SMBaseViewController {
             refreshLevelTimer?.schedule(deadline: .now(), repeating: 1/50.0)
             dashboardView.waveformView.isDynamic = true
             
-            var times = [SMTime]()
-            for index in 1..<100 {
-                times.append(CGFloat(index) - 0.1)
-            }
-            dashboardView.flagView.setFlagsTimeArray(times)
+//            var times = [SMTime]()
+//            for index in 1..<100 {
+//                times.append(CGFloat(index) - 0.1)
+//            }
+//            dashboardView.flagView.setFlagsTimeArray(times)
         } else {
             refreshLevelTimer?.schedule(deadline: .distantFuture)
             timer.stop()
-            dashboardView.waveformView.setPowerLevelArray([UInt8]())
         }
+        dashboardView.waveformView.powerLevelData = levelArray
     }
     
     @IBAction func flagAction(_ sender: UIButton) {

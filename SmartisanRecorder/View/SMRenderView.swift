@@ -13,7 +13,7 @@ protocol RenderViewDelegate: class {
     
     /// If the “path” parameter has been set, there is no need to set path to the CGContext in this function.
     ///
-    /// - Parameter ctx: <#ctx description#>
+    /// - Parameter ctx: context
     func drawRenderView(in ctx: CGContext)
 }
 
