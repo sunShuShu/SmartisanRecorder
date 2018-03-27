@@ -41,18 +41,18 @@ class SMTimeScaleView: SMBaseView, RenderViewDelegate {
     
     //MARK:-
     private lazy var scrollRenderView = {
-        return SMScrollRenderView(delegate: self, maxElementWidth: 0);
+        return SMScrollRenderView(delegate: self, maxElementWidth: widthPerSecond);
     }()
     override func layoutSubviews() {
         super.layoutSubviews()
         self.backgroundColor = superview?.backgroundColor ?? UIColor.clear
-        
-        
+        self.addSubview(scrollRenderView)
+        UIView.autoLayout(scrollRenderView)
         
         halfLineWidth = lineWidth / 2
         timeIndicatorOffset = width / widthPerSecond / 2
         halfWidthPerSecond = widthPerSecond / 2
-        labelCount = Int(width / widthPerSecond + 1)
+        labelCount = Int(width / widthPerSecond + 2)
         bottomLineStart = CGPoint(x: 0, y: height - halfLineWidth)
         bottomLineEnd = CGPoint(x: width, y: height - halfLineWidth)
         shortScaleLineStartY = height - lineWidth
@@ -82,7 +82,7 @@ class SMTimeScaleView: SMBaseView, RenderViewDelegate {
                 let tempPath = CGMutablePath()
                 var tempTimeLabelInfo = [(String, CGFloat)]()
                 
-                let offset = strongSelf.widthPerSecond * currentTime;
+                let offset = strongSelf.widthPerSecond * (currentTime - strongSelf.timeIndicatorOffset);
                 let canvasInfo = strongSelf.scrollRenderView.setOffset(offset)
                 if canvasInfo == nil {
                     // Do not need to render
@@ -115,7 +115,7 @@ class SMTimeScaleView: SMBaseView, RenderViewDelegate {
                         tempPath.addLine(to: CGPoint(x: shortScaleLineX, y: strongSelf.shortScaleLineEndY))
                         
                         //time label 
-                        let timeString = strongSelf.timeTool.secondToString(time: currentTime + 0.5, isNeedHour: true, isNeedMs: false)
+                        let timeString = strongSelf.timeTool.secondToString(time: SMTime(currentLabelTime) + 0.5, isNeedHour: true, isNeedMs: false)
                         tempTimeLabelInfo.append((timeString, x))
                     }
                 }
@@ -138,20 +138,4 @@ class SMTimeScaleView: SMBaseView, RenderViewDelegate {
         ctx.setLineWidth(lineWidth)
         ctx.drawPath(using: .stroke)
     }
-    
-//    override func draw(_ rect: CGRect) {
-//        super.draw(rect)
-//        let contex = UIGraphicsGetCurrentContext()
-//        guard contex != nil else {
-//            return
-//        }
-//        for (string, x) in timeLabelInfo {
-//            timeRect.origin.x = x
-//            string.draw(in: timeRect, withAttributes: timeAttributes)
-//        }
-//        contex!.addPath(path)
-//        contex!.setStrokeColor(lineColor)
-//        contex!.setLineWidth(lineWidth)
-//        contex!.drawPath(using: .stroke)
-//    }
 }

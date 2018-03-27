@@ -41,12 +41,12 @@ class SMScrollRenderView: SMBaseView {
         secondLayer.frame = rect
         self.backgroundColor = superview?.backgroundColor ?? UIColor.clear
         if subviews.contains(firstLayer) != true {
-            firstLayer.backgroundColor = UIColor.clear
+            firstLayer.backgroundColor = backgroundColor ?? UIColor.clear
 //            firstLayer.backgroundColor = UIColor.red
             addSubview(firstLayer)
         }
         if subviews.contains(secondLayer) != true {
-            secondLayer.backgroundColor = UIColor.clear
+            secondLayer.backgroundColor = backgroundColor ?? UIColor.clear
 //            secondLayer.backgroundColor = UIColor.green
             addSubview(secondLayer)
         }
