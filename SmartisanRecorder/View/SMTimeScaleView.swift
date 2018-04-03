@@ -46,15 +46,17 @@ class SMTimeScaleView: SMBaseView, RenderViewDelegate {
     override func layoutSubviews() {
         super.layoutSubviews()
         self.backgroundColor = superview?.backgroundColor ?? UIColor.clear
+        self.clipsToBounds = true
+        
         self.addSubview(scrollRenderView)
         UIView.autoLayout(scrollRenderView)
         
         halfLineWidth = lineWidth / 2
         timeIndicatorOffset = width / widthPerSecond / 2
         halfWidthPerSecond = widthPerSecond / 2
-        labelCount = Int(width / widthPerSecond + 2)
+        labelCount = Int(width / widthPerSecond + 3)
         bottomLineStart = CGPoint(x: 0, y: height - halfLineWidth)
-        bottomLineEnd = CGPoint(x: width, y: height - halfLineWidth)
+        bottomLineEnd = CGPoint(x: width + widthPerSecond, y: height - halfLineWidth)
         shortScaleLineStartY = height - lineWidth
         shortScaleLineEndY = shortScaleLineStartY - middleScaleHight
         let maxTimeHeight = height - middleScaleHight * 2
@@ -67,7 +69,6 @@ class SMTimeScaleView: SMBaseView, RenderViewDelegate {
         timeRect.size.width = widthPerSecond
     }
     
-    private let timeTool = SMTimeTool()
     private let renderQueue = DispatchQueue(label: "com.sunshushu.TimeScaleRender", qos: .userInteractive)
     private var timeIndicatorOffset: CGFloat = 0
     private lazy var path = CGMutablePath()
@@ -89,6 +90,8 @@ class SMTimeScaleView: SMBaseView, RenderViewDelegate {
                     return
                 }
                 defer {
+                    strongSelf.measure.end()
+                    
                     DispatchQueue.main.async {
                         strongSelf.path = tempPath
                         strongSelf.timeLabelInfo = tempTimeLabelInfo
@@ -115,11 +118,10 @@ class SMTimeScaleView: SMBaseView, RenderViewDelegate {
                         tempPath.addLine(to: CGPoint(x: shortScaleLineX, y: strongSelf.shortScaleLineEndY))
                         
                         //time label 
-                        let timeString = strongSelf.timeTool.secondToString(time: SMTime(currentLabelTime) + 0.5, isNeedHour: true, isNeedMs: false)
+                        let timeString = (SMTime(currentLabelTime) + 0.5).toString(isNeedHour: true, isNeedMs: false)
                         tempTimeLabelInfo.append((timeString, x))
                     }
                 }
-                strongSelf.measure.end()
             }
         }
     }

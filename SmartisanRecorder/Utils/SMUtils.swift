@@ -57,37 +57,31 @@ class SMMeasure {
     }
 }
 
-class SMTimeTool {
-    private var lastString: (second: Int, string: String) = (Int.max, "")
-    
+extension SMTime {
     /// format: (01:)23:45(.59) (hour:)minite:second(.millisecond)
     ///
     /// - Parameters:
-    ///   - time: Number of seconds
     ///   - isNeedHour: include hour
     ///   - isNeedHour: include millisecond
     /// - Returns: formatted string
-    @inline(__always) func secondToString(time: SMTime, isNeedHour: Bool, isNeedMs: Bool) -> String {
-        var leftTime = Int(time)
+    func toString(isNeedHour: Bool, isNeedMs: Bool) -> String {
+        var leftTime = Int(self)
         var string = ""
-        if lastString.second != leftTime {
-            if isNeedHour {
-                var hour = 0
-                if leftTime >= 3600 {
-                    hour = leftTime / 3600
-                    leftTime %= 3600
-                }
-                string += String(format: "%02d:", hour)
+        if isNeedHour {
+            var hour = 0
+            if leftTime >= 3600 {
+                hour = leftTime / 3600
+                leftTime %= 3600
             }
-            
-            let minute = leftTime / 60
-            let second = leftTime % 60
-            string += String(format: "%02d:%02d", minute, second)
-            lastString = (Int(time), string)
+            string += String(format: "%02d:", hour)
         }
         
+        let minute = leftTime / 60
+        let second = leftTime % 60
+        string += String(format: "%02d:%02d", minute, second)
+        
         if isNeedMs {
-            let ms = Int(time * 100) % 100
+            let ms = Int(self * 100) % 100
             string += String(format: ".%02d:", ms)
         }
         return string
@@ -95,10 +89,9 @@ class SMTimeTool {
     
     /// It's like 23:45.59 when time is greater than 1 hour, otherwise like 01:23:45
     ///
-    /// - Parameter time: second
     /// - Returns: formatted string
-    func secondToShortString(time: SMTime) -> String {
-        let shouldShowHour = time >= 3600
-        return self.secondToString(time: time, isNeedHour: shouldShowHour, isNeedMs: !shouldShowHour)
+    func toShortString() -> String {
+        let shouldShowHour = self >= 3600
+        return self.toString(isNeedHour: shouldShowHour, isNeedMs: !shouldShowHour)
     }
 }
