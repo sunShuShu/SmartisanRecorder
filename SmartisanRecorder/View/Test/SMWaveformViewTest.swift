@@ -46,13 +46,6 @@ class SMWaveformViewTestViewController: SMBaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        var array = Array<UInt8>()
-        for index in 0..<72 * 3600 * Int(50) {
-            array.append(UInt8(index % Int(SMWaveformView.maxPowerLevel)))
-            let docDir = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last
-            let data = Data(bytes: array)
-            FileManager.default.createFile(atPath: docDir! + "/maximum.waveform", contents: data, attributes: nil)
-        }
     }
 }
 //    @IBOutlet weak var waveformView: SMWaveformView!

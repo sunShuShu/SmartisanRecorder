@@ -40,8 +40,7 @@ class SMDashboardViewTestViewController: SMBaseViewController {
     
     private var refreshLevelTimer: DispatchSourceTimer?
     private var levelArray: SMWaveformModel? = {
-        let url = Bundle.main.bundleURL.appendingPathComponent("maximum.waveform")
-        return SMWaveformModel(from: url.absoluteString)
+        return SMWaveformModel(fileName: "test")
     }()
     @IBAction func timeAction(_ sender: UIButton) {
         sender.isSelected = !sender.isSelected
@@ -94,21 +93,18 @@ class SMDashboardViewTestViewController: SMBaseViewController {
             }
         }
     }
-    private var model: SMWaveformModel?
+    
     @IBAction func zoomAction(_ sender: UIButton) {
-        var path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last
-        var file = path! + "/maximum.waveform"
 //        let data = Data(contentsOf: url, options: .alwaysMapped)
 //        let start = CGFloat(arc4random() % 10000) / 100
 //        let end = CGFloat(arc4random() % 10000) / 100
 //        dashboardView.setScalableMode(audioDuration: 72*3600, displayRange: (start, end), powerLevelData: data)
 //        waveformView?.displayTimeRange = (min(start, end), max(start, end))
         
-        if let model = SMWaveformModel(from: file) {
-            for index in 0..<72 * 3600 * 50 {
-                model.add(UInt8(index % Int(SMWaveformView.maxPowerLevel)))
+        if let model = SMFlagModel(fileName: "maximum") {
+            for index in 0..<100 {
+                model.flagLocation.append(Double(index) + Double((arc4random()%5))*0.1)
             }
-            self.model = model
         }
 
     }
