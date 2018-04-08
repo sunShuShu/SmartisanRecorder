@@ -90,13 +90,13 @@ class SMTimeScaleView: SMBaseView, RenderViewDelegate {
                     return
                 }
                 defer {
-                    strongSelf.measure.end()
-                    
                     DispatchQueue.main.async {
                         strongSelf.path = tempPath
                         strongSelf.timeLabelInfo = tempTimeLabelInfo
                         canvasInfo!.canvas.setNeedsDisplay()
                     }
+                    
+                    strongSelf.measure.end()
                 }
                 
                 tempPath.move(to: strongSelf.bottomLineStart)

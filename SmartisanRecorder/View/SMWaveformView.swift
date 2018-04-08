@@ -10,18 +10,6 @@ import Foundation
 import UIKit
 import CoreGraphics
 
-typealias SMTime = CGFloat
-
-protocol WaveformRenderDelegate: class {
-    
-    /// You can do the custum render work when waveform will be rended. currentTime and displayRange are not going to be non-optional. Don't make time-consuming operations inside!
-    ///
-    /// - Parameters:
-    ///   - currentTime: current time
-    ///   - displayRange: waveform display range
-    func waveformWillRender(currentTime: SMTime?, displayRange: (start: SMTime, end: SMTime)?);
-}
-
 class SMWaveformView: SMBaseView, RenderViewDelegate {
     static let maxPowerLevel = CGFloat(UInt8.max)
     
@@ -37,19 +25,7 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
     
     /// line color
     var lineColor: CGColor = UIColor(rgb256WithR: 160, g: 160, b: 160, alpha: 1).cgColor
-    
-    /// The waveform view has two kind of way to update display. If isDynamic is true, the updatePlayedTime will be call when it's time to render screen. If isDymanic is false, waveform view will be render when the updateDisplayRange changed.
-    var isDynamic = false {
-        didSet {
-            if isDynamic && updatePlayedTime == nil {
-                assert(false, "updatePlayedTime is nil!")
-                return
-            }
-            renderTimer?.isPaused = !isDynamic
-        }
-    }
-    
-    
+
     /// default = (false, false).
     var scrollOptimizeSettings: (isEnable: Bool, isRecordingMode: Bool) = (false, false) {
         didSet {
@@ -59,29 +35,7 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
         }
     }
     
-    func refreshView() {
-        renderTimerFireOnce = true
-    }
-    
-    weak var renderDelegate: WaveformRenderDelegate?
-    
-    //MARK:- Display Location
-    private lazy var renderQueue = DispatchQueue(label: "com.sunshushu.WaveformRender", qos: .userInteractive)
-
-    /// The block need to return current played time. The waveform won't be zoomed. Block execution time can NOT exceed 1/60 second. The shorter the block executes, the better, and don't make time-consuming operations inside. If this property is not nil, the displayTimeRange value will be ignored.
-    var updatePlayedTime: (() -> (SMTime))?
-    /// The waveform view may be zoomed.
-    var displayTimeRange: (start: SMTime, end: SMTime)? {
-        didSet {
-            guard displayTimeRange != nil &&
-                displayTimeRange!.start < displayTimeRange!.end else {
-                return
-            }
-            renderTimerFireOnce = true
-        }
-    }
-    
-    //MARK:- Audio Duration
+    //MARK:- Audio Info
     var audioDuration: SMTime = 0 {
         didSet {
             if audioDuration < 0 {
@@ -93,37 +47,15 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
     /// Default = 50
     var dataCountPerSecond: Int = 50
     
-    //MARK:- Waveform Data
-    var powerLevelData = SMWaveformModel()
+    var powerLevelData = SMWaveformModel(from: "")
     
-    //MARK:-
-    override func willMove(toSuperview newSuperview: UIView?) {
-        super.willMove(toSuperview: newSuperview)
-        if renderTimer == nil {
-            renderTimer = CADisplayLink(target: self, selector: #selector(render))
-            renderTimer?.isPaused = !isDynamic
-            renderQueue.async {
-                [weak self] in
-                self?.renderTimer?.add(to: RunLoop.current, forMode: .defaultRunLoopMode)
-                RunLoop.current.run()
-            }
-        }
-    }
-    
-    override func removeFromSuperview() {
-        super.removeFromSuperview()
-        measure.getReport(from: self)
-        
-        //Only remove render timer in render queue, the timer must be fire.
-        renderTimer?.isPaused = false
-        renderTimerNeedRemoved = true
-    }
-    
+    //MARK:- Cache & Layout
     private var lineCount: Int = 0
     private var lineHeightFactor: CGFloat = 0
     private var halfWidth: CGFloat = 0
     private var halfLineWidth: CGFloat = 0
     private var scrollRenderView: SMScrollRenderView?
+    
     override func layoutSubviews() {
         super.layoutSubviews()
         backgroundColor = superview?.backgroundColor ?? UIColor.clear
@@ -152,35 +84,11 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
     }
     
     //MARK:- Render
-    private var renderTimer: CADisplayLink?
-    private var renderTimerNeedRemoved = false
-    private var renderTimerFireOnce = false {
-        didSet {
-            if renderTimerFireOnce {
-                renderTimer?.isPaused = false
-            }
-        }
-    }
-    
     private var path = CGMutablePath()
     private var lastRenderedDataIndex = -1
     
-    @objc private func render() {
+    func setTime(currentTime: SMTime?, timeRange: SMTimeRange?) {
         measure.start()
-        
-        guard renderTimerNeedRemoved == false else {
-            //Stop and remove render timer in render queue.
-            renderTimer?.isPaused = true
-            renderTimer?.invalidate()
-            renderTimer?.remove(from: RunLoop.current, forMode: .defaultRunLoopMode)
-            renderTimerNeedRemoved = false
-            return
-        }
-        
-        if renderTimerFireOnce {
-            renderTimer?.isPaused = true
-            renderTimerFireOnce = false
-        }
         
         var tempPath = CGMutablePath()
         var scrollCanvas: SMRenderView? // It won't be nil if the scroll optimize is enable and need to render entire view.
@@ -218,18 +126,13 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
             tempPath.addLine(to: CGPoint(x: x, y: endY))
         }
         
-        if let block = updatePlayedTime {
-            let currentTime = block()
-            if let delegate = renderDelegate {
-                delegate.waveformWillRender(currentTime: currentTime, displayRange: nil)
-            }
-
+        if let time = currentTime {
             // Scroll render optimize
             if let view = scrollRenderView, scrollOptimizeSettings.isEnable {
                 #if WaveformLineWidthIsOne
-                let scrollViewOffset = CGFloat(dataCountPerSecond) * currentTime - halfWidth
+                let scrollViewOffset = CGFloat(dataCountPerSecond) * time - halfWidth
                 #else
-                let scrollViewOffset = CGFloat(dataCountPerSecond) * currentTime * CGFloat(lineWidth) - halfWidth
+                let scrollViewOffset = CGFloat(dataCountPerSecond) * time * CGFloat(lineWidth) - halfWidth
                 #endif
                 if let renderInfo = view.setOffset(scrollViewOffset) {
                     if scrollOptimizeSettings.isRecordingMode {
@@ -251,7 +154,7 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
                     scrollCanvasesArray = view.getCanvasPosition(with: scrollViewOffset + halfWidth)
                     for info in scrollCanvasesArray! {
                         //Always render the last data.
-                        if let level = powerLevelData.getLast() {
+                        if let level = powerLevelData?.getLast() {
                             addALineToTempPath(level: level, x: CGFloat(Int(info.positionX)))
                         }
                     }
@@ -271,17 +174,14 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
                     x = CGFloat(lineIndex) * lineWidth
                 }
                 #endif
-                if let level = powerLevelData.get(currentDataIndex) {
+                if let level = powerLevelData?.get(currentDataIndex) {
                     addALineToTempPath(level: level, x: x)
                 }
             }
             
-        } else if let range = displayTimeRange  {
-            
-            if let delegate = renderDelegate {
-                delegate.waveformWillRender(currentTime: nil, displayRange: range)
-            }
-            let dataAndTimeFactor = CGFloat(powerLevelData.count) / audioDuration
+        } else if let range = timeRange  {
+            //TODO: fix powerLevelData!
+            let dataAndTimeFactor = CGFloat(powerLevelData!.count) / audioDuration
             let startDataLocation = range.start * dataAndTimeFactor
             let endDataLocation = range.end * dataAndTimeFactor
             let scalingFactor = (endDataLocation - startDataLocation) / CGFloat(lineCount)
@@ -295,7 +195,7 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
                     x = CGFloat(lineIndex) * lineWidth
                 }
                 #endif
-                if let level = powerLevelData.get(currentDataIndex) {
+                if let level = powerLevelData?.get(currentDataIndex) {
                     addALineToTempPath(level: level, x: x)
                 }
             }
@@ -321,25 +221,26 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
     func drawRenderView(in ctx: CGContext) {
         setAppearanceToContext(ctx)
     }
+    
+    deinit {
+        measure.getReport(from: self)
+    }
 }
 
 //MARK:- 
 extension SMWaveformView {
-    func setRecordParameters(updatePlayedTime: @escaping (() -> (SMTime)), dataCountPerSecond: Int = 50) {
-        self.updatePlayedTime = updatePlayedTime
+    func setRecordMode(dataCountPerSecond: Int = 50) {
         self.dataCountPerSecond = dataCountPerSecond
         self.scrollOptimizeSettings = (isEnable: true, isRecordingMode: true)
     }
     
-    func setPlayParameters(updatePlayedTime: @escaping (() -> (SMTime)), audioDuration: SMTime, powerLevelData: SMWaveformModel) {
-        self.updatePlayedTime = updatePlayedTime
+    func setPlayMode(audioDuration: SMTime, powerLevelData: SMWaveformModel) {
         self.audioDuration = audioDuration
         self.powerLevelData = powerLevelData
         self.scrollOptimizeSettings = (isEnable: true, isRecordingMode: false)
     }
     
-    func setScalableParameters(displayTimeRange: (start: SMTime, end: SMTime), audioDuration: SMTime, powerLevelData: SMWaveformModel) {
-        self.displayTimeRange = displayTimeRange
+    func setScalableMode(audioDuration: SMTime, powerLevelData: SMWaveformModel) {
         self.audioDuration = audioDuration
         self.powerLevelData = powerLevelData
         self.scrollOptimizeSettings = (isEnable: false, isRecordingMode: false)

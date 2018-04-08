@@ -9,7 +9,11 @@
 import Foundation
 import UIKit
 
+typealias SMTime = CGFloat
+typealias SMTimeRange = (start: SMTime, end: SMTime)
+
 class SMSoundDashboardView: SMBaseView {
+    //MARK:- views
     struct Component: OptionSet {
         var rawValue: Int
         static let Axis = Component(rawValue: 1 << 0)
@@ -83,25 +87,118 @@ class SMSoundDashboardView: SMBaseView {
             UIView.autoLayout(editView, top: timeViewHeight)
         }
     }
-}
-
-extension SMSoundDashboardView: WaveformRenderDelegate {
-    func waveformWillRender(currentTime: CGFloat?, displayRange: (start: CGFloat, end: CGFloat)?) {
-        if components.contains(.Time) && currentTime != nil {
-            timeView.setCurrentTime(currentTime!)
+    
+    //MARK:- render
+    /// The block need to return current played time. The waveform won't be zoomed. Block execution time can NOT exceed 1/60 second. The shorter the block executes, the better, and don't make time-consuming operations inside. If this property is not nil, the displayTimeRange value will be ignored.
+    var updatePlayedTime: (() -> (SMTime))?
+    
+    /// The waveform view may be zoomed.
+    var displayTimeRange: SMTimeRange? {
+        didSet {
+            guard displayTimeRange != nil &&
+                displayTimeRange!.start < displayTimeRange!.end else {
+                    return
+            }
+            renderTimerFireOnce = true
         }
-        
-        if components.contains(.Flag) {
-            if currentTime != nil {
-                flagView.setCurrentTime(currentTime!)
-            } else if displayRange != nil {
-                //TODO: 
+    }
+    
+    /// The waveform view has two kind of way to update display. If isDynamic is true, the updatePlayedTime will be call when it's time to render screen. If isDymanic is false, waveform view will be render when the updateDisplayRange changed.
+    var isDynamic = false {
+        didSet {
+            if isDynamic && updatePlayedTime == nil {
+                assert(false, "updatePlayedTime is nil!")
+                return
+            }
+            renderTimer?.isPaused = !isDynamic
+        }
+    }
+    
+    func refreshView() {
+        renderTimerFireOnce = true
+    }
+
+    private lazy var renderQueue = DispatchQueue(label: "com.sunshushu.WaveformRender", qos: .userInteractive)
+    private var renderTimer: CADisplayLink?
+    private var renderTimerNeedRemoved = false
+    private var renderTimerFireOnce = false {
+        didSet {
+            if renderTimerFireOnce {
+                renderTimer?.isPaused = false
             }
         }
     }
     
-    func setRecordParameters() {
-        self.waveformView.renderDelegate = self
+    override func willMove(toSuperview newSuperview: UIView?) {
+        super.willMove(toSuperview: newSuperview)
+        if renderTimer == nil {
+            renderTimer = CADisplayLink(target: self, selector: #selector(render))
+            renderTimer?.isPaused = !isDynamic
+            renderQueue.async {
+                [weak self] in
+                self?.renderTimer?.add(to: RunLoop.current, forMode: .defaultRunLoopMode)
+                RunLoop.current.run()
+            }
+        }
+    }
+    
+    override func removeFromSuperview() {
+        super.removeFromSuperview()
+        //Only remove render timer in render queue, the timer must be fire.
+        renderTimer?.isPaused = false
+        renderTimerNeedRemoved = true
+    }
+    
+    @objc private func render() {
+        guard renderTimerNeedRemoved == false else {
+            //Stop and remove render timer in render queue.
+            renderTimer?.isPaused = true
+            renderTimer?.invalidate()
+            renderTimer?.remove(from: RunLoop.current, forMode: .defaultRunLoopMode)
+            renderTimerNeedRemoved = false
+            return
+        }
+        
+        if renderTimerFireOnce {
+            renderTimer?.isPaused = true
+            renderTimerFireOnce = false
+        }
+        
+        if let block = updatePlayedTime {
+            let currentTime = block()
+            
+            if components.contains(.Waveform) {
+                waveformView.setTime(currentTime: currentTime, timeRange: nil)
+            }
+            
+            if components.contains(.Time) {
+                timeView.setCurrentTime(currentTime)
+            }
+            
+            if components.contains(.Flag) {
+                flagView.setCurrentTime(currentTime)
+            }
+            
+        }
+        
+    }
+}
+
+extension SMSoundDashboardView {
+    func setRecordMode(updatePlayedTime: @escaping () -> (SMTime)) {
+        self.updatePlayedTime = updatePlayedTime
+        self.waveformView.setRecordMode()
+        self.showComponents([.Axis, .Waveform, .Time, .Indicator, .Flag])
+    }
+    
+    func setPlayMode(audioDuration: SMTime, powerLevelData: SMWaveformModel) {
+        self.waveformView.setPlayMode(audioDuration: audioDuration, powerLevelData: powerLevelData)
+        self.showComponents([.Axis, .Waveform, .Time, .Indicator, .Flag])
+    }
+    
+    func setScalableMode(audioDuration: SMTime, displayRange:SMTimeRange, powerLevelData: SMWaveformModel) {
+        self.displayTimeRange = displayRange
+        self.waveformView.setScalableMode(audioDuration: audioDuration, powerLevelData: powerLevelData)
         self.showComponents([.Axis, .Waveform, .Time, .Indicator, .Flag])
     }
 }
