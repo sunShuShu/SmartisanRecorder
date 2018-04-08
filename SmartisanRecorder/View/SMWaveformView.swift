@@ -47,7 +47,7 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
     /// Default = 50
     var dataCountPerSecond: Int = 50
     
-    var powerLevelData = SMWaveformModel(from: "")
+    var powerLevelData: SMWaveformModel?
     
     //MARK:- Cache & Layout
     private var lineCount: Int = 0
