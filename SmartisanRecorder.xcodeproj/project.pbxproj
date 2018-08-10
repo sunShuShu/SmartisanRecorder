@@ -52,6 +52,7 @@
 		25EFF1472010406500D9ECCB /* SMAxisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25EFF1462010406500D9ECCB /* SMAxisView.swift */; };
 		25EFF149201040A300D9ECCB /* SMFlagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25EFF148201040A300D9ECCB /* SMFlagView.swift */; };
 		25EFF14B201040BA00D9ECCB /* SMEditSoundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25EFF14A201040BA00D9ECCB /* SMEditSoundView.swift */; };
+		25F04636208599FA00A9DD7C /* maximum.waveform in Resources */ = {isa = PBXBuildFile; fileRef = 25F04634208599DD00A9DD7C /* maximum.waveform */; };
 		25F5C65C1FE90D5000FB60BF /* SMFileInfoStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25F5C65B1FE90D5000FB60BF /* SMFileInfoStorage.swift */; };
 		299BF95C1E71B5B50054F95D /* Calling_007_10086.wav in Resources */ = {isa = PBXBuildFile; fileRef = 299BF95B1E71B5B50054F95D /* Calling_007_10086.wav */; };
 		73E092BE9BEAE2CF0FA941D9 /* Pods_SmartisanRecorder.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3492126C10DF6E8BD5315830 /* Pods_SmartisanRecorder.framework */; };
@@ -120,6 +121,8 @@
 		25EFF1462010406500D9ECCB /* SMAxisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMAxisView.swift; sourceTree = "<group>"; };
 		25EFF148201040A300D9ECCB /* SMFlagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMFlagView.swift; sourceTree = "<group>"; };
 		25EFF14A201040BA00D9ECCB /* SMEditSoundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMEditSoundView.swift; sourceTree = "<group>"; };
+		25F04634208599DD00A9DD7C /* maximum.waveform */ = {isa = PBXFileReference; lastKnownFileType = file; path = maximum.waveform; sourceTree = "<group>"; };
+		25F0463720859A0300A9DD7C /* maximum.flag */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = maximum.flag; sourceTree = "<group>"; };
 		25F5C65B1FE90D5000FB60BF /* SMFileInfoStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMFileInfoStorage.swift; sourceTree = "<group>"; };
 		299BF95B1E71B5B50054F95D /* Calling_007_10086.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Calling_007_10086.wav; sourceTree = "<group>"; };
 		2AB0C550F7F051D8BF085C6E /* Pods-SmartisanRecorderTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SmartisanRecorderTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SmartisanRecorderTests/Pods-SmartisanRecorderTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -245,6 +248,8 @@
 		253EB93E1E6E841D00E9849E /* Resource */ = {
 			isa = PBXGroup;
 			children = (
+				25F0463720859A0300A9DD7C /* maximum.flag */,
+				25F04634208599DD00A9DD7C /* maximum.waveform */,
 				299BF95B1E71B5B50054F95D /* Calling_007_10086.wav */,
 				253EB93F1E6E841D00E9849E /* Assets.xcassets */,
 				253EB9411E6E841D00E9849E /* LaunchScreen.storyboard */,
@@ -362,7 +367,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0820;
-				LastUpgradeCheck = 0900;
+				LastUpgradeCheck = 0930;
 				ORGANIZATIONNAME = sunShuShu;
 				TargetAttributes = {
 					253648371E6ECF6D00476E12 = {
@@ -433,6 +438,7 @@
 				251113BB1FFF612200200E2A /* SMWaveformViewTest.storyboard in Resources */,
 				2557FAFD200C564700EC5383 /* SMDashboardViewTest.storyboard in Resources */,
 				253EB9461E6E841D00E9849E /* Main.storyboard in Resources */,
+				25F04636208599FA00A9DD7C /* maximum.waveform in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -678,6 +684,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -685,6 +692,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -735,6 +743,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -742,6 +751,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;

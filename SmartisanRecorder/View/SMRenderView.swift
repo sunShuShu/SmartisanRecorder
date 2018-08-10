@@ -14,7 +14,7 @@ protocol RenderViewDelegate: class {
     /// If the “path” parameter has been set, there is no need to set path to the CGContext in this function.
     ///
     /// - Parameter ctx: context
-    func drawRenderView(in ctx: CGContext)
+    func drawRenderView(view: SMRenderView, in ctx: CGContext)
 }
 
 class SMRenderView: SMBaseView {
@@ -37,9 +37,7 @@ class SMRenderView: SMBaseView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    
-    /// The path will be set to CGContext of the SMRenderView. 
-    var path: CGPath?
+    var externalData: Any?
     
     override func draw(_ rect: CGRect) {
         if let context = UIGraphicsGetCurrentContext() {
@@ -48,10 +46,7 @@ class SMRenderView: SMBaseView {
                 needsClear = false
                 return
             }
-            if let path = self.path {
-                context.addPath(path)
-            }
-            renderDelegate?.drawRenderView(in: context)
+            renderDelegate?.drawRenderView(view: self, in: context)
         }
     }
 }

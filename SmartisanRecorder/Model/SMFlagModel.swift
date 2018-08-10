@@ -20,29 +20,39 @@ class SMFlagModel {
         if isFlagExists == false {
             try? FileManager.default.createDirectory(atPath: SMFlagModel.fileDir, withIntermediateDirectories: true, attributes: nil)
             FileManager.default.createFile(atPath: filePath, contents: nil, attributes: nil)
-            self.flagLocation = [TimeInterval]()
+            self.locations = [SMTime]()
         } else {
             if let tempArray = NSArray(contentsOfFile: filePath) {
-                self.flagLocation = tempArray as! [TimeInterval]
+                self.locations = tempArray as! [SMTime]
             } else {
-                SMLog("Flag modle read fail!", error: nil, level: .high)
+                SMLog("Flag modle read fail!", error: nil, level: .fatal)
                 return nil
             }
         }
     }
     
-    var flagLocation: [TimeInterval] {
+    var locations: [SMTime] {
         didSet {
-            guard flagLocation.count > 0 && flagLocation.count <= SMFlagModel.maxFlagCount else {
-                flagLocation = oldValue
+            guard locations.count > 0 && locations.count <= SMFlagModel.maxFlagCount else {
+                locations = oldValue
                 return
             }
 
-            let result = (flagLocation as NSArray).write(toFile: filePath, atomically: false)
+            let result = (locations as NSArray).write(toFile: filePath, atomically: false)
             if result == false {
-                flagLocation = oldValue
-                SMLog("Write flag failed!", level: .high)
+                locations = oldValue
+                SMLog("Write flag failed!", level: .fatal)
             }
         }
+    }
+    
+    func subRange(startTime: SMTime, endTime: SMTime) -> [(index: Int, time: SMTime)] {
+        var subRange = [(Int, SMTime)]()
+        for (index, time) in locations.enumerated() {
+            if startTime < time && time < endTime {
+                subRange.append((index, time))
+            }
+        }
+        return subRange
     }
 }

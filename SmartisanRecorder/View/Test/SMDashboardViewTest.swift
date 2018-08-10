@@ -84,29 +84,27 @@ class SMDashboardViewTestViewController: SMBaseViewController {
     @IBAction func flagAction(_ sender: UIButton) {
         sender.isSelected = !sender.isSelected
         if sender.isSelected {
-            dashboardView.indicatorView.setUnmovableMinusButtonParameter(buttonActionBlock: { (type) in
-                SMLog("\(type) Action")
-            })
-            dashboardView.indicatorView.indicatorDragged = {
-                (position, isEnd) -> () in
-                SMLog("\(position)---\(isEnd)")
+            let waveformModel = SMWaveformModel(fileName: "maximum")
+            let flagModel = SMFlagModel(fileName: "maximum")
+            dashboardView.setPlayMode(audioDuration: 72*3600, powerLevelData: waveformModel!, flagData: flagModel) {
+                [weak self] in
+                if let strongSelf = self {
+                    return CGFloat(strongSelf.timer.duration)
+                } else {
+                    return 0
+                }
             }
+            dashboardView.isDynamic = true
+            timer.start()
         }
     }
     
     @IBAction func zoomAction(_ sender: UIButton) {
-//        let data = Data(contentsOf: url, options: .alwaysMapped)
-//        let start = CGFloat(arc4random() % 10000) / 100
-//        let end = CGFloat(arc4random() % 10000) / 100
-//        dashboardView.setScalableMode(audioDuration: 72*3600, displayRange: (start, end), powerLevelData: data)
-//        waveformView?.displayTimeRange = (min(start, end), max(start, end))
-        
-        if let model = SMFlagModel(fileName: "maximum") {
-            for index in 0..<100 {
-                model.flagLocation.append(Double(index) + Double((arc4random()%5))*0.1)
-            }
-        }
-
+        let start = CGFloat(arc4random() % 10000) / 100
+        let end = CGFloat(arc4random() % 10000) / 100
+        let model = SMWaveformModel(fileName: "maximum")
+        dashboardView.setScalableMode(audioDuration: 72*3600, displayRange: (start, end), powerLevelData: model!, flagData: nil)
+        dashboardView.displayTimeRange = (min(start, end), max(start, end))
     }
     
 }

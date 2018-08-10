@@ -130,7 +130,7 @@ class SMTimeScaleView: SMBaseView, RenderViewDelegate {
         measure.getReport(from: self)
     }
     
-    func drawRenderView(in ctx: CGContext) {
+    func drawRenderView(view: SMRenderView, in ctx: CGContext) {
         for (string, x) in timeLabelInfo {
             timeRect.origin.x = x
             string.draw(in: timeRect, withAttributes: timeAttributes)

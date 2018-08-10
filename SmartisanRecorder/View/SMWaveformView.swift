@@ -98,12 +98,12 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
             DispatchQueue.main.async {
                 if let canvas = scrollCanvas {
                     // Save the tempPath to canvas, prevent the "self.path" from being overwritten.
-                    canvas.path = tempPath
+                    canvas.externalData = tempPath
                     canvas.setNeedsDisplay()
                 } else if let canvases = scrollCanvasesArray {
                     for info in canvases {
                         let rect = CGRect(x: CGFloat(Int(info.positionX)) - self.halfLineWidth, y: 0, width: self.lineWidth, height: self.height)
-                        info.canvas.path = tempPath
+                        info.canvas.externalData = tempPath
                         info.canvas.setNeedsDisplay(rect)
                     }
                 } else if self.scrollOptimizeSettings.isEnable == false {
@@ -218,8 +218,11 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
         }
     }
     
-    func drawRenderView(in ctx: CGContext) {
-        setAppearanceToContext(ctx)
+    func drawRenderView(view: SMRenderView, in ctx: CGContext) {
+        if let path = view.externalData {
+            ctx.addPath(path as! CGPath)
+            setAppearanceToContext(ctx)
+        }
     }
     
     deinit {

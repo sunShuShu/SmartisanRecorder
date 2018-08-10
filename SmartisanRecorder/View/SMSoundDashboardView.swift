@@ -118,7 +118,7 @@ class SMSoundDashboardView: SMBaseView {
         renderTimerFireOnce = true
     }
 
-    private lazy var renderQueue = DispatchQueue(label: "com.sunshushu.WaveformRender", qos: .userInteractive)
+    private lazy var renderQueue = DispatchQueue(label: "com.sunshushu.SoundDashboardRender", qos: .userInteractive)
     private var renderTimer: CADisplayLink?
     private var renderTimerNeedRemoved = false
     private var renderTimerFireOnce = false {
@@ -191,14 +191,17 @@ extension SMSoundDashboardView {
         self.showComponents([.Axis, .Waveform, .Time, .Indicator, .Flag])
     }
     
-    func setPlayMode(audioDuration: SMTime, powerLevelData: SMWaveformModel) {
+    func setPlayMode(audioDuration: SMTime, powerLevelData: SMWaveformModel, flagData: SMFlagModel?, updatePlayedTime: @escaping () -> (SMTime)) {
+         self.updatePlayedTime = updatePlayedTime
         self.waveformView.setPlayMode(audioDuration: audioDuration, powerLevelData: powerLevelData)
+        self.flagView.setflagModel(flagData)
         self.showComponents([.Axis, .Waveform, .Time, .Indicator, .Flag])
     }
     
-    func setScalableMode(audioDuration: SMTime, displayRange:SMTimeRange, powerLevelData: SMWaveformModel) {
+    func setScalableMode(audioDuration: SMTime, displayRange:SMTimeRange, powerLevelData: SMWaveformModel, flagData: SMFlagModel?) {
         self.displayTimeRange = displayRange
         self.waveformView.setScalableMode(audioDuration: audioDuration, powerLevelData: powerLevelData)
+        self.flagView.setflagModel(flagData)
         self.showComponents([.Axis, .Waveform, .Time, .Indicator, .Flag])
     }
 }
