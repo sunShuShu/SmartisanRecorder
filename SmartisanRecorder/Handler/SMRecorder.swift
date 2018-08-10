@@ -107,7 +107,7 @@ class SMRecorder: NSObject, AVAudioRecorderDelegate {
     /// Start record
     ///
     /// - Returns: return true if permission granted
-    func record() -> Bool {
+    @discardableResult func record() -> Bool {
         guard AVAudioSession().recordPermission() == .granted else {
             return false
         }
@@ -152,7 +152,7 @@ class SMRecorder: NSObject, AVAudioRecorderDelegate {
                 do {
                     try FileManager.default.moveItem(atPath: defaultFilePath, toPath: finalFilePath)
                 } catch {
-                    SMLog("FileManager move item fail!", error: error as NSError, level: .high)
+                    SMLog("FileManager move item fail!", error: error as NSError, level: .fatal)
                     assert(false)
                     saveCompletionBlock?(false)
                 }

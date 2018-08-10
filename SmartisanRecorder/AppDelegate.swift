@@ -37,7 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             try session.setCategory(AVAudioSessionCategoryPlayAndRecord, with: options)
             try session.setActive(true)
         } catch {
-            SMLog("Set AVAudioSession fail!", error: error as NSError, level: .high)
+            SMLog("Set AVAudioSession fail!", error: error as NSError, level: .fatal)
         }
         
         return true

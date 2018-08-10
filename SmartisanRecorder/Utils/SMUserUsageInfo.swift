@@ -11,14 +11,14 @@ import Crashlytics
 
 /// Each strategy of level is different. Logs print to console in all strategies when debugging, no printting when released.
 ///
-/// - high: Serious, upload to Crashlytics.
-/// - medium: Important, upload to Crashlytics with high level log, won't upload alone.
-/// - low: Narmal, won't upload, just print to console.
+/// - fatal: Serious, upload to Crashlytics.
+/// - error: Important, upload to Crashlytics with high level log, won't upload alone.
+/// - info: Narmal, won't upload, just print to console.
 enum LogLevel {
-    case high, medium, low
+    case fatal, error, info
 }
 
-func SMLog(_ content:String, error:NSError? = nil, level:LogLevel = .low, file:String = #file, line:Int = #line, function:String = #function) {
+func SMLog(_ content:String, error:NSError? = nil, level:LogLevel = .info, file:String = #file, line:Int = #line, function:String = #function) {
     #if !DEBUG
     if level == .low {
         return
@@ -39,12 +39,12 @@ func SMLog(_ content:String, error:NSError? = nil, level:LogLevel = .low, file:S
     var logInfo = location
     
     switch level {
-    case .low:
+    case .info:
         logInfo += "☕️\(content)"
-    case .medium:
+    case .error:
         logInfo += "⚠️\(content)"
         CLSLogv(logInfo,getVaList([]))
-    case .high:
+    case .fatal:
         logInfo += "⛔️\(content)"
         let recordError: Error
         if error != nil {

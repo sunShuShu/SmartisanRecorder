@@ -28,7 +28,7 @@ class SMWaveformModel {
             FileManager.default.createFile(atPath: filePath, contents: nil, attributes: nil)
             waveformWriteHandle = FileHandle(forWritingAtPath: filePath)
             if waveformWriteHandle == nil {
-                SMLog("Waveform file create faile!", level: .high)
+                SMLog("Waveform file create faile!", level: .fatal)
                 return nil
             }
         } else {
@@ -37,7 +37,7 @@ class SMWaveformModel {
             if let data = NSMutableData(contentsOfFile: filePath) {
                 self.data = data
             } else {
-                SMLog("Read waveform failed!", level: .high)
+                SMLog("Read waveform failed!", level: .fatal)
                 return nil
             }
         }
@@ -54,7 +54,7 @@ class SMWaveformModel {
     func add(_ element: UInt8) {
         var e = element
         objc_sync_enter(self)
-        data.append(withUnsafePointer(to: &e, {$0}), length: 1)
+        data.append(&e, length: 1)
         objc_sync_exit(self)
         unsaveWaveform += 1
         if unsaveWaveform >= SMWaveformModel.unsaveWaveformCount {
@@ -93,7 +93,7 @@ class SMWaveformModel {
             let subData = data.subdata(with: NSMakeRange(data.length - unsaveWaveform, unsaveWaveform))
             waveformWriteHandle!.write(subData)
         } else if waveformWriteHandle == nil {
-            SMLog("waveformWriteHandle is nil!", error: nil, level: .high)
+            SMLog("waveformWriteHandle is nil!", error: nil, level: .fatal)
         }
     }
     
@@ -106,7 +106,7 @@ class SMWaveformModel {
         do {
             try subData.write(to: URL(fileURLWithPath: filePath))
         } catch {
-            SMLog("Write eneire waveform failed!", level: .high)
+            SMLog("Write eneire waveform failed!", level: .fatal)
             return false
         }
         return true

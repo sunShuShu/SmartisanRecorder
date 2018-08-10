@@ -16,7 +16,7 @@ class SMBaseViewController: UIViewController {
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        SMLog("Memory warning!", level: .high)
+        SMLog("Memory warning!", level: .fatal)
     }
     
     deinit {

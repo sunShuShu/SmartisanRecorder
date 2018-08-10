@@ -126,7 +126,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
             return
         }
         guard inputFiles.count == 1 else {
-            SMLog("Trimmed inputFiles array count is NOT 1!", level: .high)
+            SMLog("Trimmed inputFiles array count is NOT 1!", level: .fatal)
             encounterError()
             return
         }
@@ -233,7 +233,7 @@ class SMAudioFileEditor:NSObject, StreamDelegate {
                     outputFileSize += size * inputFiles[index].sampleRateTimes
                 }
             } else {
-                SMLog("File size attribute can NOT be read", level: .high)
+                SMLog("File size attribute can NOT be read", level: .fatal)
                 return nil
             }
         }
