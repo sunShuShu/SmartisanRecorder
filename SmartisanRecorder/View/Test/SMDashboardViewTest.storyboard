@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="TDy-lr-E87">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="TDy-lr-E87">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13173"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -80,6 +80,16 @@
                                     <action selector="zoomAction:" destination="TDy-lr-E87" eventType="touchUpInside" id="EEi-Fx-kHE"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BQt-Yh-Fre">
+                                <rect key="frame" x="319" y="473" width="30" height="40"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="57x-ZB-1i6"/>
+                                </constraints>
+                                <state key="normal" title="Edit"/>
+                                <connections>
+                                    <action selector="editAction:" destination="TDy-lr-E87" eventType="touchUpInside" id="kwP-Fa-yfd"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
@@ -89,6 +99,8 @@
                             <constraint firstItem="0U7-kc-d2r" firstAttribute="top" secondItem="BkN-ED-2GD" secondAttribute="bottom" constant="20" id="DBm-2f-f3N"/>
                             <constraint firstItem="dLh-H2-CGG" firstAttribute="trailing" secondItem="BkN-ED-2GD" secondAttribute="trailing" id="Df3-Ff-RdC"/>
                             <constraint firstItem="BkN-ED-2GD" firstAttribute="leading" secondItem="ZsQ-ZK-5L4" secondAttribute="leadingMargin" constant="10" id="Lgj-fR-l0v"/>
+                            <constraint firstItem="BQt-Yh-Fre" firstAttribute="centerX" secondItem="ejM-Ud-uUv" secondAttribute="centerX" id="P4D-Wf-XxN"/>
+                            <constraint firstItem="BQt-Yh-Fre" firstAttribute="top" secondItem="ejM-Ud-uUv" secondAttribute="bottom" constant="8" id="PaK-Kk-j6s"/>
                             <constraint firstAttribute="trailingMargin" secondItem="ejM-Ud-uUv" secondAttribute="trailing" constant="5" id="RRW-7x-0Wb"/>
                             <constraint firstAttribute="trailingMargin" secondItem="BkN-ED-2GD" secondAttribute="trailing" constant="10" id="cAQ-vp-4Lg"/>
                             <constraint firstItem="ejM-Ud-uUv" firstAttribute="top" secondItem="dLh-H2-CGG" secondAttribute="bottom" constant="8" id="cqk-eV-RYE"/>

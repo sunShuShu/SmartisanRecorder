@@ -53,6 +53,7 @@ class SMFlagView: SMBaseView, RenderViewDelegate {
     //MARK:- render
     typealias FlagRenderInfo = (position: CGFloat, image: UIImage)
     
+    //TODO: add displaying flags of a range of time
     func setCurrentTime(_ currentTime: SMTime) {
         let flagModel = self.flagModel
         if flagModel == nil || flagModel!.locations.count <= 0 {

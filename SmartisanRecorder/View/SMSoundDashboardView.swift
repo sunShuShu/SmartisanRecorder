@@ -30,7 +30,7 @@ class SMSoundDashboardView: SMBaseView {
     private(set) lazy var waveformView = SMWaveformView()
     private(set) lazy var indicatorView = SMTimeElapseIndicator()
     private(set) lazy var timeView = SMTimeScaleView()
-    private(set) lazy var editView = SMEditSoundView()
+    private(set) var editView: SMEditSoundView?
     private(set) lazy var flagView = SMFlagView()
     private var components = Component(rawValue: 0)
     
@@ -81,10 +81,12 @@ class SMSoundDashboardView: SMBaseView {
         }
         
         if components.contains(.Edit) {
-            if subviews.contains(editView) == false {
-                addSubview(editView)
+            if let view = editView {
+                if subviews.contains(view) == false {
+                    addSubview(view)
+                }
+                UIView.autoLayout(view, top: timeViewHeight)
             }
-            UIView.autoLayout(editView, top: timeViewHeight)
         }
     }
     
@@ -179,6 +181,16 @@ class SMSoundDashboardView: SMBaseView {
                 flagView.setCurrentTime(currentTime)
             }
             
+        } else if let timeRange = displayTimeRange {
+//            if components.contains(.Waveform) {
+//                waveformView.setTime(currentTime: nil, timeRange: timeRange)
+//            }
+            
+            assert(false == components.contains(.Time), "Can NOT contain time scale view when the displayTimeRange is set")
+            
+//            if components.contains(.Flag) {
+//                flagView.setCurrentTime(1)
+//            }
         }
         
     }
@@ -199,9 +211,16 @@ extension SMSoundDashboardView {
     }
     
     func setScalableMode(audioDuration: SMTime, displayRange:SMTimeRange, powerLevelData: SMWaveformModel, flagData: SMFlagModel?) {
-        self.displayTimeRange = displayRange
         self.waveformView.setScalableMode(audioDuration: audioDuration, powerLevelData: powerLevelData)
         self.flagView.setflagModel(flagData)
+        self.displayTimeRange = displayRange
         self.showComponents([.Axis, .Waveform, .Time, .Indicator, .Flag])
+    }
+    
+    func setEditMode(isIntegrated: Bool, extendWidth: CGFloat, audioDuration: SMTime, powerLevelData: SMWaveformModel, flagData: SMFlagModel?) {
+        self.editView = SMEditSoundView(isIntegrated: isIntegrated, extendWidth: extendWidth, audioDuration: audioDuration)
+        self.waveformView.setScalableMode(audioDuration: audioDuration, powerLevelData: powerLevelData)
+        self.flagView.setflagModel(flagData)
+        self.showComponents([.Axis, .Waveform, .Edit, .Indicator, .Flag])
     }
 }

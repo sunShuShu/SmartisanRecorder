@@ -107,4 +107,13 @@ class SMDashboardViewTestViewController: SMBaseViewController {
         dashboardView.displayTimeRange = (min(start, end), max(start, end))
     }
     
+    @IBAction func editAction(_ sender: Any) {
+        let start = CGFloat(arc4random() % 10000) / 100
+        let end = CGFloat(arc4random() % 10000) / 100
+        let waveformModel = SMWaveformModel(fileName: "maximum")
+        let flagModel = SMFlagModel(fileName: "maximum")
+        dashboardView.setEditMode(isIntegrated: true, extendWidth: 12, audioDuration: 72*3600, powerLevelData: waveformModel!, flagData: flagModel)
+        dashboardView.displayTimeRange = (min(start, end), max(start, end))
+    }
+    
 }

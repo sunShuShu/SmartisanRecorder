@@ -201,7 +201,7 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
             }
             
         } else {
-            assert(false, "updatePlayedTime and displayTimeRange are nil!")
+            assert(false, "Both updatePlayedTime and displayTimeRange are nil!")
         }
     }
     
