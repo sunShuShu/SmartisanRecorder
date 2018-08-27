@@ -92,8 +92,6 @@ class SMWaveformModel {
         if waveformWriteHandle != nil && unsaveWaveform > 0 {
             let subData = data.subdata(with: NSMakeRange(data.length - unsaveWaveform, unsaveWaveform))
             waveformWriteHandle!.write(subData)
-        } else if waveformWriteHandle == nil {
-            SMLog("waveformWriteHandle is nil!", error: nil, level: .fatal)
         }
     }
     

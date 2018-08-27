@@ -56,8 +56,10 @@ func SMLog(_ content:String, error:NSError? = nil, level:LogLevel = .info, file:
         }
         #if DEBUG
             assert(false, logInfo)
+            break
+        #else
+            Crashlytics.sharedInstance().recordError(recordError)
         #endif
-        Crashlytics.sharedInstance().recordError(recordError)
     }
     #if DEBUG
     print(logInfo)
