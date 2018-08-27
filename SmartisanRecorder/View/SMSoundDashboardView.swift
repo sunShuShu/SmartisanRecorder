@@ -36,12 +36,6 @@ class SMSoundDashboardView: SMBaseView {
     
     func showComponents(_ components: Component) {
         self.components = components
-        self.setNeedsLayout()
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        
         var timeViewHeight: CGFloat = 0
         
         if components.contains(.Time) {
@@ -152,6 +146,7 @@ class SMSoundDashboardView: SMBaseView {
     }
     
     @objc private func render() {
+        
         guard renderTimerNeedRemoved == false else {
             //Stop and remove render timer in render queue.
             renderTimer?.isPaused = true
@@ -182,15 +177,15 @@ class SMSoundDashboardView: SMBaseView {
             }
             
         } else if let timeRange = displayTimeRange {
-//            if components.contains(.Waveform) {
-//                waveformView.setTime(currentTime: nil, timeRange: timeRange)
-//            }
-            
             assert(false == components.contains(.Time), "Can NOT contain time scale view when the displayTimeRange is set")
             
-//            if components.contains(.Flag) {
-//                flagView.setCurrentTime(1)
-//            }
+            if components.contains(.Waveform) {
+                waveformView.setTime(currentTime: nil, timeRange: timeRange)
+            }
+            
+            if components.contains(.Flag) {
+                flagView.setDisplayTimeRange(timeRange)
+            }
         }
         
     }
@@ -214,7 +209,7 @@ extension SMSoundDashboardView {
         self.waveformView.setScalableMode(audioDuration: audioDuration, powerLevelData: powerLevelData)
         self.flagView.setflagModel(flagData)
         self.displayTimeRange = displayRange
-        self.showComponents([.Axis, .Waveform, .Time, .Indicator, .Flag])
+        self.showComponents([.Axis, .Waveform, .Indicator, .Flag])
     }
     
     func setEditMode(isIntegrated: Bool, extendWidth: CGFloat, audioDuration: SMTime, powerLevelData: SMWaveformModel, flagData: SMFlagModel?) {

@@ -102,8 +102,10 @@ class SMDashboardViewTestViewController: SMBaseViewController {
     @IBAction func zoomAction(_ sender: UIButton) {
         let start = CGFloat(arc4random() % 10000) / 100
         let end = CGFloat(arc4random() % 10000) / 100
-        let model = SMWaveformModel(fileName: "maximum")
-        dashboardView.setScalableMode(audioDuration: 72*3600, displayRange: (start, end), powerLevelData: model!, flagData: nil)
+//        let end = start + 10
+        let waveformModel = SMWaveformModel(fileName: "maximum")
+        let flagModel = SMFlagModel(fileName: "maximum")
+        dashboardView.setScalableMode(audioDuration: 72*3600, displayRange: (start, end), powerLevelData: waveformModel!, flagData: flagModel)
         dashboardView.displayTimeRange = (min(start, end), max(start, end))
     }
     

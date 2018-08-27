@@ -53,7 +53,42 @@ class SMFlagView: SMBaseView, RenderViewDelegate {
     //MARK:- render
     typealias FlagRenderInfo = (position: CGFloat, image: UIImage)
     
-    //TODO: add displaying flags of a range of time
+    func setDisplayTimeRange(_ timeRange: SMTimeRange) {
+        let flagModel = self.flagModel
+        if flagModel == nil || flagModel!.locations.count <= 0 {
+            return;
+        }
+        
+        renderQueue.async {
+            [weak self] in
+            self?.measure.start()
+            defer{
+                self?.measure.end()
+            }
+            
+            if let strongSelf = self {
+                let canvasInfo = strongSelf.scrollRenderView.getCanvasPosition(with: 0)
+                let subRange = flagModel!.subRange(startTime: timeRange.start, endTime: timeRange.end)
+                let factor = (timeRange.end - timeRange.start) / strongSelf.width
+                var imageToRender = [FlagRenderInfo]()
+                for (index, time) in subRange {
+                    let numImageName = String(format: "flag_num_%02d", index + 1)
+                    if let numImage = UIImage(named: numImageName) {
+                        let x = (time - timeRange.start) / factor
+                        SMLog("index:\(index), time:\(time),x: \(x)")
+                        imageToRender.append((x, numImage))
+                    }
+                }
+                canvasInfo.first?.canvas.externalData = imageToRender;
+                
+                DispatchQueue.main.async {
+                    canvasInfo.first?.canvas.setNeedsDisplay()
+                }
+            }
+            
+        }
+    }
+    
     func setCurrentTime(_ currentTime: SMTime) {
         let flagModel = self.flagModel
         if flagModel == nil || flagModel!.locations.count <= 0 {
