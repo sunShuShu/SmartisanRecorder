@@ -55,6 +55,7 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
     private var halfWidth: CGFloat = 0
     private var halfLineWidth: CGFloat = 0
     private var scrollRenderView: SMScrollRenderView?
+    private var didLayout = false
     
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -81,15 +82,23 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
             view.removeFromSuperview()
             scrollRenderView = nil
         }
+        
+        objc_sync_enter(self)
+        didLayout = true
+        if let range = timeRange {
+            self.setTime(currentTime: nil, timeRange: range)
+        }
+        objc_sync_exit(self)
     }
     
     //MARK:- Render
     private var path = CGMutablePath()
     private var lastRenderedDataIndex = -1
+    private var timeRange: SMTimeRange?
     
     func setTime(currentTime: SMTime?, timeRange: SMTimeRange?) {
         measure.start()
-        
+
         var tempPath = CGMutablePath()
         var scrollCanvas: SMRenderView? // It won't be nil if the scroll optimize is enable and need to render entire view.
         var scrollCanvasesArray: [CanvasPosition]? // It won't be nil if the scroll optimize is enable and need to render recording line(s).
@@ -113,6 +122,14 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
             }
             measure.end()
         }
+        
+        objc_sync_enter(self)
+        if didLayout == false {
+            self.timeRange = timeRange
+            objc_sync_exit(self)
+            return
+        }
+        objc_sync_exit(self)
         
         // The key parameters needed for rendering.
         var lineCount = self.lineCount // The number of lines to render
@@ -180,8 +197,14 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
             }
             
         } else if let range = timeRange  {
-            //TODO: fix powerLevelData!
-            let dataAndTimeFactor = CGFloat(powerLevelData!.count) / audioDuration
+            self.timeRange = range
+            let dataAndTimeFactor: CGFloat
+            if let data = powerLevelData {
+                dataAndTimeFactor = CGFloat(data.count) / audioDuration
+            } else {
+                return
+            }
+            
             let startDataLocation = range.start * dataAndTimeFactor
             let endDataLocation = range.end * dataAndTimeFactor
             let scalingFactor = (endDataLocation - startDataLocation) / CGFloat(lineCount)
@@ -201,7 +224,7 @@ class SMWaveformView: SMBaseView, RenderViewDelegate {
             }
             
         } else {
-            assert(false, "Both updatePlayedTime and displayTimeRange are nil!")
+            SMLog("Both updatePlayedTime and displayTimeRange are nil!", error: nil, level: .fatal)
         }
     }
     
