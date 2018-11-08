@@ -25,7 +25,7 @@ class SMFlagModel {
             if let tempArray = NSArray(contentsOfFile: filePath) {
                 self.locations = tempArray as! [SMTime]
             } else {
-                SMLog("Flag modle read fail!", error: nil, level: .fatal)
+                SMLog("Flag modle read fail! filePath: " + filePath, error: nil, level: .fatal)
                 return nil
             }
         }
